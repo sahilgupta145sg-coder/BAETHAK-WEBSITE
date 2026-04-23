@@ -79,11 +79,39 @@
 
         /* Sticker Slap Element */
         .sticker { position: fixed; font-size: 3.5rem; pointer-events: none; z-index: 9998; transform: translate(-50%, -50%); user-select: none; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.2)); will-change: transform, opacity, filter; }
+
+        /* --- NEW: Cool Scroll Indicator --- */
+        .scroll-indicator {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 12px; z-index: 90; opacity: 0; transform: translateY(20px);
+        }
+        .scroll-line {
+            width: 1px; height: 60px; background: linear-gradient(to bottom, var(--accent), transparent);
+            position: relative; overflow: hidden;
+        }
+        .scroll-line::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; animation: scrollAnim 2s infinite cubic-bezier(0.7, 0, 0.3, 1);
+        }
+        @keyframes scrollAnim {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scroll-text {
+            font-size: 10px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 3px; color: var(--text); writing-mode: vertical-rl;
+        }
     </style>
 </head>
 <body>
 
     <div id="custom-cursor"></div>
+
+    <div class="scroll-indicator hero-sub">
+        <div class="scroll-text">Scroll to vibe</div>
+        <div class="scroll-line"></div>
+    </div>
 
     <nav class="fixed top-0 w-full z-[100] px-8 py-6 flex justify-between items-center" style="background: rgba(250, 250, 250, 0.95);">
         <div class="flex flex-col">
@@ -103,9 +131,9 @@
             <span class="clip-text"><span class="hero-word">MORE</span></span> 
             <span class="clip-text"><span class="hero-word">IRL.</span></span>
         </h1>
-        <p class="text-xl font-medium text-gray-500 max-w-lg opacity-0 hero-sub mb-6">The city is a playground, not a feed. <br> Scroll to zoom into the real world.</p>
+        <p class="text-xl font-medium text-gray-500 max-w-lg opacity-0 hero-sub mb-8">The city is a playground, not a feed. <br> Scroll to zoom into the real world.</p>
         <div class="opacity-0 hero-sub">
-            <span class="text-[9px] uppercase tracking-[0.3em] opacity-40 animate-pulse inline-block">[ tap anywhere to drop a vibe ]</span>
+            <span class="text-[12px] md:text-[14px] uppercase tracking-[0.4em] text-[#FF2D55] font-extrabold animate-pulse inline-block">[ tap anywhere to drop a vibe ]</span>
         </div>
     </section>
 
@@ -188,7 +216,6 @@
             document.addEventListener('mousemove', e => {
                 gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1, ease: "power2.out" });
             });
-            // Interactive Links Hover
             document.querySelectorAll('.interactive-hover, a, .waitlist-btn, .pin-container').forEach(el => {
                 el.addEventListener('mouseenter', () => gsap.to(cursor, { width: 50, height: 50, opacity: 0.5, duration: 0.3 }));
                 el.addEventListener('mouseleave', () => gsap.to(cursor, { width: 16, height: 16, opacity: 1, duration: 0.3 }));
@@ -196,7 +223,7 @@
         } else { cursor.style.display = 'none'; }
 
 
-        // --- STICKER SLAP ENGINE WITH SHIMMER VANISH ---
+        // --- STICKER SLAP ENGINE ---
         const stickersList = ['🎫', '🍻', '🍕', '🎧', '🎮', '🧘🏻‍♀️', '📍', '💥', '🏏', '🏃🏽‍♀️','🏕️','☘️','🏍️'];
         let dragDist = 0, startX = 0, startY = 0;
 
@@ -204,7 +231,7 @@
         document.addEventListener('mousemove', (e) => { dragDist = Math.hypot(e.clientX - startX, e.clientY - startY); });
         
         document.addEventListener('mouseup', (e) => {
-            if (dragDist > 10) return; // Don't trigger on drag/scroll
+            if (dragDist > 10) return; 
             if (e.target.closest('a, .waitlist-btn, .pin-container')) return;
 
             const sticker = document.createElement('div');
@@ -216,24 +243,13 @@
 
             const randomRot = Math.random() * 80 - 40; 
 
-            // Create a GSAP timeline that deletes the element from the DOM when finished
-            const tlSticker = gsap.timeline({
-                onComplete: () => sticker.remove()
-            });
-
-            // 1. Pop In
+            const tlSticker = gsap.timeline({ onComplete: () => sticker.remove() });
             tlSticker.fromTo(sticker, 
                 { scale: 0, rotation: randomRot - 60, opacity: 1, filter: "blur(0px) brightness(1)" }, 
                 { scale: 1, rotation: randomRot, duration: 0.7, ease: "elastic.out(1.2, 0.4)" }
             )
-            // 2. Shimmer Vanish
             .to(sticker, {
-                y: "-=60", // Float up slightly
-                opacity: 0,
-                filter: "blur(12px) brightness(2)", // Glow and blur effect
-                duration: 2,
-                ease: "power2.inOut",
-                delay: 2 // Wait 2 seconds before vanishing
+                y: "-=60", opacity: 0, filter: "blur(12px) brightness(2)", duration: 2, ease: "power2.inOut", delay: 2 
             });
         });
 
@@ -241,7 +257,7 @@
         // --- GSAP SCROLL ANIMATIONS ---
         window.onload = () => {
             gsap.to('.hero-word', { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power4.out" });
-            gsap.to('.hero-sub', { opacity: 1, y: -20, duration: 1, delay: 0.6, ease: "power3.out" });
+            gsap.to('.hero-sub', { opacity: 1, y: 0, duration: 1, delay: 0.6, ease: "power3.out" });
         };
 
         const tl = gsap.timeline({ scrollTrigger: { trigger: "#map-section", start: "top top", end: "bottom bottom", scrub: 1 }});
@@ -262,6 +278,12 @@
 
         document.querySelectorAll('.reveal').forEach((el) => {
             gsap.to(el, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 1, ease: "power4.out" });
+        });
+
+        // Hide scroll indicator on scroll
+        gsap.to('.scroll-indicator', {
+            scrollTrigger: { trigger: "#map-section", start: "top top", toggleActions: "play none none reverse" },
+            opacity: 0, y: 20, duration: 0.5
         });
     </script>
 </body>
