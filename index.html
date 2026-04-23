@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BAETHAK | The Real Social World.</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="./output.css" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Inter:wght@900&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Inter:wght@900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        :root { --bg: #FAFAFA; --accent: #FF2D55; --text: #0A0A0A; }
+        :root { --bg: #FAFAFA; --accent: #FF2D55; --text: #0A0A0A; --black: #000000; }
         body { background-color: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; cursor: none; }
         .heavy { font-family: 'Inter', sans-serif; font-weight: 900; }
+        .glitch-font { font-family: 'Space Mono', monospace; }
         
         /* Custom Cursor Base */
         #custom-cursor {
@@ -24,8 +27,29 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        a, .waitlist-btn, .pin-container { cursor: none; }
-        nav { backdrop-filter: blur(15px); background: rgba(250, 250, 250, 0.05); }
+        a, button, .interactive-item { cursor: none; }
+        nav { backdrop-filter: blur(15px); background: rgba(250, 250, 250, 0.05); transition: transform 0.5s ease, opacity 0.5s ease; }
+
+        /* THE MOBILE-PERFECT NAV BUTTON (CLEAN & SOLID) */
+        .nav-encrypt-btn {
+            background: var(--accent);
+            color: white;
+            border: 1px solid transparent;
+            border-radius: 100px;
+            font-weight: 800;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            width: 120px;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1;
+        }
+        @media (min-width: 768px) { .nav-encrypt-btn { width: 140px; } }
+        .nav-encrypt-btn:hover {
+            background: transparent;
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: scale(1.05);
+        }
 
         .hero-word { display: inline-block; transform: translateY(100%); opacity: 0; }
         .clip-text { overflow: hidden; display: inline-block; padding-right: 0.15em; margin-right: -0.15em; }
@@ -70,9 +94,6 @@
         .vibe-emoji { position: absolute; font-size: 4rem; pointer-events: none; z-index: 10; filter: drop-shadow(0 15px 30px rgba(0,0,0,1)); transform: translateY(110vh); }
         .reveal { opacity: 0; transform: translateY(30px); }
 
-        .waitlist-btn { background: var(--accent); color: white; padding: 8px 16px; border-radius: 100px; font-size: 11px; font-weight: 800; transition: all 0.3s ease; border: 1px solid transparent; }
-        .waitlist-btn:hover { background: transparent; border-color: var(--accent); color: var(--accent); transform: scale(1.05); }
-
         .marquee-wrapper { overflow: hidden; white-space: nowrap; background: #FF2D55; color: #FFF; padding: 15px 0; transform: rotate(-2deg) scale(1.05); margin: 40px 0; position: relative; z-index: 50; }
         .marquee-content { display: inline-block; animation: marquee 15s linear infinite; font-size: 1.5rem; font-family: 'Inter', sans-serif; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
@@ -105,19 +126,71 @@
 
         /* --- MOBILE RESPONSIVENESS FIXES --- */
         @media (max-width: 768px) {
-            /* Prevent scroll indicator from overlapping main text */
             .scroll-indicator { right: 8px; bottom: 20px; transform: scale(0.7); transform-origin: bottom right; }
-            
-            /* Keep pins safely on screen so they don't get cut off on the right */
             .pin-pill { font-size: 10px; padding: 8px 14px; gap: 6px; }
             #p2 { right: auto !important; left: 10% !important; }
             #p4 { left: 20% !important; }
             #p3 { left: 30% !important; }
             #p5 { left: 15% !important; }
-            
-            /* Make emojis slightly smaller to prevent horizontal scrolling */
             .vibe-emoji { font-size: 2.5rem; }
         }
+
+        /* ------------------------------------------------------------------
+           --- REFINED VERTICAL TICKET MORPH & GLOW CSS ---
+           ------------------------------------------------------------------ */
+        #vibe-footer { min-height: 100vh; background: #000; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        
+        #morph-logo { 
+            color: #fff; font-size: 4rem; line-height: 1; transition: all 0.3s ease; 
+            position: relative; z-index: 10; margin-bottom: 20px; 
+            animation: ambientGlow 3s infinite alternate ease-in-out;
+        }
+        @media (min-width: 768px) { #morph-logo { font-size: 7rem; } }
+
+        @keyframes ambientGlow {
+            0% { text-shadow: 0 0 10px rgba(255, 45, 85, 0.1); }
+            100% { text-shadow: 0 0 40px rgba(255, 45, 85, 0.4); }
+        }
+
+        .morph-trigger {
+            background: transparent; border: 2px solid var(--accent); color: var(--accent);
+            padding: 16px 40px; border-radius: 100px; font-size: 1.2rem; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease;
+            position: relative; z-index: 10;
+        }
+        .morph-trigger:hover { background: var(--accent); color: #fff; box-shadow: 0 10px 30px rgba(255, 45, 85, 0.4); transform: translateY(-3px); }
+
+        /* Centered perspective container fix */
+        .perspective-container { 
+            perspective: 1200px; 
+            width: 100%; 
+            display: none; /* Will be set to flex via JS */
+            justify-content: center; 
+            align-items: center;
+            position: absolute; 
+            left: 0;
+            right: 0;
+            z-index: 20; 
+        }
+        
+        .cool-ticket {
+            width: 320px; /* Perfect desktop and mobile size */
+            margin: 0 auto; /* Failsafe centering */
+            background: linear-gradient(145deg, #0f0f0f 0%, #030303 100%);
+            border: 1px solid rgba(255, 45, 85, 0.4);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(255, 45, 85, 0.2), inset 0 0 20px rgba(255, 45, 85, 0.05);
+            display: flex; flex-direction: column; overflow: hidden;
+            position: relative;
+        }
+        
+        .shimmer-bg {
+            background: linear-gradient(90deg, var(--accent) 0%, #ff7592 50%, var(--accent) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2.5s infinite linear;
+        }
+        @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
     </style>
 </head>
 <body>
@@ -129,14 +202,19 @@
         <div class="scroll-line"></div>
     </div>
 
-    <nav class="fixed top-0 w-full z-[100] px-4 md:px-8 py-6 flex justify-between items-center" style="background: rgba(250, 250, 250, 0.95);">
+    <nav id="top-nav" class="fixed top-0 w-full z-[100] px-4 md:px-8 py-6 flex justify-between items-center" style="background: rgba(250, 250, 250, 0.95);">
         <div class="flex flex-col">
             <div class="text-xl md:text-2xl heavy tracking-tighter leading-none" style="color: var(--accent);">BAETHAK.</div>
             <div class="text-[7px] md:text-[9px] uppercase tracking-widest font-bold opacity-60 mt-1">not the final logo</div>
         </div>
+        
         <div class="flex flex-col items-end">
-            <a href="https://forms.gle/y6rdUepu7FM91aga6" class="waitlist-btn uppercase interactive-hover text-[8px] md:text-[11px] px-3 py-1.5 md:px-4 md:py-2">Join the Waitlist</a>
-            <div class="text-[6.5px] md:text-[9px] uppercase tracking-tighter font-bold opacity-60 mt-2 text-right">JOIN 2,400+ PEOPLE WAITING FOR THE DROP</div>
+            <a href="https://forms.gle/y6rdUepu7FM91aga6" id="nav-encrypt-btn" class="nav-encrypt-btn interactive-item text-[8px] md:text-[11px] py-1.5 md:py-2">
+                Join the Waitlist
+            </a>
+            <div class="text-[6.5px] md:text-[9px] uppercase tracking-tighter font-bold opacity-60 mt-2 text-right">
+                JOIN <span class="live-counter-val text-[8px] md:text-[10px] text-[#FF2D55]">2,408</span> PEOPLE WAITING FOR THE DROP
+            </div>
         </div>
     </nav>
 
@@ -148,7 +226,7 @@
             <span class="clip-text"><span class="hero-word">IRL.</span></span>
         </h1>
         <p class="text-lg md:text-xl font-medium text-gray-500 max-w-lg opacity-0 hero-sub mb-8">The city is a playground, not a feed. <br> Scroll to zoom into the real world.</p>
-        <div class="opacity-0 hero-sub w-full pr-6 md:pr-0">
+        <div class="opacity-0 hero-sub w-full pr-6 md:pr-0 text-center flex justify-center">
             <span class="text-[9px] md:text-[14px] uppercase tracking-[0.1em] md:tracking-[0.4em] text-[#FF2D55] font-extrabold animate-pulse inline-block whitespace-nowrap md:whitespace-normal">[ tap anywhere to drop a vibe ]</span>
         </div>
     </section>
@@ -164,14 +242,14 @@
             <div class="vibe-emoji" style="left: 50%;">🍻</div><div class="vibe-emoji" style="right: 40%;">🎳</div>
             <div class="vibe-emoji" style="left: 20%;">⚡</div><div class="vibe-emoji" style="right: 15%;">🍀</div>
 
-            <div class="pin-container interactive-hover" id="p1" style="top: 35%; left: 30%;"><div class="pin-dot"></div><div class="pin-pill">morning run <span class="vibe-tag">// leisure valley</span></div></div>
-            <div class="pin-container interactive-hover" id="p2" style="top: 60%; right: 30%;"><div class="pin-dot"></div><div class="pin-pill">cyberhub brunch <span class="vibe-tag">// weekend main</span></div></div>
-            <div class="pin-container interactive-hover" id="p3" style="top: 50%; left: 50%;"><div class="pin-dot animate-pulse"></div><div class="pin-pill">midnight rave <span class="vibe-tag">// chhattarpur secrets</span></div></div>
-            <div class="pin-container interactive-hover" id="p4" style="top: 25%; left: 65%;"><div class="pin-dot"></div><div class="pin-pill">sunset jam <span class="vibe-tag">// marine drive</span></div></div>
-            <div class="pin-container interactive-hover" id="p5" style="top: 75%; left: 30%;"><div class="pin-dot animate-pulse"></div><div class="pin-pill">indie gig <span class="vibe-tag">// juhu beach</span></div></div>
+            <div class="pin-container interactive-item" id="p1" style="top: 35%; left: 30%;"><div class="pin-dot"></div><div class="pin-pill">morning run <span class="vibe-tag">// leisure valley</span></div></div>
+            <div class="pin-container interactive-item" id="p2" style="top: 60%; right: 30%;"><div class="pin-dot"></div><div class="pin-pill">cyberhub brunch <span class="vibe-tag">// weekend main</span></div></div>
+            <div class="pin-container interactive-item" id="p3" style="top: 50%; left: 50%;"><div class="pin-dot animate-pulse"></div><div class="pin-pill">midnight rave <span class="vibe-tag">// chhattarpur secrets</span></div></div>
+            <div class="pin-container interactive-item" id="p4" style="top: 25%; left: 65%;"><div class="pin-dot"></div><div class="pin-pill">sunset jam <span class="vibe-tag">// marine drive</span></div></div>
+            <div class="pin-container interactive-item" id="p5" style="top: 75%; left: 30%;"><div class="pin-dot animate-pulse"></div><div class="pin-pill">indie gig <span class="vibe-tag">// juhu beach</span></div></div>
 
-            <div class="absolute z-30 text-white text-center pointer-events-none">
-                <h2 class="text-5xl md:text-[9rem] heavy italic uppercase intro-title tracking-tighter">Your City <br> is Hot.</h2>
+            <div class="absolute z-30 text-white text-center pointer-events-none w-full px-4">
+                <h2 class="text-5xl md:text-[9rem] heavy italic uppercase intro-title tracking-tighter leading-[1.1] pt-4">Your City <br> is Hot.</h2>
             </div>
         </div>
     </section>
@@ -218,10 +296,51 @@
         </div>
     </section>
 
-    <footer class="py-20 text-center bg-black text-white relative">
-        <a href="https://forms.gle/y6rdUepu7FM91aga6" class="text-4xl heavy uppercase hover:text-[#FF2D55] transition-all interactive-hover">JOIN THE WAITLIST →</a>
-        <div class="mt-8 opacity-40 text-[10px] heavy tracking-widest uppercase">BAETHAK CORE © 2026 // EST. IN THE REAL WORLD</div>
+    <footer id="vibe-footer">
+        <h2 id="morph-logo" class="heavy tracking-tighter">BAETHAK.</h2>
+        
+        <div id="footer-live-status" class="mb-6 flex items-center justify-center text-[10px] md:text-xs heavy uppercase tracking-widest text-white/70 relative z-10">
+            <span class="inline-block w-2 h-2 bg-[#FF2D55] rounded-full shadow-[0_0_10px_#FF2D55] animate-[pulse_1.5s_infinite] mr-2"></span>
+            LIVE: <span class="live-counter-val mx-1 text-[#FF2D55]">2,408</span> WAITING
+        </div>
+
+        <button id="morph-trigger-btn" class="morph-trigger interactive-item">JOIN WAITLIST</button>
+        
+        <div id="ticket-wrapper" class="perspective-container">
+            <a href="https://forms.gle/y6rdUepu7FM91aga6" target="_blank" rel="noopener noreferrer" class="cool-ticket interactive-item">
+                
+                <div class="p-8 flex flex-col items-center text-center pb-8 relative overflow-hidden">
+                     <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#FF2D55] rounded-full mix-blend-screen filter blur-[50px] opacity-20 pointer-events-none"></div>
+
+                     <div class="w-full flex justify-between items-center mb-8">
+                         <span class="heavy text-[#FF2D55] text-[10px] uppercase tracking-widest">Admit One</span>
+                         <span class="text-white/40 text-[9px] uppercase font-mono tracking-wider">EST. IRL</span>
+                     </div>
+                     
+                     <span class="text-[#FF2D55] text-xs heavy uppercase tracking-[0.2em] italic mb-2">Welcome to the</span>
+                     <h3 class="text-5xl text-white heavy uppercase tracking-tighter mb-2 leading-none" style="text-shadow: 0 0 20px rgba(255,255,255,0.2);">Guestlist</h3>
+                     <p class="text-white/40 text-[9px] font-semibold tracking-[0.15em] uppercase mt-3">Baethak Core // Delhi Beta</p>
+                </div>
+                
+                <div class="relative w-full flex items-center">
+                    <div class="absolute left-0 w-4 h-8 bg-black rounded-r-full border-y border-r border-[#FF2D55]/40 -ml-[1px]"></div>
+                    <div class="w-full border-b-2 border-dashed border-white/10"></div>
+                    <div class="absolute right-0 w-4 h-8 bg-black rounded-l-full border-y border-l border-[#FF2D55]/40 -mr-[1px]"></div>
+                </div>
+                
+                <div class="p-6 pt-8 flex flex-col items-center justify-between bg-[#050505] flex-grow">
+                     <div class="text-white/20 font-mono text-6xl tracking-[-4px] mb-6 overflow-hidden h-14 flex items-center justify-center w-full">||||||||||||||</div>
+                     
+                     <div class="w-full shimmer-bg py-4 px-2 rounded-xl text-center text-black heavy uppercase text-[11px] tracking-widest">
+                         SECURE SPOT →
+                     </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="absolute bottom-8 opacity-40 text-[10px] text-white heavy tracking-widest uppercase">BAETHAK CORE © 2026 // EST. IRL</div>
     </footer>
+
 
     <script>
         gsap.registerPlugin(ScrollTrigger);
@@ -232,7 +351,7 @@
             document.addEventListener('mousemove', e => {
                 gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1, ease: "power2.out" });
             });
-            document.querySelectorAll('.interactive-hover, a, .waitlist-btn, .pin-container').forEach(el => {
+            document.querySelectorAll('.interactive-item, a, button, .pin-container').forEach(el => {
                 el.addEventListener('mouseenter', () => gsap.to(cursor, { width: 50, height: 50, opacity: 0.5, duration: 0.3 }));
                 el.addEventListener('mouseleave', () => gsap.to(cursor, { width: 16, height: 16, opacity: 1, duration: 0.3 }));
             });
@@ -248,7 +367,7 @@
         
         document.addEventListener('mouseup', (e) => {
             if (dragDist > 10) return; 
-            if (e.target.closest('a, .waitlist-btn, .pin-container')) return;
+            if (e.target.closest('a, button, .pin-container, .waitlist-btn, .cool-ticket')) return;
 
             const sticker = document.createElement('div');
             sticker.className = 'sticker';
@@ -296,11 +415,164 @@
             gsap.to(el, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 1, ease: "power4.out" });
         });
 
-        // Hide scroll indicator on scroll
         gsap.to('.scroll-indicator', {
             scrollTrigger: { trigger: "#map-section", start: "top top", toggleActions: "play none none reverse" },
             opacity: 0, y: 20, duration: 0.5
         });
+
+        // --- TOP NAV VANISH ON FINAL SCREEN ---
+        gsap.to('#top-nav', {
+            scrollTrigger: { 
+                trigger: "#vibe-footer", 
+                start: "top 80%", 
+                toggleActions: "play none none reverse" 
+            },
+            y: -100, 
+            opacity: 0, 
+            duration: 0.5, 
+            ease: "power2.inOut"
+        });
+
+
+        // ------------------------------------------------------------------
+        // --- SMART LIVE COUNTER LOGIC (SYNCED)                          ---
+        // ------------------------------------------------------------------
+        
+        let liveCount = 2408;
+        const liveCounterEls = document.querySelectorAll('.live-counter-val');
+        
+        function updateCounter(amount) {
+            liveCount += amount;
+            const formattedCount = liveCount.toLocaleString();
+            
+            liveCounterEls.forEach(el => el.innerText = formattedCount);
+            
+            // Tiny bump animation when number changes
+            gsap.fromTo('.live-counter-val', 
+                { scale: 1.5, color: '#FFF' }, 
+                { scale: 1, color: '#FF2D55', duration: 0.5, ease: 'power2.out', stagger: 0 }
+            );
+        }
+
+        // 1. Initial Page Load Burst (Fast growth to show momentum)
+        setTimeout(() => updateCounter(2), 1500);
+        setTimeout(() => updateCounter(1), 3000);
+        setTimeout(() => updateCounter(2), 5000);
+
+        // 2. Steady Organic Trickle
+        setInterval(() => {
+            if(Math.random() > 0.7) { 
+                updateCounter(1);
+            }
+        }, 6000); 
+
+        // 3. Footer Reveal Burst (Triggers once when they scroll down)
+        ScrollTrigger.create({
+            trigger: "#vibe-footer",
+            start: "top 80%",
+            once: true,
+            onEnter: () => {
+                setTimeout(() => updateCounter(2), 500);
+                setTimeout(() => updateCounter(1), 1800);
+                setTimeout(() => updateCounter(2), 3500);
+            }
+        });
+
+
+        // ------------------------------------------------------------------
+        // --- TOP NAV ENCRYPTION BUTTON LOGIC (FIXED REDIRECT)           ---
+        // ------------------------------------------------------------------
+        
+        const navEncryptBtn = document.getElementById('nav-encrypt-btn');
+        const defaultText = "Join the Waitlist";
+        const successText = "ACCESS GRANTED";
+        const hackChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+
+        navEncryptBtn.addEventListener('click', function(e) {
+            e.preventDefault(); 
+            
+            if(this.classList.contains('is-hacking')) return;
+            this.classList.add('is-hacking');
+            
+            const targetUrl = this.href;
+            let iterations = 0;
+            
+            this.classList.add('glitch-font'); 
+            this.style.background = "#050505"; 
+            
+            const hackInterval = setInterval(() => {
+                this.innerText = defaultText.split("").map((letter, index) => {
+                    if(index < iterations) {
+                        return successText[index] || ""; 
+                    }
+                    return hackChars[Math.floor(Math.random() * hackChars.length)];
+                }).join("");
+                
+                // Once decryption finishes:
+                if(iterations >= Math.max(defaultText.length, successText.length)) {
+                    clearInterval(hackInterval);
+                    this.innerText = successText;
+                    this.style.background = "#FF2D55"; 
+                    this.style.color = "#000";
+                    
+                    // FIXED: Redirect in same tab to bypass browser popup blockers
+                    window.location.href = targetUrl;
+                    
+                    // Silently reset the button so it looks normal if they hit "back"
+                    setTimeout(() => {
+                        this.classList.remove('is-hacking', 'glitch-font');
+                        this.style.background = "";
+                        this.style.color = "";
+                        this.innerText = defaultText;
+                    }, 1000);
+                }
+                iterations += 0.4; // Speed of deciphering
+            }, 30);
+        });
+
+
+        // ------------------------------------------------------------------
+        // --- SMOOTH TICKET MORPH ANIMATION LOGIC (WITH SUPERNOVA GLOW) ---
+        // ------------------------------------------------------------------
+        
+        const morphBtn = document.getElementById('morph-trigger-btn');
+        const logo = document.getElementById('morph-logo');
+        const ticketWrapper = document.getElementById('ticket-wrapper');
+        const ticketInner = document.querySelector('.cool-ticket');
+        const footerLiveStatus = document.getElementById('footer-live-status');
+        
+        gsap.set(ticketInner, { rotationX: 90, opacity: 0, scale: 0.8 });
+
+        morphBtn.addEventListener('click', function() {
+            const tlMorph = gsap.timeline();
+            
+            tlMorph.to(logo, { 
+                textShadow: "0 0 10px #FF2D55, 0 0 40px #FF2D55, 0 0 80px #FF2D55", 
+                color: "#FF2D55", 
+                letterSpacing: "4px", 
+                scale: 1.1, 
+                duration: 0.8, 
+                ease: "power2.out" 
+            }, 0);
+            
+            // Fade out the button and the live counter together
+            tlMorph.to(morphBtn, { opacity: 0, y: 20, duration: 0.4, ease: "power2.in" }, 0);
+            tlMorph.to(footerLiveStatus, { opacity: 0, y: 20, duration: 0.4, ease: "power2.in" }, 0);
+            
+            tlMorph.to(logo, { opacity: 0, y: -40, duration: 0.6, ease: "power2.in" }, 0.8);
+            
+            tlMorph.set(morphBtn, { display: 'none' })
+                   .set(footerLiveStatus, { display: 'none' })
+                   .set(ticketWrapper, { display: 'flex' }) 
+                   .to(ticketInner, {
+                       rotationX: 0,
+                       opacity: 1,
+                       scale: 1,
+                       duration: 1.2,
+                       ease: "expo.out"
+                   }, 1.2); 
+        });
+        
     </script>
 </body>
 </html>
