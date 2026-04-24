@@ -209,6 +209,26 @@
         }
         @keyframes sweepLoop { 0% { left: -150%; } 40% { left: 150%; } 100% { left: 150%; } }
 
+        /* --- NEW LASER SCANNER STYLE --- */
+        .laser-line {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 40px;
+            height: 100%;
+            background: linear-gradient(
+                to right, 
+                transparent, 
+                rgba(255, 45, 85, 0.2) 20%, 
+                rgba(255, 45, 85, 1) 50%, 
+                rgba(255, 45, 85, 0.2) 80%, 
+                transparent
+            );
+            box-shadow: 0 0 20px rgba(255, 45, 85, 0.8);
+            transform: skewX(-20deg);
+            z-index: 10;
+        }
+
     </style>
 </head>
 <body>
@@ -231,7 +251,6 @@
                 onComplete: () => {
                     loaderBg.style.display = 'none';
                     document.body.style.overflow = '';
-                    // Trigger hero animations slightly earlier for "instant" feel
                     if (window.heroTimeline) window.heroTimeline.play();
                 }
             });
@@ -261,6 +280,7 @@
             });
         })();
     </script>
+    
     <div class="scroll-indicator hero-sub">
         <div class="scroll-text">Scroll to vibe</div>
         <div class="scroll-line"></div>
@@ -378,14 +398,20 @@
                      <span class="text-[#FF2D55] text-xs heavy uppercase tracking-[0.2em] italic mb-2">Welcome to the</span><h3 class="text-5xl text-white heavy uppercase tracking-tighter mb-2 leading-none" style="text-shadow: 0 0 20px rgba(255,255,255,0.2);">Guestlist</h3><p class="text-white/40 text-[9px] font-semibold tracking-[0.15em] uppercase mt-3">Baethak Core // INDIA</p>
                 </div>
                 <div class="relative w-full flex items-center"><div class="absolute left-0 w-4 h-8 bg-black rounded-r-full border-y border-r border-[#FF2D55]/40 -ml-[1px]"></div><div class="w-full border-b-2 border-dashed border-white/10"></div><div class="absolute right-0 w-4 h-8 bg-black rounded-l-full border-y border-l border-[#FF2D55]/40 -mr-[1px]"></div></div>
+                
                 <div class="p-6 pt-8 flex flex-col items-center justify-between bg-[#050505] flex-grow">
-                     <div class="text-white/20 font-mono text-6xl tracking-[-4px] mb-6 overflow-hidden h-14 flex items-center justify-center w-full">||||||||||||||</div>
-                     <a href="https://forms.gle/y6rdUepu7FM91aga6" target="_blank" rel="noopener noreferrer" class="secure-btn-obsidian-wrapper block group interactive-item">
-                         <div class="shimmer-bg py-4 px-2 rounded-xl text-center text-black heavy uppercase text-[11px] tracking-widest relative">
-                             <div class="light-sweep-element"></div>
-                             SECURE SPOT →
-                         </div>
-                     </a>
+                    <div class="text-white/20 font-mono text-6xl tracking-[-4px] mb-6 overflow-hidden h-14 flex items-center justify-center w-full select-none">||||||||||||||</div>
+                    
+                    <a href="https://forms.gle/y6rdUepu7FM91aga6" target="_blank" rel="noopener noreferrer" class="secure-btn-obsidian-wrapper block group interactive-item w-full">
+                        <div class="shimmer-bg py-5 px-2 rounded-xl text-center text-black heavy uppercase text-[12px] tracking-[0.2em] relative overflow-hidden">
+                            <div class="laser-line" id="button-laser"></div>
+                            <span class="relative z-20">AUTHORIZE ENTRY →</span>
+                        </div>
+                    </a>
+                    
+                    <p id="urgency-msg" class="text-[#FF2D55] text-[9px] heavy uppercase tracking-[0.2em] mt-4 opacity-0">
+                        Status: Pending Verification
+                    </p>
                 </div>
             </div>
         </div>
@@ -430,7 +456,6 @@
 
         // --- GSAP SCROLL ANIMATIONS ---
         window.onload = () => {
-            // Updated: Wrap in timeline to allow preloader to trigger it
             window.heroTimeline = gsap.timeline({paused: true});
             window.heroTimeline.to('.hero-word', { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power4.out" })
                                .to('.hero-sub', { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
@@ -461,16 +486,12 @@
             opacity: 0, y: 20, duration: 0.5
         });
 
-        // ------------------------------------------------------------------
-        // --- SMART DIRECTIONAL NAV VANISH (ZERO JANK)                   ---
-        // ------------------------------------------------------------------
-        
+        // --- SMART DIRECTIONAL NAV VANISH ---
         const topNav = document.getElementById('top-nav');
         let lastScroll = 0;
 
         window.addEventListener('scroll', () => {
             const currentScroll = window.pageYOffset;
-            
             const footer = document.getElementById('vibe-footer');
             const footerPos = footer.getBoundingClientRect().top;
             
@@ -491,10 +512,7 @@
         });
 
 
-        // ------------------------------------------------------------------
-        // --- ORGANIC MOMENTUM COUNTER (SYNCED)                          ---
-        // ------------------------------------------------------------------
-        
+        // --- ORGANIC MOMENTUM COUNTER ---
         let liveCount = 2408;
         const liveCounterEls = document.querySelectorAll('.live-counter-val');
         
@@ -553,10 +571,7 @@
         });
 
 
-        // ------------------------------------------------------------------
-        // --- HIGH-SPEED GLOW SHRINK + SLAP TICKET                       ---
-        // ------------------------------------------------------------------
-        
+        // --- HIGH-SPEED GLOW SHRINK + SLAP TICKET ---
         const morphBtn = document.getElementById('morph-trigger-btn');
         const logo = document.getElementById('morph-logo');
         const ticketWrapper = document.getElementById('ticket-wrapper');
@@ -572,7 +587,6 @@
             setTimeout(() => updateCounter(2), 250);
             setTimeout(() => updateCounter(3), 1100);
 
-            // Phase 1: High-speed shrink with glowing red Baethak effect
             tlMorph.to(logo, { 
                 scale: 0.2, 
                 color: '#FF2D55',
@@ -587,7 +601,6 @@
                 ease: "power2.in" 
             }, 0);
 
-            // Phase 2: Fade logo and slap ticket out
             tlMorph.to(logo, { 
                 opacity: 0, 
                 scale: 0,
@@ -604,8 +617,32 @@
                        scale: 1,
                        y: 0,
                        duration: 0.7,
-                       ease: "back.out(1.7)" // The "SLAP" entrance with overshoot
+                       ease: "back.out(1.7)"
                    }, 0.35); 
+
+            // --- FINAL ACTIVATION SEQUENCE ---
+            tlMorph.to("#button-laser", {
+                left: "150%",
+                duration: 1.5,
+                ease: "power2.inOut",
+                repeat: -1,
+                repeatDelay: 0.3
+            }, 0.8);
+
+            tlMorph.to("#urgency-msg", {
+                opacity: 1,
+                y: -5,
+                duration: 0.8,
+                ease: "power2.out"
+            }, 1.0);
+
+            tlMorph.to(".secure-btn-obsidian-wrapper", {
+                scale: 1.02,
+                duration: 0.8,
+                yoyo: true,
+                repeat: -1,
+                ease: "sine.inOut"
+            }, 1.2);
         });
         
     </script>
