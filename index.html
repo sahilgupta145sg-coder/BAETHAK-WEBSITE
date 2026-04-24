@@ -22,229 +22,63 @@
     <meta property="twitter:description" content="Stop scrolling profiles. Start seeing locations. Baethak is the real social world.">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Inter:wght@900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
     
     <style>
         :root { --bg: #FAFAFA; --accent: #FF2D55; --text: #0A0A0A; --black: #000000; }
-        
-        html, body { cursor: auto; }
+        html, body { cursor: auto; -webkit-font-smoothing: antialiased; }
         body { background-color: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
         .heavy { font-family: 'Inter', sans-serif; font-weight: 900; }
         .glitch-font { font-family: 'Space Mono', monospace; }
-
         a, button, .interactive-item { cursor: pointer; }
-        
-        nav { 
-            backdrop-filter: blur(15px); 
-            background: rgba(250, 250, 250, 0.95); 
-            transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.4s ease; 
-            will-change: transform, opacity;
-        }
-
-        .nav-encrypt-btn {
-            background: var(--accent);
-            color: white;
-            border: 1px solid transparent;
-            border-radius: 100px;
-            font-weight: 800;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            width: 120px;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 1;
-        }
+        nav { backdrop-filter: blur(15px); background: rgba(250, 250, 250, 0.95); transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.4s ease; will-change: transform, opacity; }
+        .nav-encrypt-btn { background: var(--accent); color: white; border: 1px solid transparent; border-radius: 100px; font-weight: 800; text-transform: uppercase; transition: all 0.3s ease; width: 120px; display: flex; align-items: center; justify-content: center; z-index: 1; }
         @media (min-width: 768px) { .nav-encrypt-btn { width: 140px; } }
-        .nav-encrypt-btn:hover {
-            background: transparent;
-            border-color: var(--accent);
-            color: var(--accent);
-            transform: scale(1.05);
-        }
-
+        .nav-encrypt-btn:hover { background: transparent; border-color: var(--accent); color: var(--accent); transform: scale(1.05); }
         .hero-word { display: inline-block; transform: translateY(100%); opacity: 0; }
         .clip-text { overflow: hidden; display: inline-block; padding-right: 0.15em; margin-right: -0.15em; }
-
         #map-section { height: 500vh; position: relative; background: #000; }
-        #map-viewport { 
-            position: sticky; top: 0; width: 100vw; height: 100vh; 
-            overflow: hidden; display: flex; align-items: center; justify-content: center;
-        }
-
-        #map-imagery {
-            position: absolute; width: 150%; height: 150%;
-            background-image: url('https://www.mapcustomizer.com/map_images/dark-matte.png');
-            background-color: #050505; background-size: cover; background-position: center;
-            transform: scale(1); filter: saturate(0.2) brightness(0.4); z-index: 1;
-            will-change: transform;
-        }
-
-        #globe-ui {
-            position: absolute; bottom: -60vh; width: 120vw; height: 120vh;
-            border-radius: 50%; border: 1px solid rgba(255, 45, 85, 0.2);
-            background: radial-gradient(circle at center, rgba(255, 45, 85, 0.08) 0%, transparent 70%),
-                        linear-gradient(to top, rgba(0,0,0,1) 40%, transparent 100%);
-            opacity: 0; pointer-events: none; z-index: 2; 
-        }
-
-        #globe-ui::after {
-            content: ""; position: absolute; inset: 0; border-radius: 50%;
-            background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 40px 40px; mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
-        }
-
+        #map-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        #map-imagery { position: absolute; width: 150%; height: 150%; background-image: url('https://www.mapcustomizer.com/map_images/dark-matte.png'); background-color: #050505; background-size: cover; background-position: center; transform: scale(1); filter: saturate(0.2) brightness(0.4); z-index: 1; will-change: transform; }
+        #globe-ui { position: absolute; bottom: -60vh; width: 120vw; height: 120vh; border-radius: 50%; border: 1px solid rgba(255, 45, 85, 0.2); background: radial-gradient(circle at center, rgba(255, 45, 85, 0.08) 0%, transparent 70%), linear-gradient(to top, rgba(0,0,0,1) 40%, transparent 100%); opacity: 0; pointer-events: none; z-index: 2; }
+        #globe-ui::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(circle at center, black 20%, transparent 80%); }
         .pin-container { position: absolute; transform: translate(-50%, -50%) scale(0); z-index: 100; opacity: 0; }
         .pin-dot { width: 14px; height: 14px; background: var(--accent); border: 2px solid #FFF; border-radius: 50%; box-shadow: 0 0 30px rgba(255, 45, 85, 0.8); }
-        .pin-pill {
-            position: absolute; top: 50%; left: 50%; transform: translateY(-50%) scaleX(0);
-            transform-origin: left center; background: #000; border: 1px solid rgba(255, 45, 85, 0.3);
-            color: #fff; padding: 12px 28px; border-radius: 100px; font-weight: 800; font-size: 0.8rem;
-            white-space: nowrap; opacity: 0; display: flex; align-items: center; gap: 10px;
-        }
-
+        .pin-pill { position: absolute; top: 50%; left: 50%; transform: translateY(-50%) scaleX(0); transform-origin: left center; background: #000; border: 1px solid rgba(255, 45, 85, 0.3); color: #fff; padding: 12px 28px; border-radius: 100px; font-weight: 800; font-size: 0.8rem; white-space: nowrap; opacity: 0; display: flex; align-items: center; gap: 10px; }
         .vibe-tag { color: var(--accent); text-transform: lowercase; font-style: italic; opacity: 0.8; }
         .vibe-emoji { position: absolute; font-size: 4rem; pointer-events: none; z-index: 10; filter: drop-shadow(0 15px 30px rgba(0,0,0,1)); transform: translateY(110vh); }
         .reveal { opacity: 0; transform: translateY(30px); }
-
         .marquee-wrapper { overflow: hidden; white-space: nowrap; background: #FF2D55; color: #FFF; padding: 15px 0; transform: rotate(-2deg) scale(1.05); margin: 40px 0; position: relative; z-index: 50; }
         .marquee-content { display: inline-block; animation: marquee 15s linear infinite; font-size: 1.5rem; font-family: 'Inter', sans-serif; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
         .sticker { position: fixed; font-size: 3.5rem; pointer-events: none; z-index: 9998; transform: translate(-50%, -50%); user-select: none; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.2)); will-change: transform, opacity, filter; }
-
-        .scroll-indicator {
-            position: fixed; bottom: 40px; right: 40px;
-            display: flex; flex-direction: column; align-items: center;
-            gap: 12px; z-index: 90; opacity: 0; transform: translateY(20px);
-        }
-        .scroll-line {
-            width: 1px; height: 60px; background: linear-gradient(to bottom, var(--accent), transparent);
-            position: relative; overflow: hidden;
-        }
-        .scroll-line::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #fff; animation: scrollAnim 2s infinite cubic-bezier(0.7, 0, 0.3, 1);
-        }
-        @keyframes scrollAnim {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-        .scroll-text {
-            font-size: 10px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 3px; color: var(--text); writing-mode: vertical-rl;
-        }
-
-        @media (max-width: 768px) {
-            .scroll-indicator { right: 8px; bottom: 20px; transform: scale(0.7); transform-origin: bottom right; }
-            .pin-pill { font-size: 10px; padding: 8px 14px; gap: 6px; }
-            #p2 { right: auto !important; left: 10% !important; }
-            #p4 { left: 20% !important; }
-            #p3 { left: 30% !important; }
-            #p5 { left: 15% !important; }
-            .vibe-emoji { font-size: 2.5rem; }
-        }
-
+        .scroll-indicator { position: fixed; bottom: 40px; right: 40px; display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 90; opacity: 0; transform: translateY(20px); }
+        .scroll-line { width: 1px; height: 60px; background: linear-gradient(to bottom, var(--accent), transparent); position: relative; overflow: hidden; }
+        .scroll-line::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; animation: scrollAnim 2s infinite cubic-bezier(0.7, 0, 0.3, 1); }
+        @keyframes scrollAnim { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+        .scroll-text { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: var(--text); writing-mode: vertical-rl; }
+        @media (max-width: 768px) { .scroll-indicator { right: 8px; bottom: 20px; transform: scale(0.7); transform-origin: bottom right; } .pin-pill { font-size: 10px; padding: 8px 14px; gap: 6px; } #p2 { right: auto !important; left: 10% !important; } #p4 { left: 20% !important; } #p3 { left: 30% !important; } #p5 { left: 15% !important; } .vibe-emoji { font-size: 2.5rem; } }
         #vibe-footer { min-height: 100vh; background: #000; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        
-        #morph-logo { 
-            color: #fff; font-size: 4rem; line-height: 1; transition: all 0.3s ease; 
-            position: relative; z-index: 10; margin-bottom: 20px; 
-            animation: ambientGlow 3s infinite alternate ease-in-out;
-            will-change: transform, opacity, color, text-shadow;
-        }
+        #morph-logo { color: #fff; font-size: 4rem; line-height: 1; transition: all 0.3s ease; position: relative; z-index: 10; margin-bottom: 20px; animation: ambientGlow 3s infinite alternate ease-in-out; will-change: transform, opacity, color, text-shadow; }
         @media (min-width: 768px) { #morph-logo { font-size: 7rem; } }
-
-        @keyframes ambientGlow {
-            0% { text-shadow: 0 0 10px rgba(255, 45, 85, 0.1); }
-            100% { text-shadow: 0 0 40px rgba(255, 45, 85, 0.4); }
-        }
-
-        .morph-trigger {
-            background: transparent; border: 2px solid var(--accent); color: var(--accent);
-            padding: 16px 40px; border-radius: 100px; font-size: 1.2rem; font-weight: 900;
-            text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease;
-            position: relative; z-index: 10;
-        }
+        @keyframes ambientGlow { 0% { text-shadow: 0 0 10px rgba(255, 45, 85, 0.1); } 100% { text-shadow: 0 0 40px rgba(255, 45, 85, 0.4); } }
+        .morph-trigger { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 16px 40px; border-radius: 100px; font-size: 1.2rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; position: relative; z-index: 10; }
         .morph-trigger:hover { background: var(--accent); color: #fff; box-shadow: 0 10px 30px rgba(255, 45, 85, 0.4); transform: translateY(-3px); }
-
-        .perspective-container { 
-            perspective: 1200px; 
-            width: 100%; 
-            display: none; 
-            justify-content: center; 
-            align-items: center;
-            position: absolute; 
-            left: 0;
-            right: 0;
-            z-index: 20; 
-        }
-        
-        .cool-ticket {
-            width: 320px;
-            margin: 0 auto;
-            background: linear-gradient(145deg, #0f0f0f 0%, #030303 100%);
-            border: 1px solid rgba(255, 45, 85, 0.4);
-            border-radius: 24px;
-            box-shadow: 0 30px 60px rgba(255, 45, 85, 0.2), inset 0 0 20px rgba(255, 45, 85, 0.05);
-            display: flex; flex-direction: column; overflow: hidden;
-            position: relative;
-            transform-origin: top center;
-            will-change: transform, opacity;
-        }
-
-        .ticket-metal-sweep {
-            position: absolute; top: 0; left: -150%; width: 100%; height: 100%;
-            background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 60%, transparent 80%);
-            z-index: 5; pointer-events: none; animation: sweepLoop 4s infinite linear;
-        }
-
-        .secure-btn-obsidian-wrapper {
-            width: 100%; position: relative; overflow: hidden; border-radius: 12px;
-            background: #000; border: 1px solid rgba(255, 45, 85, 0.5);
-            box-shadow: 0 0 15px rgba(255, 45, 85, 0.1); transition: 0.3s;
-        }
+        .perspective-container { perspective: 1200px; width: 100%; display: none; justify-content: center; align-items: center; position: absolute; left: 0; right: 0; z-index: 20; }
+        .cool-ticket { width: 320px; margin: 0 auto; background: linear-gradient(145deg, #0f0f0f 0%, #030303 100%); border: 1px solid rgba(255, 45, 85, 0.4); border-radius: 24px; box-shadow: 0 30px 60px rgba(255, 45, 85, 0.2), inset 0 0 20px rgba(255, 45, 85, 0.05); display: flex; flex-direction: column; overflow: hidden; position: relative; transform-origin: top center; will-change: transform, opacity; }
+        .ticket-metal-sweep { position: absolute; top: 0; left: -150%; width: 100%; height: 100%; background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 60%, transparent 80%); z-index: 5; pointer-events: none; animation: sweepLoop 4s infinite linear; }
+        .secure-btn-obsidian-wrapper { width: 100%; position: relative; overflow: hidden; border-radius: 12px; background: #000; border: 1px solid rgba(255, 45, 85, 0.5); box-shadow: 0 0 15px rgba(255, 45, 85, 0.1); transition: 0.3s; }
         .secure-btn-obsidian-wrapper:hover { box-shadow: 0 0 30px rgba(255, 45, 85, 0.4); transform: scale(1.02); border-color: #FF2D55; }
-
-        .shimmer-bg {
-            background: linear-gradient(90deg, var(--accent) 0%, #ff7592 50%, var(--accent) 100%);
-            background-size: 200% 100%;
-            animation: shimmer 2.5s infinite linear;
-            position: relative; overflow: hidden;
-        }
+        .shimmer-bg { background: linear-gradient(90deg, var(--accent) 0%, #ff7592 50%, var(--accent) 100%); background-size: 200% 100%; animation: shimmer 2.5s infinite linear; position: relative; overflow: hidden; }
         @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
-
-        .light-sweep-element {
-            position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
-            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transform: skewX(-25deg); animation: sweepLoop 4s infinite linear;
-            animation-delay: 0.5s; 
-            pointer-events: none; 
-        }
+        .light-sweep-element { position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent); transform: skewX(-25deg); animation: sweepLoop 4s infinite linear; animation-delay: 0.5s; pointer-events: none; }
         @keyframes sweepLoop { 0% { left: -150%; } 40% { left: 150%; } 100% { left: 150%; } }
-
-        /* --- NEW LASER SCANNER STYLE --- */
-        .laser-line {
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 40px;
-            height: 100%;
-            background: linear-gradient(
-                to right, 
-                transparent, 
-                rgba(255, 45, 85, 0.2) 20%, 
-                rgba(255, 45, 85, 1) 50%, 
-                rgba(255, 45, 85, 0.2) 80%, 
-                transparent
-            );
-            box-shadow: 0 0 20px rgba(255, 45, 85, 0.8);
-            transform: skewX(-20deg);
-            z-index: 10;
-        }
-
+        .laser-line { position: absolute; top: 0; left: -100%; width: 40px; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 45, 85, 0.2) 20%, rgba(255, 45, 85, 1) 50%, rgba(255, 45, 85, 0.2) 80%, transparent); box-shadow: 0 0 20px rgba(255, 45, 85, 0.8); transform: skewX(-20deg); z-index: 10; }
     </style>
 </head>
 <body>
@@ -437,230 +271,231 @@
 
 
     <script>
-        gsap.registerPlugin(ScrollTrigger);
+        // PERFORMANCE BOOST: Execute script ONLY when DOM is fully ready
+        window.addEventListener('load', () => {
+            gsap.registerPlugin(ScrollTrigger);
 
-        // --- STICKER SLAP ENGINE ---
-        const stickersList = ['🎫', '🍻', '🍕', '🎧', '🎮', '🧘🏻‍♀️', '📍', '💥', '🏏', '🏃🏽‍♀️','🏕️','☘️','🏍️'];
-        let dragDist = 0, startX = 0, startY = 0;
+            // --- STICKER SLAP ENGINE ---
+            const stickersList = ['🎫', '🍻', '🍕', '🎧', '🎮', '🧘🏻‍♀️', '📍', '💥', '🏏', '🏃🏽‍♀️','🏕️','☘️','🏍️'];
+            let dragDist = 0, startX = 0, startY = 0;
 
-        document.addEventListener('mousedown', (e) => { startX = e.clientX; startY = e.clientY; dragDist = 0; });
-        document.addEventListener('mousemove', (e) => { dragDist = Math.hypot(e.clientX - startX, e.clientY - startY); });
-        
-        document.addEventListener('mouseup', (e) => {
-            if (dragDist > 10) return; 
-            if (e.target.closest('a, button, .pin-container, .waitlist-btn, .cool-ticket')) return;
+            document.addEventListener('mousedown', (e) => { startX = e.clientX; startY = e.clientY; dragDist = 0; });
+            document.addEventListener('mousemove', (e) => { dragDist = Math.hypot(e.clientX - startX, e.clientY - startY); });
+            
+            document.addEventListener('mouseup', (e) => {
+                if (dragDist > 10) return; 
+                if (e.target.closest('a, button, .pin-container, .waitlist-btn, .cool-ticket')) return;
 
-            const sticker = document.createElement('div');
-            sticker.className = 'sticker';
-            sticker.innerText = stickersList[Math.floor(Math.random() * stickersList.length)];
-            sticker.style.left = e.clientX + 'px';
-            sticker.style.top = e.clientY + 'px';
-            document.body.appendChild(sticker);
+                const sticker = document.createElement('div');
+                sticker.className = 'sticker';
+                sticker.innerText = stickersList[Math.floor(Math.random() * stickersList.length)];
+                sticker.style.left = e.clientX + 'px';
+                sticker.style.top = e.clientY + 'px';
+                document.body.appendChild(sticker);
 
-            const randomRot = Math.random() * 80 - 40; 
+                const randomRot = Math.random() * 80 - 40; 
 
-            const tlSticker = gsap.timeline({ onComplete: () => sticker.remove() });
-            tlSticker.fromTo(sticker, 
-                { scale: 0, rotation: randomRot - 60, opacity: 1, filter: "blur(0px) brightness(1)" }, 
-                { scale: 1, rotation: randomRot, duration: 0.7, ease: "elastic.out(1.2, 0.4)" }
-            )
-            .to(sticker, {
-                y: "-=60", opacity: 0, filter: "blur(12px) brightness(2)", duration: 2, ease: "power2.inOut", delay: 2 
+                const tlSticker = gsap.timeline({ onComplete: () => sticker.remove() });
+                tlSticker.fromTo(sticker, 
+                    { scale: 0, rotation: randomRot - 60, opacity: 1, filter: "blur(0px) brightness(1)" }, 
+                    { scale: 1, rotation: randomRot, duration: 0.7, ease: "elastic.out(1.2, 0.4)" }
+                )
+                .to(sticker, {
+                    y: "-=60", opacity: 0, filter: "blur(12px) brightness(2)", duration: 2, ease: "power2.inOut", delay: 2 
+                });
             });
-        });
 
 
-        // --- GSAP SCROLL ANIMATIONS ---
-        window.onload = () => {
+            // --- GSAP SCROLL ANIMATIONS ---
             window.heroTimeline = gsap.timeline({paused: true});
             window.heroTimeline.to('.hero-word', { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power4.out" })
                                .to('.hero-sub', { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
-        };
 
-        const tl = gsap.timeline({ scrollTrigger: { trigger: "#map-section", start: "top top", end: "bottom bottom", scrub: 1 }});
+            const tl = gsap.timeline({ scrollTrigger: { trigger: "#map-section", start: "top top", end: "bottom bottom", scrub: 1 }});
 
-        tl.to("#map-imagery", { scale: 3, filter: "brightness(0.6)", duration: 2 }, 0)
-          .to(".intro-title", { scale: 1.15, duration: 1 }, 0)
-          .to(".vibe-emoji", { y: "-180vh", x: (i) => (i % 2 === 0 ? "25vw" : "-25vw"), rotate: (i) => (i * 25), stagger: 0.05, duration: 3 }, 0)
-          .to(".intro-title", { opacity: 0, y: -150, scale: 1.8, duration: 1.5 }, 1)
-          .to("#globe-ui", { opacity: 1, bottom: "-30vh", duration: 1.5 }, 1)
-          .to("#map-imagery", { scale: 6, x: -100, y: -50, filter: "brightness(1) saturate(1.1)", duration: 2.5 }, 1.5);
+            tl.to("#map-imagery", { scale: 3, filter: "brightness(0.6)", duration: 2 }, 0)
+              .to(".intro-title", { scale: 1.15, duration: 1 }, 0)
+              .to(".vibe-emoji", { y: "-180vh", x: (i) => (i % 2 === 0 ? "25vw" : "-25vw"), rotate: (i) => (i * 25), stagger: 0.05, duration: 3 }, 0)
+              .to(".intro-title", { opacity: 0, y: -150, scale: 1.8, duration: 1.5 }, 1)
+              .to("#globe-ui", { opacity: 1, bottom: "-30vh", duration: 1.5 }, 1)
+              .to("#map-imagery", { scale: 6, x: -100, y: -50, filter: "brightness(1) saturate(1.1)", duration: 2.5 }, 1.5);
 
-        const animatePin = (id, width, startTime) => {
-            tl.to(id, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(2)" }, startTime)
-              .to(`${id} .pin-pill`, { scaleX: 1, opacity: 1, width: width, duration: 0.8 }, startTime + 0.1);
-        };
-        
-        animatePin("#p1", "280px", 2.2); animatePin("#p2", "260px", 2.5); animatePin("#p3", "300px", 2.8); animatePin("#p4", "270px", 3.1); animatePin("#p5", "250px", 3.4);
-
-        document.querySelectorAll('.reveal').forEach((el) => {
-            gsap.to(el, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 1, ease: "power4.out" });
-        });
-
-        gsap.to('.scroll-indicator', {
-            scrollTrigger: { trigger: "#map-section", start: "top top", toggleActions: "play none none reverse" },
-            opacity: 0, y: 20, duration: 0.5
-        });
-
-        // --- SMART DIRECTIONAL NAV VANISH ---
-        const topNav = document.getElementById('top-nav');
-        let lastScroll = 0;
-
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-            const footer = document.getElementById('vibe-footer');
-            const footerPos = footer.getBoundingClientRect().top;
+            const animatePin = (id, width, startTime) => {
+                tl.to(id, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(2)" }, startTime)
+                  .to(`${id} .pin-pill`, { scaleX: 1, opacity: 1, width: width, duration: 0.8 }, startTime + 0.1);
+            };
             
-            if (footerPos < 400) {
-                topNav.style.transform = 'translateY(-100%)';
-                topNav.style.opacity = '0';
-            } else if (currentScroll <= 0) {
-                topNav.style.transform = 'translateY(0)';
-                topNav.style.opacity = '1';
-                topNav.style.background = 'rgba(250, 250, 250, 0.95)';
-            } else if (currentScroll > lastScroll) {
-                topNav.style.transform = 'translateY(-100%)';
-            } else {
-                topNav.style.transform = 'translateY(0)';
-                topNav.style.opacity = '1';
+            animatePin("#p1", "280px", 2.2); animatePin("#p2", "260px", 2.5); animatePin("#p3", "300px", 2.8); animatePin("#p4", "270px", 3.1); animatePin("#p5", "250px", 3.4);
+
+            document.querySelectorAll('.reveal').forEach((el) => {
+                gsap.to(el, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 1, ease: "power4.out" });
+            });
+
+            gsap.to('.scroll-indicator', {
+                scrollTrigger: { trigger: "#map-section", start: "top top", toggleActions: "play none none reverse" },
+                opacity: 0, y: 20, duration: 0.5
+            });
+
+            // --- SMART DIRECTIONAL NAV VANISH ---
+            const topNav = document.getElementById('top-nav');
+            let lastScroll = 0;
+
+            // Performance Fix: Passive event listener
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+                const footer = document.getElementById('vibe-footer');
+                const footerPos = footer.getBoundingClientRect().top;
+                
+                if (footerPos < 400) {
+                    topNav.style.transform = 'translateY(-100%)';
+                    topNav.style.opacity = '0';
+                } else if (currentScroll <= 0) {
+                    topNav.style.transform = 'translateY(0)';
+                    topNav.style.opacity = '1';
+                    topNav.style.background = 'rgba(250, 250, 250, 0.95)';
+                } else if (currentScroll > lastScroll) {
+                    topNav.style.transform = 'translateY(-100%)';
+                } else {
+                    topNav.style.transform = 'translateY(0)';
+                    topNav.style.opacity = '1';
+                }
+                lastScroll = currentScroll;
+            }, { passive: true });
+
+
+            // --- ORGANIC MOMENTUM COUNTER ---
+            let liveCount = 2408;
+            const liveCounterEls = document.querySelectorAll('.live-counter-val');
+            
+            function updateCounter(amount) {
+                liveCount += amount;
+                const formattedCount = liveCount.toLocaleString();
+                liveCounterEls.forEach(el => el.innerText = formattedCount);
+                
+                gsap.fromTo('.live-counter-val', 
+                    { scale: 1.25, color: '#FFF' }, 
+                    { scale: 1, color: '#FF2D55', duration: 0.4, ease: 'power2.out' }
+                );
             }
-            lastScroll = currentScroll;
-        });
+
+            function loadBurst() {
+                setTimeout(() => updateCounter(1), 1200);
+                setTimeout(() => updateCounter(2), 2400);
+                setTimeout(() => updateCounter(1), 3800);
+            }
+            loadBurst();
+
+            setInterval(() => {
+                if(Math.random() > 0.7) {
+                    updateCounter(1);
+                }
+            }, 6500); 
+
+            ScrollTrigger.create({
+                trigger: "#vibe-footer",
+                start: "top bottom",
+                onEnter: () => {
+                    setTimeout(() => updateCounter(2), 200);
+                    setTimeout(() => updateCounter(1), 800);
+                    setTimeout(() => updateCounter(3), 1800);
+                }
+            });
 
 
-        // --- ORGANIC MOMENTUM COUNTER ---
-        let liveCount = 2408;
-        const liveCounterEls = document.querySelectorAll('.live-counter-val');
-        
-        function updateCounter(amount) {
-            liveCount += amount;
-            const formattedCount = liveCount.toLocaleString();
-            liveCounterEls.forEach(el => el.innerText = formattedCount);
+            // --- NAV ENCRYPT ---
+            const navEncryptBtn = document.getElementById('nav-encrypt-btn');
+            navEncryptBtn.addEventListener('click', function(e) {
+                e.preventDefault(); 
+                if(this.classList.contains('is-hacking')) return;
+                this.classList.add('is-hacking');
+                const targetUrl = this.href;
+                let iterations = 0;
+                this.classList.add('glitch-font'); 
+                const hackInterval = setInterval(() => {
+                    this.innerText = "Join the Waitlist".split("").map((letter, index) => {
+                        if(index < iterations) return "ACCESS GRANTED"[index] || ""; 
+                        return "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"[Math.floor(Math.random() * 40)];
+                    }).join("");
+                    if(iterations >= 17) { clearInterval(hackInterval); window.location.href = targetUrl; }
+                    iterations += 0.4;
+                }, 30);
+            });
+
+
+            // --- HIGH-SPEED GLOW SHRINK + SLAP TICKET ---
+            const morphBtn = document.getElementById('morph-trigger-btn');
+            const logo = document.getElementById('morph-logo');
+            const ticketWrapper = document.getElementById('ticket-wrapper');
+            const ticketInner = document.querySelector('.cool-ticket');
+            const footerLiveStatus = document.getElementById('footer-live-status');
             
-            gsap.fromTo('.live-counter-val', 
-                { scale: 1.25, color: '#FFF' }, 
-                { scale: 1, color: '#FF2D55', duration: 0.4, ease: 'power2.out' }
-            );
-        }
+            gsap.set(ticketInner, { rotationX: 110, opacity: 0, scale: 0.3, y: -250 });
 
-        function loadBurst() {
-            setTimeout(() => updateCounter(1), 1200);
-            setTimeout(() => updateCounter(2), 2400);
-            setTimeout(() => updateCounter(1), 3800);
-        }
-        loadBurst();
-
-        setInterval(() => {
-            if(Math.random() > 0.7) {
+            morphBtn.addEventListener('click', function() {
+                const tlMorph = gsap.timeline();
+                
                 updateCounter(1);
-            }
-        }, 6500); 
+                setTimeout(() => updateCounter(2), 250);
+                setTimeout(() => updateCounter(3), 1100);
 
-        ScrollTrigger.create({
-            trigger: "#vibe-footer",
-            start: "top bottom",
-            onEnter: () => {
-                setTimeout(() => updateCounter(2), 200);
-                setTimeout(() => updateCounter(1), 800);
-                setTimeout(() => updateCounter(3), 1800);
-            }
+                tlMorph.to(logo, { 
+                    scale: 0.2, 
+                    color: '#FF2D55',
+                    textShadow: '0 0 50px #FF2D55, 0 0 100px #FF2D55',
+                    duration: 0.4, 
+                    ease: "power4.out" 
+                }, 0)
+                .to([morphBtn, footerLiveStatus], { 
+                    opacity: 0, 
+                    scale: 0.8,
+                    duration: 0.3, 
+                    ease: "power2.in" 
+                }, 0);
+
+                tlMorph.to(logo, { 
+                    opacity: 0, 
+                    scale: 0,
+                    duration: 0.2, 
+                    ease: "power2.in" 
+                }, 0.3);
+
+                tlMorph.set(morphBtn, { display: 'none' })
+                       .set(footerLiveStatus, { display: 'none' })
+                       .set(ticketWrapper, { display: 'flex' }) 
+                       .to(ticketInner, {
+                           rotationX: 0,
+                           opacity: 1,
+                           scale: 1,
+                           y: 0,
+                           duration: 0.7,
+                           ease: "back.out(1.7)"
+                       }, 0.35); 
+
+                // --- FINAL ACTIVATION SEQUENCE ---
+                tlMorph.to("#button-laser", {
+                    left: "150%",
+                    duration: 1.5,
+                    ease: "power2.inOut",
+                    repeat: -1,
+                    repeatDelay: 0.3
+                }, 0.8);
+
+                tlMorph.to("#urgency-msg", {
+                    opacity: 1,
+                    y: -5,
+                    duration: 0.8,
+                    ease: "power2.out"
+                }, 1.0);
+
+                tlMorph.to(".secure-btn-obsidian-wrapper", {
+                    scale: 1.02,
+                    duration: 0.8,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: "sine.inOut"
+                }, 1.2);
+            });
         });
-
-
-        // --- NAV ENCRYPT ---
-        const navEncryptBtn = document.getElementById('nav-encrypt-btn');
-        navEncryptBtn.addEventListener('click', function(e) {
-            e.preventDefault(); 
-            if(this.classList.contains('is-hacking')) return;
-            this.classList.add('is-hacking');
-            const targetUrl = this.href;
-            let iterations = 0;
-            this.classList.add('glitch-font'); 
-            const hackInterval = setInterval(() => {
-                this.innerText = "Join the Waitlist".split("").map((letter, index) => {
-                    if(index < iterations) return "ACCESS GRANTED"[index] || ""; 
-                    return "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"[Math.floor(Math.random() * 40)];
-                }).join("");
-                if(iterations >= 17) { clearInterval(hackInterval); window.location.href = targetUrl; }
-                iterations += 0.4;
-            }, 30);
-        });
-
-
-        // --- HIGH-SPEED GLOW SHRINK + SLAP TICKET ---
-        const morphBtn = document.getElementById('morph-trigger-btn');
-        const logo = document.getElementById('morph-logo');
-        const ticketWrapper = document.getElementById('ticket-wrapper');
-        const ticketInner = document.querySelector('.cool-ticket');
-        const footerLiveStatus = document.getElementById('footer-live-status');
-        
-        gsap.set(ticketInner, { rotationX: 110, opacity: 0, scale: 0.3, y: -250 });
-
-        morphBtn.addEventListener('click', function() {
-            const tlMorph = gsap.timeline();
-            
-            updateCounter(1);
-            setTimeout(() => updateCounter(2), 250);
-            setTimeout(() => updateCounter(3), 1100);
-
-            tlMorph.to(logo, { 
-                scale: 0.2, 
-                color: '#FF2D55',
-                textShadow: '0 0 50px #FF2D55, 0 0 100px #FF2D55',
-                duration: 0.4, 
-                ease: "power4.out" 
-            }, 0)
-            .to([morphBtn, footerLiveStatus], { 
-                opacity: 0, 
-                scale: 0.8,
-                duration: 0.3, 
-                ease: "power2.in" 
-            }, 0);
-
-            tlMorph.to(logo, { 
-                opacity: 0, 
-                scale: 0,
-                duration: 0.2, 
-                ease: "power2.in" 
-            }, 0.3);
-
-            tlMorph.set(morphBtn, { display: 'none' })
-                   .set(footerLiveStatus, { display: 'none' })
-                   .set(ticketWrapper, { display: 'flex' }) 
-                   .to(ticketInner, {
-                       rotationX: 0,
-                       opacity: 1,
-                       scale: 1,
-                       y: 0,
-                       duration: 0.7,
-                       ease: "back.out(1.7)"
-                   }, 0.35); 
-
-            // --- FINAL ACTIVATION SEQUENCE ---
-            tlMorph.to("#button-laser", {
-                left: "150%",
-                duration: 1.5,
-                ease: "power2.inOut",
-                repeat: -1,
-                repeatDelay: 0.3
-            }, 0.8);
-
-            tlMorph.to("#urgency-msg", {
-                opacity: 1,
-                y: -5,
-                duration: 0.8,
-                ease: "power2.out"
-            }, 1.0);
-
-            tlMorph.to(".secure-btn-obsidian-wrapper", {
-                scale: 1.02,
-                duration: 0.8,
-                yoyo: true,
-                repeat: -1,
-                ease: "sine.inOut"
-            }, 1.2);
-        });
-        
     </script>
 </body>
 </html>
