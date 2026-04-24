@@ -547,7 +547,7 @@
                     if(index < iterations) return "ACCESS GRANTED"[index] || ""; 
                     return "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"[Math.floor(Math.random() * 40)];
                 }).join("");
-                if(iterations >= 15) { clearInterval(hackInterval); window.location.href = targetUrl; }
+                if(iterations >= 17) { clearInterval(hackInterval); window.location.href = targetUrl; }
                 iterations += 0.4;
             }, 30);
         });
