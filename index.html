@@ -213,6 +213,54 @@
 </head>
 <body>
 
+    <div id="baethak-preloader" style="position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+        <div id="loader-content" style="text-align: center;">
+            <h1 id="loader-text" style="font-family: 'Inter', sans-serif; font-weight: 900; font-size: 4rem; color: #FF2D55; text-transform: uppercase; letter-spacing: -3px; line-height: 1;">
+                BAETHAK.
+            </h1>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const textElement = document.getElementById('loader-text');
+            const loaderBg = document.getElementById('baethak-preloader');
+            document.body.style.overflow = 'hidden';
+
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    loaderBg.style.display = 'none';
+                    document.body.style.overflow = '';
+                    // Trigger hero animations slightly earlier for "instant" feel
+                    if (window.heroTimeline) window.heroTimeline.play();
+                }
+            });
+
+            tl.to(textElement, {
+                duration: 0.3,
+                delay: 0.4,
+                scaleX: 1.5,
+                opacity: 0,
+                ease: "power4.in",
+                onComplete: () => {
+                    textElement.innerText = "बैठक.";
+                    textElement.style.fontFamily = "sans-serif";
+                }
+            })
+            .to(textElement, {
+                duration: 0.25,
+                scaleX: 1,
+                opacity: 1,
+                ease: "expo.out"
+            })
+            .to(loaderBg, {
+                duration: 0.4,
+                delay: 0.2,
+                y: "-100%",
+                ease: "expo.inOut"
+            });
+        })();
+    </script>
     <div class="scroll-indicator hero-sub">
         <div class="scroll-text">Scroll to vibe</div>
         <div class="scroll-line"></div>
@@ -382,8 +430,10 @@
 
         // --- GSAP SCROLL ANIMATIONS ---
         window.onload = () => {
-            gsap.to('.hero-word', { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power4.out" });
-            gsap.to('.hero-sub', { opacity: 1, y: 0, duration: 1, delay: 0.6, ease: "power3.out" });
+            // Updated: Wrap in timeline to allow preloader to trigger it
+            window.heroTimeline = gsap.timeline({paused: true});
+            window.heroTimeline.to('.hero-word', { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power4.out" })
+                               .to('.hero-sub', { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
         };
 
         const tl = gsap.timeline({ scrollTrigger: { trigger: "#map-section", start: "top top", end: "bottom bottom", scrub: 1 }});
@@ -412,7 +462,7 @@
         });
 
         // ------------------------------------------------------------------
-        // --- SMART DIRECTIONAL NAV VANISH (ZERO JANK)                  ---
+        // --- SMART DIRECTIONAL NAV VANISH (ZERO JANK)                   ---
         // ------------------------------------------------------------------
         
         const topNav = document.getElementById('top-nav');
@@ -442,7 +492,7 @@
 
 
         // ------------------------------------------------------------------
-        // --- ORGANIC MOMENTUM COUNTER (SYNCED)                          ---
+        // --- ORGANIC MOMENTUM COUNTER (SYNCED)                          ---
         // ------------------------------------------------------------------
         
         let liveCount = 2408;
@@ -504,7 +554,7 @@
 
 
         // ------------------------------------------------------------------
-        // --- HIGH-SPEED GLOW SHRINK + SLAP TICKET                       ---
+        // --- HIGH-SPEED GLOW SHRINK + SLAP TICKET                       ---
         // ------------------------------------------------------------------
         
         const morphBtn = document.getElementById('morph-trigger-btn');
