@@ -62,8 +62,9 @@
         .scroll-line::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; animation: scrollAnim 2s infinite cubic-bezier(0.7, 0, 0.3, 1); }
         @keyframes scrollAnim { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
         .scroll-text { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: var(--text); writing-mode: vertical-rl; }
+        @media (max-width: 768px) { .scroll-indicator { right: 8px; bottom: 20px; transform: scale(0.7); transform-origin: bottom right; } .pin-pill { font-size: 10px; padding: 8px 14px; gap: 6px; } #p2 { right: auto !important; left: 10% !important; } #p4 { left: 20% !important; } #p3 { left: 30% !important; } #p5 { left: 15% !important; } .vibe-emoji { font-size: 2.5rem; } }
+        #vibe-footer { min-height: 100vh; background: #000; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         
-        /* THE SPECTRUM LASER & ATMOSPHERIC GLOW */
         .logo-container { position: relative; display: inline-block; margin-bottom: 20px; padding: 10px; }
         #morph-logo { transition: filter 0.3s ease; position: relative; z-index: 10; animation: atmosphericGlow 3s infinite alternate ease-in-out; will-change: filter, transform; }
         
@@ -111,14 +112,11 @@
         @keyframes sweepLoop { 0% { left: -150%; } 40% { left: 150%; } 100% { left: 150%; } }
         .laser-line { position: absolute; top: 0; left: -100%; width: 40px; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 45, 85, 0.2) 20%, rgba(255, 45, 85, 1) 50%, rgba(255, 45, 85, 0.2) 80%, transparent); box-shadow: 0 0 20px rgba(255, 45, 85, 0.8); transform: skewX(-20deg); z-index: 10; }
         
-        /* APPLE-LEVEL EDGE FIXES */
-        @media (max-width: 768px) { 
-            .scroll-indicator { right: 8px; bottom: 20px; transform: scale(0.7); transform-origin: bottom right; } 
-            .pin-pill { font-size: 10px; padding: 8px 14px; gap: 6px; }
-            #top-nav { px: 6; } /* Comfortable mobile breathability */
-        }
+        /* THE WORDMARK DESKTOP FIX */
         @media (min-width: 1024px) {
-            #top-nav { padding-left: 2rem; padding-right: 2rem; } /* Tight snap for desktop */
+            .nav-wordmark {
+                transform: translateX(-40px) translateY(0px) !important;
+            }
         }
     </style>
 </head>
@@ -178,11 +176,11 @@
         <div class="scroll-line"></div>
     </div>
 
-    <nav id="top-nav" class="fixed top-0 w-full z-[100] px-6 md:px-12 py-2 flex justify-between items-center h-20 overflow-visible">
+    <nav id="top-nav" class="fixed top-0 w-full z-[100] px-10 md:px-12 py-2 flex justify-between items-center h-20 overflow-visible">
     <div class="flex items-center justify-center">
         <img src="logo.svg" 
-             class="block"
-             style="height: 460px; width: auto; margin-left: -120px; transform: translateX(calc(-5vw)) translateY(-0px);" 
+             class="block nav-wordmark"
+             style="height: 460px; width: auto; margin-left: -110px; transform: translateY(0px);" 
              alt="BAETHAK">
     </div>
         
