@@ -62,9 +62,8 @@
         .scroll-line::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; animation: scrollAnim 2s infinite cubic-bezier(0.7, 0, 0.3, 1); }
         @keyframes scrollAnim { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
         .scroll-text { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: var(--text); writing-mode: vertical-rl; }
-        @media (max-width: 768px) { .scroll-indicator { right: 8px; bottom: 20px; transform: scale(0.7); transform-origin: bottom right; } .pin-pill { font-size: 10px; padding: 8px 14px; gap: 6px; } #p2 { right: auto !important; left: 10% !important; } #p4 { left: 20% !important; } #p3 { left: 30% !important; } #p5 { left: 15% !important; } .vibe-emoji { font-size: 2.5rem; } }
-        #vibe-footer { min-height: 100vh; background: #000; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         
+        /* THE SPECTRUM LASER & ATMOSPHERIC GLOW */
         .logo-container { position: relative; display: inline-block; margin-bottom: 20px; padding: 10px; }
         #morph-logo { transition: filter 0.3s ease; position: relative; z-index: 10; animation: atmosphericGlow 3s infinite alternate ease-in-out; will-change: filter, transform; }
         
@@ -111,6 +110,16 @@
         .light-sweep-element { position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent); transform: skewX(-25deg); animation: sweepLoop 4s infinite linear; animation-delay: 0.5s; pointer-events: none; }
         @keyframes sweepLoop { 0% { left: -150%; } 40% { left: 150%; } 100% { left: 150%; } }
         .laser-line { position: absolute; top: 0; left: -100%; width: 40px; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 45, 85, 0.2) 20%, rgba(255, 45, 85, 1) 50%, rgba(255, 45, 85, 0.2) 80%, transparent); box-shadow: 0 0 20px rgba(255, 45, 85, 0.8); transform: skewX(-20deg); z-index: 10; }
+        
+        /* APPLE-LEVEL EDGE FIXES */
+        @media (max-width: 768px) { 
+            .scroll-indicator { right: 8px; bottom: 20px; transform: scale(0.7); transform-origin: bottom right; } 
+            .pin-pill { font-size: 10px; padding: 8px 14px; gap: 6px; }
+            #top-nav { px: 6; } /* Comfortable mobile breathability */
+        }
+        @media (min-width: 1024px) {
+            #top-nav { padding-left: 2rem; padding-right: 2rem; } /* Tight snap for desktop */
+        }
     </style>
 </head>
 <body>
@@ -169,23 +178,22 @@
         <div class="scroll-line"></div>
     </div>
 
-    <nav id="top-nav" class="fixed top-0 w-full z-[100] px-8 md:px-12 py-2 flex justify-between items-center h-20 overflow-visible">
+    <nav id="top-nav" class="fixed top-0 w-full z-[100] px-6 md:px-12 py-2 flex justify-between items-center h-20 overflow-visible">
     <div class="flex items-center justify-center">
         <img src="logo.svg" 
              class="block"
-             style="height: 460px; width: auto; margin-left: -120px; transform: translateY(0px);" 
+             style="height: 460px; width: auto; margin-left: -120px; transform: translateX(calc(-5vw)) translateY(-0px);" 
              alt="BAETHAK">
     </div>
         
         <div class="flex flex-col items-end pt-4">
-    <a href="https://forms.gle/wKwz4FJLi3WQCasM7" id="nav-encrypt-btn" class="nav-encrypt-btn interactive-item text-[8px] md:text-[11px] py-1.5 md:py-2">
-        Join the Waitlist
-    </a>
-    
-    <div class="whitespace-nowrap text-[6.5px] md:text-[9px] uppercase tracking-tighter font-bold opacity-60 mt-0.5 text-right">
-        JOIN <span class="live-counter-val text-[8px] md:text-[10px] text-[#FF2D55]">2,413</span> PEOPLE WAITING FOR THE DROP
-    </div>
-</div>
+            <a href="https://forms.gle/wKwz4FJLi3WQCasM7" id="nav-encrypt-btn" class="nav-encrypt-btn interactive-item text-[8px] md:text-[11px] py-1.5 md:py-2">
+                Join the Waitlist
+            </a>
+            <div class="whitespace-nowrap text-[6.5px] md:text-[9px] uppercase tracking-tighter font-bold opacity-60 mt-0.5 text-right">
+                JOIN <span class="live-counter-val text-[8px] md:text-[10px] text-[#FF2D55]">2,413</span> PEOPLE WAITING FOR THE DROP
+            </div>
+        </div>
     </nav>
 
     <section class="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20">
@@ -469,7 +477,6 @@
                 setTimeout(() => updateCounter(3), 1100);
 
                 // ULTRA-SEAMLESS APPLE TRANSITION
-                // Stage 1: Exit Wordmark & Status
                 tlMorph.to([logo, morphBtn, footerLiveStatus], { 
                     opacity: 0, 
                     scale: 0.6,
@@ -480,7 +487,6 @@
                     ease: "power4.in" 
                 });
 
-                // Stage 2: Enter Ticket (Immediately following)
                 tlMorph.set([logo, morphBtn, footerLiveStatus], { display: 'none' })
                        .set(ticketWrapper, { display: 'flex' }) 
                        .to(ticketInner, {
@@ -489,8 +495,8 @@
                            scale: 1,
                            y: 0,
                            duration: 1.4,
-                           ease: "cubic-bezier(0.2, 1, 0.3, 1)" // Apple Smooth Ease
-                       }, "-=0.3"); // Overlap start for seamless feel
+                           ease: "cubic-bezier(0.2, 1, 0.3, 1)" 
+                       }, "-=0.3");
 
                 tlMorph.to("#button-laser", {
                     left: "150%",
