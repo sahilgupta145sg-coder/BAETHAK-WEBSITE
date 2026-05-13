@@ -36,8 +36,8 @@
     
     <style>
         :root { --bg: #FAFAFA; --accent: #FF2D55; --gold: #FFD700; --text: #0A0A0A; --black: #000000; }
-        html, body { cursor: auto; -webkit-font-smoothing: antialiased; width: 100%; overflow-x: hidden; position: relative; overscroll-behavior-x: none; }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; }
+        html, body { cursor: auto; -webkit-font-smoothing: antialiased; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
         .heavy { font-family: 'Inter', sans-serif; font-weight: 900; }
         .glitch-font { font-family: 'Space Mono', monospace; }
         a, button, .interactive-item { cursor: pointer; }
@@ -47,7 +47,7 @@
         .nav-encrypt-btn:hover { background: transparent; border-color: var(--accent); color: var(--accent); transform: scale(1.05); }
         .hero-word { display: inline-block; transform: translateY(100%); opacity: 0; }
         .clip-text { overflow: hidden; display: inline-block; padding-right: 0.15em; margin-right: -0.15em; }
-        #map-section { height: 500vh; position: relative; background: #000; }
+        #map-section { height: 500vh; position: relative; background: #000; width: 100%; overflow: hidden; }
         #map-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         #map-imagery { position: absolute; width: 150%; height: 150%; background-image: url('https://www.mapcustomizer.com/map_images/dark-matte.png'); background-color: #050505; background-size: cover; background-position: center; transform: scale(1); filter: saturate(0.2) brightness(0.4); z-index: 1; will-change: transform; }
         #globe-ui { position: absolute; bottom: -60vh; width: 120vw; height: 120vh; border-radius: 50%; border: 1px solid rgba(255, 45, 85, 0.2); background: radial-gradient(circle at center, rgba(255, 45, 85, 0.08) 0%, transparent 70%), linear-gradient(to top, rgba(0,0,0,1) 40%, transparent 100%); opacity: 0; pointer-events: none; z-index: 2; }
