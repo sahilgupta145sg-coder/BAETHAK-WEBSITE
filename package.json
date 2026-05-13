@@ -1,0 +1,14 @@
+{
+  "name": "baethak-join",
+  "version": "1.0.0",
+  "description": "BAETHAK | The Real Social World",
+  "type": "module",
+  "scripts": {
+    "install-deps": "npm install"
+  },
+  "dependencies": {
+    "@vercel/speed-insights": "^1.1.0"
+  },
+  "devDependencies": {},
+  "private": true
+}
