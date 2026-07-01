@@ -29,6 +29,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,7 +42,13 @@
         .heavy { font-family: 'Inter', sans-serif; font-weight: 900; }
         .glitch-font { font-family: 'Space Mono', monospace; }
         a, button, .interactive-item { cursor: pointer; }
-        nav { backdrop-filter: blur(15px); background: rgba(250, 250, 250, 0.95); transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.4s ease; will-change: transform, opacity; }
+        nav { background: rgba(250, 250, 250, 0.97); transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.4s ease; will-change: transform, opacity; }
+        /* Lenis smooth scroll */
+        html.lenis, html.lenis body { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+        .lenis.lenis-smooth iframe { pointer-events: none; }
         .nav-encrypt-btn { background: var(--accent); color: white; border: 1px solid transparent; border-radius: 100px; font-weight: 800; text-transform: uppercase; transition: all 0.3s ease; width: 120px; display: flex; align-items: center; justify-content: center; z-index: 1; }
         @media (min-width: 768px) { .nav-encrypt-btn { width: 140px; } }
         .nav-encrypt-btn:hover { background: transparent; border-color: var(--accent); color: var(--accent); transform: scale(1.05); }
@@ -49,8 +56,8 @@
         .clip-text { overflow: hidden; display: inline-block; padding-right: 0.15em; margin-right: -0.15em; }
         #map-section { height: 500vh; position: relative; background: #000; }
         #map-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        #map-imagery { position: absolute; width: 150%; height: 150%; background-image: url('https://www.mapcustomizer.com/map_images/dark-matte.png'); background-color: #050505; background-size: cover; background-position: center; transform: scale(1); filter: saturate(0.2) brightness(0.4); z-index: 1; will-change: transform; }
-        #globe-ui { position: absolute; bottom: -60vh; width: 120vw; height: 120vh; border-radius: 50%; border: 1px solid rgba(255, 45, 85, 0.2); background: radial-gradient(circle at center, rgba(255, 45, 85, 0.08) 0%, transparent 70%), linear-gradient(to top, rgba(0,0,0,1) 40%, transparent 100%); opacity: 0; pointer-events: none; z-index: 2; }
+        #map-imagery { position: absolute; width: 150%; height: 150%; background-image: url('https://www.mapcustomizer.com/map_images/dark-matte.png'); background-color: #050505; background-size: cover; background-position: center; transform: scale(1) translateZ(0); filter: saturate(0.2) brightness(0.4); z-index: 1; will-change: transform, filter; backface-visibility: hidden; }
+        #globe-ui { position: absolute; bottom: -60vh; width: 120vw; height: 120vh; border-radius: 50%; border: 1px solid rgba(255, 45, 85, 0.2); background: radial-gradient(circle at center, rgba(255, 45, 85, 0.08) 0%, transparent 70%), linear-gradient(to top, rgba(0,0,0,1) 40%, transparent 100%); opacity: 0; pointer-events: none; z-index: 2; will-change: transform, opacity; }
         #globe-ui::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(circle at center, black 20%, transparent 80%); }
         .pin-container { position: absolute; transform: translate(-50%, -50%) scale(0); z-index: 100; opacity: 0; }
         .pin-dot { width: 14px; height: 14px; background: var(--accent); border: 2px solid #FFF; border-radius: 50%; box-shadow: 0 0 30px rgba(255, 45, 85, 0.8); }
@@ -328,6 +335,21 @@
     <script>
         window.addEventListener('load', () => {
             gsap.registerPlugin(ScrollTrigger);
+            ScrollTrigger.config({ ignoreMobileResize: true });
+
+            // --- SMOOTH SCROLL (Lenis) ---
+            // Interpolates raw wheel/trackpad input into continuous motion, then feeds
+            // ScrollTrigger. Uses native scroll under the hood, so position: sticky (the
+            // map section) keeps working. gsap.ticker is the single rAF driver.
+            const lenis = new Lenis({
+                duration: 1.1,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                smoothWheel: true
+            });
+            lenis.on('scroll', ScrollTrigger.update);
+            gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+            gsap.ticker.lagSmoothing(0);
+            window.lenis = lenis;
 
             // --- STICKER SLAP ENGINE ---
             const stickersList = ['🎫', '🍻', '🍕', '🎧', '🎮', '🧘🏻‍♀️', '📍', '💥', '🏏', '🏃🏽‍♀️','🏕️','☘️','🏍️'];
@@ -365,18 +387,19 @@
             window.heroTimeline.to('.hero-word', { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power4.out" })
                                .to('.hero-sub', { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
 
-            const tl = gsap.timeline({ scrollTrigger: { trigger: "#map-section", start: "top top", end: "bottom bottom", scrub: 1 }});
+            const tl = gsap.timeline({ scrollTrigger: { trigger: "#map-section", start: "top top", end: "bottom bottom", scrub: 0.6 }});
 
             tl.to("#map-imagery", { scale: 3, filter: "brightness(0.6)", duration: 2 }, 0)
               .to(".intro-title", { scale: 1.15, duration: 1 }, 0)
               .to(".vibe-emoji", { y: "-180vh", x: (i) => (i % 2 === 0 ? "25vw" : "-25vw"), rotate: (i) => (i * 25), stagger: 0.05, duration: 3 }, 0)
               .to(".intro-title", { opacity: 0, y: -150, scale: 1.8, duration: 1.5 }, 1)
-              .to("#globe-ui", { opacity: 1, bottom: "-30vh", duration: 1.5 }, 1)
+              .to("#globe-ui", { opacity: 1, y: "-30vh", duration: 1.5 }, 1)
               .to("#map-imagery", { scale: 6, x: -100, y: -50, filter: "brightness(1) saturate(1.1)", duration: 2.5 }, 1.5);
 
             const animatePin = (id, width, startTime) => {
+                gsap.set(`${id} .pin-pill`, { width: width });
                 tl.to(id, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(2)" }, startTime)
-                  .to(`${id} .pin-pill`, { scaleX: 1, opacity: 1, width: width, duration: 0.8 }, startTime + 0.1);
+                  .to(`${id} .pin-pill`, { scaleX: 1, opacity: 1, duration: 0.8 }, startTime + 0.1);
             };
             
             animatePin("#p1", "280px", 2.2); animatePin("#p2", "260px", 2.5); animatePin("#p3", "300px", 2.8); animatePin("#p4", "270px", 3.1); animatePin("#p5", "250px", 3.4);
@@ -391,28 +414,36 @@
             });
 
             const topNav = document.getElementById('top-nav');
-            let lastScroll = 0;
+            let nearFooter = false;
 
-            window.addEventListener('scroll', () => {
-                const currentScroll = window.pageYOffset;
-                const footer = document.getElementById('vibe-footer');
-                const footerPos = footer.getBoundingClientRect().top;
-                
-                if (footerPos < 400) {
-                    topNav.style.transform = 'translateY(-100%)';
-                    topNav.style.opacity = '0';
-                } else if (currentScroll <= 0) {
-                    topNav.style.transform = 'translateY(0)';
-                    topNav.style.opacity = '1';
-                    topNav.style.background = 'rgba(250, 250, 250, 0.95)';
-                } else if (currentScroll > lastScroll) {
-                    topNav.style.transform = 'translateY(-100%)';
-                } else {
-                    topNav.style.transform = 'translateY(0)';
-                    topNav.style.opacity = '1';
+            // Track when the footer is within 400px of the viewport top (same threshold as before)
+            ScrollTrigger.create({
+                trigger: "#vibe-footer",
+                start: "top 400px",
+                onEnter: () => { nearFooter = true; },
+                onLeaveBack: () => { nearFooter = false; }
+            });
+
+            // Single scroll driver for nav visibility (batched with all other ScrollTriggers)
+            ScrollTrigger.create({
+                onUpdate: (self) => {
+                    const currentScroll = self.scroll();
+
+                    if (nearFooter) {
+                        topNav.style.transform = 'translateY(-100%)';
+                        topNav.style.opacity = '0';
+                    } else if (currentScroll <= 0) {
+                        topNav.style.transform = 'translateY(0)';
+                        topNav.style.opacity = '1';
+                        topNav.style.background = 'rgba(250, 250, 250, 0.95)';
+                    } else if (self.direction === 1) {
+                        topNav.style.transform = 'translateY(-100%)';
+                    } else {
+                        topNav.style.transform = 'translateY(0)';
+                        topNav.style.opacity = '1';
+                    }
                 }
-                lastScroll = currentScroll;
-            }, { passive: true });
+            });
 
 
             let liveCount = 2408;
@@ -504,7 +535,7 @@
                            scale: 1,
                            y: 0,
                            duration: 1.4,
-                           ease: "cubic-bezier(0.2, 1, 0.3, 1)" 
+                           ease: "expo.out"
                        }, "-=0.3");
 
                 tlMorph.to("#button-laser", {
