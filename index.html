@@ -167,6 +167,10 @@
 
     <script>
         (function() {
+            // Always start at the top on reload (disable the browser's scroll restoration)
+            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+            window.scrollTo(0, 0);
+
             const textElement = document.getElementById('loader-text');
             const loaderBg = document.getElementById('baethak-preloader');
             document.body.style.overflow = 'hidden';
@@ -378,6 +382,7 @@
             lenis.on('scroll', ScrollTrigger.update);
             gsap.ticker.add((time) => { lenis.raf(time * 1000); });
             gsap.ticker.lagSmoothing(0);
+            lenis.scrollTo(0, { immediate: true }); // ensure we start at the top on (re)load
             window.lenis = lenis;
 
             // --- STICKER SLAP ENGINE ---
