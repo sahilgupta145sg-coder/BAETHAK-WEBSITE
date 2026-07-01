@@ -443,10 +443,8 @@
                 const cards = document.querySelectorAll('.tilt-card');
                 const MAX = 10; // max tilt degrees
                 // Detect by INPUT type (not width): touch devices have no hover + coarse pointer.
-                // A mouse/trackpad reports hover+fine even in a narrow window, so desktop stays testable.
-                // (#mobilepreview hash forces the mobile path on desktop for previewing — harmless otherwise.)
-                const touchMode = window.matchMedia('(hover: none) and (pointer: coarse)').matches
-                                  || window.location.hash === '#mobilepreview';
+                // 3D pointer tilt is desktop-only for now; mobile just gets a clean fade-in.
+                const touchMode = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
                 cards.forEach((card) => {
                     const inner = card.querySelector('.tilt-inner');
@@ -455,18 +453,11 @@
                     if (reduce) { gsap.set(inner, { opacity: 1 }); return; }
 
                     if (touchMode) {
-                        // --- MOBILE ---
-                        // Clean entrance: fade + rise (settles flat & square)
+                        // --- MOBILE ---: clean flat cards for now (no 3D tilt; TBD later).
                         gsap.from(inner, {
                             y: 44, opacity: 0, duration: 1.0, ease: "power3.out",
                             scrollTrigger: { trigger: card, start: "top 88%" }
                         });
-                        // Gentle, UNIFORM scroll lean (flat & head-on at viewport center).
-                        // Only rotationX -> no left/right skew, so the card never looks crooked.
-                        gsap.fromTo(inner,
-                            { rotationX: 5 },
-                            { rotationX: -5, ease: "none",
-                              scrollTrigger: { trigger: card, start: "top bottom", end: "bottom top", scrub: true } });
                         return;
                     }
 
