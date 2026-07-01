@@ -65,6 +65,10 @@
         .vibe-tag { color: var(--accent); text-transform: lowercase; font-style: italic; opacity: 0.8; }
         .vibe-emoji { position: absolute; font-size: 4rem; pointer-events: none; z-index: 10; filter: drop-shadow(0 15px 30px rgba(0,0,0,1)); transform: translateY(110vh); }
         .reveal { opacity: 0; transform: translateY(30px); }
+        /* Clips only the tilted marquee's horizontal spill (from scale(1.05)+rotate).
+           overflow-x: clip keeps overflow-y visible, so the tilt still bleeds vertically.
+           Local to the marquee — NOT an ancestor of the sticky map, so pinning is unaffected. */
+        .marquee-clip { overflow-x: clip; }
         .marquee-wrapper { overflow: hidden; white-space: nowrap; background: #FF2D55; color: #FFF; padding: 15px 0; transform: rotate(-2deg) scale(1.05); margin: 40px 0; position: relative; z-index: 50; }
         .marquee-content { display: inline-block; animation: marquee 15s linear infinite; font-size: 1.5rem; font-family: 'Inter', sans-serif; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
@@ -248,10 +252,12 @@
         </div>
     </section>
 
-    <div class="marquee-wrapper">
-        <div class="marquee-content">
-            ✦ STAY CONNECTED ✦ JUST PINS ✦ REAL PEOPLE ✦ MEETUP OFFLINE ✦ FIND YOUR TRIBE ✦ BAETHAK APP ✦ NO GHOSTS ✦ THE REAL SOCIAL WORLD ✦ 
-            ✦ STAY CONNECTED ✦ JUST PINS ✦ REAL PEOPLE ✦ MEETUP OFFLINE ✦ FIND YOUR TRIBE ✦ BAETHAK APP ✦ NO GHOSTS ✦ THE REAL SOCIAL WORLD ✦
+    <div class="marquee-clip">
+        <div class="marquee-wrapper">
+            <div class="marquee-content">
+                ✦ STAY CONNECTED ✦ JUST PINS ✦ REAL PEOPLE ✦ MEETUP OFFLINE ✦ FIND YOUR TRIBE ✦ BAETHAK APP ✦ NO GHOSTS ✦ THE REAL SOCIAL WORLD ✦
+                ✦ STAY CONNECTED ✦ JUST PINS ✦ REAL PEOPLE ✦ MEETUP OFFLINE ✦ FIND YOUR TRIBE ✦ BAETHAK APP ✦ NO GHOSTS ✦ THE REAL SOCIAL WORLD ✦
+            </div>
         </div>
     </div>
 
