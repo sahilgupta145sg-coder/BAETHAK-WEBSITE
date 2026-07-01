@@ -134,6 +134,19 @@
                 transform: translateX(-40px) translateY(0px) !important;
             }
         }
+        /* --- 3D TILT CARDS (No content / No ghosts) --- */
+        .tilt-card { perspective: 1200px; }
+        .tilt-inner { position: relative; transform-style: preserve-3d; will-change: transform; box-shadow: 0 20px 50px rgba(0,0,0,0.12); transition: box-shadow 0.35s ease; }
+        .tilt-card:hover .tilt-inner { box-shadow: 0 40px 90px rgba(0,0,0,0.25); }
+        .tilt-content { transform-style: preserve-3d; position: relative; }
+        .tilt-pop { transform: translateZ(60px); }
+        .tilt-sub { transform: translateZ(32px); }
+        .tilt-glare { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transform: translateZ(65px); transition: opacity 0.25s ease;
+            background: radial-gradient(circle at var(--gx,50%) var(--gy,50%), rgba(255,255,255,0.35), rgba(255,255,255,0) 55%); }
+        @media (prefers-reduced-motion: reduce) {
+            .tilt-inner { transform: none !important; }
+            .tilt-glare { display: none; }
+        }
     </style>
     
     <!-- Vercel Speed Insights -->
@@ -284,13 +297,23 @@
             <p class="text-xl heavy uppercase text-[#FF2D55] reveal">// THE BETA IS LIVE. THE WAITLIST IS LONG.</p>
         </div>
         <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-8">
-            <div class="reveal bg-black text-[#FF2D55] p-12 rounded-[3rem]">
-                <h4 class="text-3xl heavy uppercase italic mb-4">No content.</h4>
-                <p class="text-white text-lg opacity-70">We don't do feeds. We do pins. You see where the vibe is, and you just show up.</p>
+            <div class="tilt-card rounded-[3rem]">
+                <div class="tilt-inner bg-black text-[#FF2D55] p-12 rounded-[3rem]">
+                    <div class="tilt-content">
+                        <h4 class="tilt-pop text-3xl heavy uppercase italic mb-4">No content.</h4>
+                        <p class="tilt-sub text-white text-lg opacity-70">We don't do feeds. We do pins. You see where the vibe is, and you just show up.</p>
+                    </div>
+                    <span class="tilt-glare"></span>
+                </div>
             </div>
-            <div class="reveal bg-[#FF2D55] text-white p-12 rounded-[3rem]">
-                <h4 class="text-3xl heavy uppercase italic mb-4">No ghosts.</h4>
-                <p class="text-lg">Stay connected with people you actually met. No random followers, just real-world history.</p>
+            <div class="tilt-card rounded-[3rem]">
+                <div class="tilt-inner bg-[#FF2D55] text-white p-12 rounded-[3rem]">
+                    <div class="tilt-content">
+                        <h4 class="tilt-pop text-3xl heavy uppercase italic mb-4">No ghosts.</h4>
+                        <p class="tilt-sub text-lg">Stay connected with people you actually met. No random followers, just real-world history.</p>
+                    </div>
+                    <span class="tilt-glare"></span>
+                </div>
             </div>
         </div>
     </section>
@@ -413,6 +436,69 @@
             document.querySelectorAll('.reveal').forEach((el) => {
                 gsap.to(el, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 1, ease: "power4.out" });
             });
+
+            // --- 3D TILT CARDS (No content / No ghosts) ---
+            (function initTiltCards(){
+                const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                const cards = document.querySelectorAll('.tilt-card');
+                const MAX = 10; // max tilt degrees
+                // Detect by INPUT type (not width): touch devices have no hover + coarse pointer.
+                // A mouse/trackpad reports hover+fine even in a narrow window, so desktop stays testable.
+                // (#mobilepreview hash forces the mobile path on desktop for previewing — harmless otherwise.)
+                const touchMode = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+                                  || window.location.hash === '#mobilepreview';
+
+                cards.forEach((card) => {
+                    const inner = card.querySelector('.tilt-inner');
+                    const glare = card.querySelector('.tilt-glare');
+
+                    if (reduce) { gsap.set(inner, { opacity: 1 }); return; }
+
+                    if (touchMode) {
+                        // --- MOBILE ---
+                        // Clean entrance: fade + rise (settles flat & square)
+                        gsap.from(inner, {
+                            y: 44, opacity: 0, duration: 1.0, ease: "power3.out",
+                            scrollTrigger: { trigger: card, start: "top 88%" }
+                        });
+                        // Gentle, UNIFORM scroll lean (flat & head-on at viewport center).
+                        // Only rotationX -> no left/right skew, so the card never looks crooked.
+                        gsap.fromTo(inner,
+                            { rotationX: 5 },
+                            { rotationX: -5, ease: "none",
+                              scrollTrigger: { trigger: card, start: "top bottom", end: "bottom top", scrub: true } });
+                        return;
+                    }
+
+                    // --- DESKTOP ---
+                    // Cinematic 3D entrance (settles before pointer control kicks in)
+                    gsap.from(inner, {
+                        rotateX: -22, y: 44, opacity: 0, duration: 1.1, ease: "power3.out",
+                        scrollTrigger: { trigger: card, start: "top 85%" }
+                    });
+
+                    const rx = gsap.quickTo(inner, "rotationX", { duration: 0.5, ease: "power3.out" });
+                    const ry = gsap.quickTo(inner, "rotationY", { duration: 0.5, ease: "power3.out" });
+
+                    // Pointer-driven tilt + glare
+                    card.addEventListener('mousemove', (e) => {
+                        const r = card.getBoundingClientRect();
+                        const px = (e.clientX - r.left) / r.width - 0.5;
+                        const py = (e.clientY - r.top) / r.height - 0.5;
+                        ry(px * MAX * 2);
+                        rx(-py * MAX * 2);
+                        if (glare) {
+                            glare.style.setProperty('--gx', (50 + px * 100) + '%');
+                            glare.style.setProperty('--gy', (50 + py * 100) + '%');
+                            glare.style.opacity = '1';
+                        }
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        rx(0); ry(0);
+                        if (glare) glare.style.opacity = '0';
+                    });
+                });
+            })();
 
             gsap.to('.scroll-indicator', {
                 scrollTrigger: { trigger: "#map-section", start: "top top", toggleActions: "play none none reverse" },
