@@ -42,16 +42,58 @@
         .heavy { font-family: 'Inter', sans-serif; font-weight: 900; }
         .glitch-font { font-family: 'Space Mono', monospace; }
         a, button, .interactive-item { cursor: pointer; }
-        nav { background: rgba(250, 250, 250, 0.97); transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.4s ease; will-change: transform, opacity; }
+        /* ===== Two floating elements ("no pill" at rest); liquid body only appears while moving ===== */
+        #top-nav.nav-drops { position: fixed; top: 0; left: 0; right: 0; height: 76px; z-index: 100; pointer-events: none; }
+        /* the liquid bodies — invisible at rest (opacity driven by JS); the goo filter fuses them as
+           they overlap at the top-center point. drop-shadow floats them while visible. */
+        .goo-layer { position: absolute; inset: 0; filter: url(#liquid-goo) drop-shadow(0 6px 16px rgba(20,20,40,0.22)); opacity: 0; transform: translateZ(0); will-change: transform, opacity; }
+        .blob {
+            position: absolute; top: 13px; height: 46px; width: 158px; border-radius: 9999px;
+            background: linear-gradient(180deg, rgba(250,250,253,0.98) 0%, rgba(224,224,234,0.95) 100%);
+            transform-origin: center center; will-change: transform;
+        }
+        /* transform-origin = each pill's INNER-TOP corner, so it stretches/collapses toward top-center */
+        .blob-left  { left: 18px; transform-origin: 100% 0%; }
+        .blob-right { right: 18px; transform-origin: 0% 0%; }
+        /* crisp content rides on top (NOT goo-filtered, so text stays sharp) */
+        .pill-content {
+            position: absolute; top: 13px; height: 46px; width: 158px; z-index: 2; pointer-events: auto;
+            display: flex; align-items: center; justify-content: center;
+            transform-origin: center center; will-change: transform, opacity;
+        }
+        .content-left  { left: 18px; transform-origin: 100% 0%; }
+        .content-right { right: 18px; flex-direction: column; gap: 1px; transform-origin: 0% 0%; }
+        .content-right > * { position: relative; z-index: 1; }
+        /* running light-beam lines flanking the CTA (same idea as .scroll-line) -> signals clickable */
+        .cta-row { display: flex; align-items: center; gap: 9px; }
+        .cta-beam { width: 1.5px; height: 18px; flex: 0 0 auto; position: relative; overflow: hidden;
+            background: linear-gradient(to bottom, transparent, var(--accent), transparent); }
+        .cta-beam::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent, #fff, transparent);
+            animation: ctaBeam 1.8s infinite cubic-bezier(0.7, 0, 0.3, 1); }
+        .cta-beam:last-child::after { animation-delay: 0.9s; }
+        @keyframes ctaBeam { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+        /* BAETHAK wordmark rendered as plain bold text (guaranteed to render in every browser) */
+        .wordmark-text { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 20px; line-height: 1;
+            letter-spacing: -0.5px; color: #EE365B; text-transform: uppercase; white-space: nowrap; }
+        .pill-logo { position: relative; z-index: 1; width: 140px; height: 17px; }
+        .pill-logo svg { display: block; width: 100%; height: 100%; }
+        @media (max-width: 640px) { .wordmark-text { font-size: 16px; } }
+        @media (max-width: 640px) {
+            #top-nav.nav-drops { height: 62px; }
+            .blob, .pill-content { top: 10px; height: 40px; width: 128px; }
+            .blob-left, .content-left { left: 12px; }
+            .blob-right, .content-right { right: 12px; }
+            .pill-logo { width: 112px; height: 14px; }
+        }
         /* Lenis smooth scroll */
         html.lenis, html.lenis body { height: auto; }
         .lenis.lenis-smooth { scroll-behavior: auto !important; }
         .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
         .lenis.lenis-stopped { overflow: hidden; }
         .lenis.lenis-smooth iframe { pointer-events: none; }
-        .nav-encrypt-btn { background: var(--accent); color: white; border: 1px solid transparent; border-radius: 100px; font-weight: 800; text-transform: uppercase; transition: all 0.3s ease; width: 120px; display: flex; align-items: center; justify-content: center; z-index: 1; }
-        @media (min-width: 768px) { .nav-encrypt-btn { width: 140px; } }
-        .nav-encrypt-btn:hover { background: transparent; border-color: var(--accent); color: var(--accent); transform: scale(1.05); }
+        .nav-encrypt-btn { background: transparent; color: var(--accent); border: none; font-family: 'Inter', sans-serif; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; transition: transform 0.3s ease, opacity 0.3s ease; display: flex; align-items: center; justify-content: center; z-index: 1; white-space: nowrap; }
+        .nav-encrypt-btn:hover { color: var(--accent); transform: scale(1.06); opacity: 0.82; }
         .hero-word { display: inline-block; transform: translateY(100%); opacity: 0; }
         .clip-text { overflow: hidden; display: inline-block; padding-right: 0.15em; margin-right: -0.15em; }
         #map-section { height: 500vh; position: relative; background: #000; }
@@ -128,12 +170,6 @@
         @keyframes sweepLoop { 0% { left: -150%; } 40% { left: 150%; } 100% { left: 150%; } }
         .laser-line { position: absolute; top: 0; left: -100%; width: 40px; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 45, 85, 0.2) 20%, rgba(255, 45, 85, 1) 50%, rgba(255, 45, 85, 0.2) 80%, transparent); box-shadow: 0 0 20px rgba(255, 45, 85, 0.8); transform: skewX(-20deg); z-index: 10; }
         
-        /* THE WORDMARK DESKTOP FIX */
-        @media (min-width: 1024px) {
-            .nav-wordmark {
-                transform: translateX(-40px) translateY(0px) !important;
-            }
-        }
         /* --- 3D TILT CARDS (No content / No ghosts) --- */
         .tilt-card { perspective: 1200px; }
         .tilt-inner { position: relative; transform-style: preserve-3d; will-change: transform; box-shadow: 0 20px 50px rgba(0,0,0,0.12); transition: box-shadow 0.35s ease; }
@@ -215,19 +251,44 @@
         <div class="scroll-line"></div>
     </div>
 
-    <nav id="top-nav" class="fixed top-0 w-full z-[100] px-10 md:px-12 py-2 flex justify-between items-center h-20 overflow-visible">
-    <div class="flex items-center justify-center">
-        <img src="logo.svg" 
-             class="block nav-wordmark"
-             style="height: 460px; width: auto; margin-left: -110px; transform: translateY(0px);" 
-             alt="BAETHAK">
-    </div>
-        
-        <div class="flex flex-col items-end pt-4">
-            <a href="https://forms.gle/hYXFSkrAM6Gx29qx7" id="nav-encrypt-btn" class="nav-encrypt-btn interactive-item text-[8px] md:text-[11px] py-1.5 md:py-2">
-                Join the Waitlist
-            </a>
-            <div class="whitespace-nowrap text-[6.5px] md:text-[9px] uppercase tracking-tighter font-bold opacity-60 mt-0.5 text-right">
+    <!-- SVG goo filter: blurs then hard-thresholds alpha so overlapping blobs fuse like liquid -->
+    <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+        <defs>
+            <filter id="liquid-goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="b"/>
+                <feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/>
+            </filter>
+        </defs>
+    </svg>
+
+    <nav id="top-nav" class="nav-drops">
+        <div class="goo-layer">
+            <div class="blob blob-left" id="blob-left"></div>
+            <div class="blob blob-right" id="blob-right"></div>
+        </div>
+        <div class="pill-content content-left" id="content-left">
+            <div class="pill-logo">
+                <svg class="wordmark-svg" viewBox="552 946 896 108" preserveAspectRatio="xMidYMid meet" role="img" aria-label="BAETHAK" fill="#EE365B" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M664.38,1006.19c-5.19-2.93-11.73-4.9-19.61-5.92c5.19-1.13,9.73-2.81,13.62-5.06 c3.9-2.25,6.95-5.07,9.15-8.45c2.2-3.38,3.31-7.37,3.31-11.97c0-3.66-0.8-7.11-2.39-10.35c-1.6-3.24-4.11-6.03-7.53-8.38 c-3.43-2.35-7.86-4.2-13.31-5.56c-5.45-1.36-12.07-2.04-19.86-2.04h-44.78h-15.07H552v105.62h21.41h9.58h55.21 c5.54,0,10.63-0.61,15.28-1.83c4.65-1.22,8.66-2.98,12.04-5.28c3.38-2.3,6.03-5.16,7.96-8.59c1.92-3.43,2.89-7.34,2.89-11.76 C676.35,1017.5,672.36,1010.69,664.38,1006.19z M630.3,975.2c3.29,0,5.7,0.63,7.25,1.9c1.55,1.27,2.32,2.98,2.32,5.14 c0,2.35-0.84,4.11-2.53,5.28c-1.69,1.17-4.04,1.76-7.04,1.76h-16.05h-31.26V975.2H630.3z M642.62,1025.76 c-1.83,1.03-4.06,1.55-6.69,1.55h-52.95v-14.08h39.29h12.68c3.57,0,6.2,0.66,7.89,1.97c1.69,1.32,2.54,3.1,2.54,5.35 C645.37,1023,644.45,1024.73,642.62,1025.76z"/>
+                    <path d="M728.74,948.45l-49.57,105.62h34.93l6.48-14.79h51.83l6.48,14.79h34.93l-49.57-105.62H728.74z M731.84,1013.93 l14.65-33.1l14.65,33.1H731.84z"/>
+                    <polygon points="822.26,1054.07 926.75,1054.07 926.75,1027.31 853.24,1027.31 853.24,1014.21 923.94,1014.21 923.94,988.87 853.24,988.87 853.24,975.2 926.75,975.2 926.75,948.45 822.26,948.45"/>
+                    <polygon points="938.02,975.2 983.93,975.2 983.93,1054.07 1014.92,1054.07 1014.92,975.2 1060.83,975.2 1060.83,948.45 938.02,948.45"/>
+                    <polygon points="1163.91,989.57 1103.07,989.57 1103.07,948.45 1072.09,948.45 1072.09,1054.07 1103.07,1054.07 1103.07,1016.33 1163.91,1016.33 1163.91,1054.07 1194.9,1054.07 1194.9,948.45 1163.91,948.45"/>
+                    <polygon points="1408.85,1054.07 1448,1054.07 1399.99,991.72 1447.86,948.45 1405.47,948.45 1353.36,995.52 1353.36,948.45 1322.38,948.45 1322.38,1054.07 1353.36,1054.07 1353.36,1033.88 1376.83,1012.66"/>
+                    <path d="M1296.52,960.94c-9.45-9.31-22.47-14.42-35.57-14.97c-0.7-0.03-1.4-0.05-2.1-0.05 c-13.12-0.06-26.34,4.44-36.29,13.21c-4.63,4.09-8.51,9.08-11.12,14.73c-5.26,11.36-3.16,25.23-3.16,37.4c0,14.27,0,28.53,0,42.8 h37.4v-64.98c0.8-5.93,6.63-10.39,13.34-10.3c6.56,0.09,12.14,4.51,12.92,10.3c0,21.66,0,43.32,0,64.98h36.91 c0-18.26,0-36.51,0-54.77c0-7.84,0.73-15.68-2.17-23.11C1304.45,970.43,1300.9,965.25,1296.52,960.94z"/>
+                    <path d="M1262.79,1010.64c-3.47,0-6.28,2.84-6.28,6.35s2.81,6.35,6.28,6.35c3.47,0,6.28-2.84,6.28-6.35 S1266.26,1010.64,1262.79,1010.64z"/>
+                </svg>
+            </div>
+        </div>
+        <div class="pill-content content-right" id="content-right">
+            <div class="cta-row">
+                <span class="cta-beam"></span>
+                <a href="https://forms.gle/hYXFSkrAM6Gx29qx7" id="nav-encrypt-btn" class="nav-encrypt-btn interactive-item text-[9px] md:text-[12px]">
+                    Join the Waitlist
+                </a>
+                <span class="cta-beam"></span>
+            </div>
+            <div class="whitespace-nowrap text-[6.5px] md:text-[9px] uppercase tracking-tighter font-bold opacity-60 text-center">
                 JOIN <span class="live-counter-val text-[8px] md:text-[10px] text-[#FF2D55]">2,413</span> PEOPLE WAITING FOR THE DROP
             </div>
         </div>
@@ -501,10 +562,12 @@
                 opacity: 0, y: 20, duration: 0.5
             });
 
-            const topNav = document.getElementById('top-nav');
+            const blobLeft = document.getElementById('blob-left');
+            const blobRight = document.getElementById('blob-right');
+            const contentLeft = document.getElementById('content-left');
+            const contentRight = document.getElementById('content-right');
             let nearFooter = false;
 
-            // Track when the footer is within 400px of the viewport top (same threshold as before)
             ScrollTrigger.create({
                 trigger: "#vibe-footer",
                 start: "top 400px",
@@ -512,26 +575,87 @@
                 onLeaveBack: () => { nearFooter = false; }
             });
 
-            // Single scroll driver for nav visibility (batched with all other ScrollTriggers)
+            // 0 = drops spread apart (shown), 1 = fused at top-center then lifted away (hidden)
+            let navTarget = 0;
             ScrollTrigger.create({
                 onUpdate: (self) => {
-                    const currentScroll = self.scroll();
-
-                    if (nearFooter) {
-                        topNav.style.transform = 'translateY(-100%)';
-                        topNav.style.opacity = '0';
-                    } else if (currentScroll <= 0) {
-                        topNav.style.transform = 'translateY(0)';
-                        topNav.style.opacity = '1';
-                        topNav.style.background = 'rgba(250, 250, 250, 0.95)';
-                    } else if (self.direction === 1) {
-                        topNav.style.transform = 'translateY(-100%)';
-                    } else {
-                        topNav.style.transform = 'translateY(0)';
-                        topNav.style.opacity = '1';
-                    }
+                    const s = self.scroll();
+                    // Only converge after a real downward scroll past a threshold — never near the top.
+                    // (This kills the load/preloader "flash" where the header briefly merged at center.)
+                    if (nearFooter) navTarget = 1;
+                    else if (s <= 90) navTarget = 0;
+                    else if (self.direction === 1) navTarget = 1;
+                    else navTarget = 0;
                 }
             });
+
+            // Each pill's INNER-TOP corner (the corner facing the convergence) + the top-center point.
+            // transform-origin is set to that corner in CSS, so the corner leads toward the point and
+            // the body stretches/collapses from it.
+            let icxL = 0, icyL = 0, icxR = 0, icyR = 0, ox = 0;
+            const oy = 6;                                          // the top-center dot
+            const gooLayer = document.querySelector('.goo-layer');
+            const measureNav = () => {
+                ox   = window.innerWidth / 2;
+                icxL = contentLeft.offsetLeft + contentLeft.offsetWidth;   // left pill inner-top = right-top
+                icyL = contentLeft.offsetTop;
+                icxR = contentRight.offsetLeft;                            // right pill inner-top = left-top
+                icyR = contentRight.offsetTop;
+            };
+            measureNav();
+            window.addEventListener('resize', measureNav);
+
+            const navReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const clamp01 = (x) => x < 0 ? 0 : x > 1 ? 1 : x;
+            const smooth = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+
+            if (navReduce) {
+                ScrollTrigger.create({ onUpdate: () => {
+                    const t = navTarget;
+                    const setT = (el, icx, icy) => { el.style.transform = t ? ('translate(' + (ox - icx) + 'px,' + (oy - icy) + 'px) scale(0.02)') : 'none'; };
+                    setT(blobLeft, icxL, icyL); setT(contentLeft, icxL, icyL);
+                    setT(blobRight, icxR, icyR); setT(contentRight, icxR, icyR);
+                    contentLeft.style.opacity = contentRight.style.opacity = t ? '0' : '1';
+                    gooLayer.style.opacity = '0';
+                }});
+            } else {
+                // --- "NO PILL" LIQUID DROPS -> stretch from the inner-top corner into one dot at top-center ---
+                // Each pill's inner-top corner (transform-origin) travels to the top-center point and LEADS;
+                // the body stretches out behind it (liquid reach) then gradually collapses into the point.
+                // Both mirror, meet at the point, and fuse (goo). Reverse on scroll-up. NO bounce (crit. damped).
+                // Softer spring => the whole liquid morph is SLOW enough to clearly watch it happen.
+                let p = 0, v = 0;
+                const K = 0.045, C = 2 * Math.sqrt(0.045);
+                const EPS = 0.00016;
+
+                const apply = (blob, content, icx, icy) => {
+                    // DIRECTIONAL liquid pull (not a size-up): from the inner-top corner (transform-origin),
+                    // the shape stretches ALONG the axis toward the top-center point and THINS perpendicular
+                    // -> a real liquid stretch (area ~preserved), applied identically to the pill AND the
+                    // element/SVG inside it. Then it collapses (sucks) into the point.
+                    const posP  = smooth(0, 0.6, p);                       // corner travels to the point
+                    const pullP = smooth(0, 0.5, p) * (1 - smooth(0.6, 1, p)); // stretch peaks mid, releases into suck
+                    const suckP = smooth(0.55, 1, p);                      // final collapse into the point
+                    const tx = (ox - icx) * posP;
+                    const ty = (oy - icy) * posP;
+                    const ang = Math.atan2(oy - icy, ox - icx) * 180 / Math.PI; // pull axis: corner -> point
+                    const mult = 1 - suckP;                                // overall 1 -> 0 (sucked to a point)
+                    const sAlong = Math.max(0, mult * (1 + 0.85 * pullP)); // elongate TOWARD the point
+                    const sPerp  = Math.max(0, mult * (1 - 0.55 * pullP)); // thin perpendicular (so it isn't "bigger")
+                    const tf = 'translate(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px) rotate(' + ang.toFixed(2) + 'deg) scale(' + sAlong.toFixed(4) + ',' + sPerp.toFixed(4) + ') rotate(' + (-ang).toFixed(2) + 'deg)';
+                    blob.style.transform = tf;
+                    content.style.transform = tf;
+                    content.style.opacity = (1 - smooth(0.5, 0.82, p)).toFixed(3); // element fades as it liquefies in
+                };
+
+                gsap.ticker.add(() => {
+                    if (Math.abs(navTarget - p) < EPS && Math.abs(v) < EPS) return;
+                    v += (navTarget - p) * K - v * C; p += v;               // critically-damped spring
+                    apply(blobLeft, contentLeft, icxL, icyL);
+                    apply(blobRight, contentRight, icxR, icyR);
+                    gooLayer.style.opacity = (0.72 * smooth(0.03, 0.22, p)).toFixed(3); // liquid only while moving
+                });
+            }
 
 
             let liveCount = 2408;
