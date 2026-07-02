@@ -220,27 +220,27 @@
             });
 
             tl
-            // 1) Hold बैठक briefly, then collapse it horizontally — left & right rush into the center
+            // 1) Hold बैठक ~1s, then collapse it horizontally — left & right glide into the center
             .to(textElement, {
-                delay: 0.55,
-                duration: 0.24,
+                delay: 0.6,
+                duration: 0.3,
                 scaleX: 0,
-                ease: "power3.in",
+                ease: "power2.inOut",
                 transformOrigin: "center center",
                 onComplete: () => {
                     textElement.innerHTML = '<img src="logo.svg" style="width: 599px; height: auto; display: inline-block;" alt="BAETHAK">';
                 }
             })
-            // 2) BAETHAK wordmark stretches back outward to left & right from the center (fast, slight overshoot)
+            // 2) BAETHAK wordmark stretches back outward to left & right from the center (refined pop)
             .to(textElement, {
-                duration: 0.34,
+                duration: 0.4,
                 scaleX: 1,
-                ease: "back.out(1.5)",
+                ease: "back.out(1.3)",
             })
-            // 3) Short hold, then slide the preloader up to reveal the page
+            // 3) Hold the BAETHAK wordmark ~1s, then slide the preloader up to reveal the page
             .to(loaderBg, {
-                delay: 0.45,
-                duration: 0.5,
+                delay: 0.6,
+                duration: 0.45,
                 y: "-100%",
                 ease: "expo.inOut"
             });
