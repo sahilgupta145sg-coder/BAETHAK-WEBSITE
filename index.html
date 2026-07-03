@@ -123,19 +123,19 @@
         @media (max-width: 768px) { .scroll-indicator { right: 8px; bottom: 20px; transform: scale(0.7); transform-origin: bottom right; } .pin-pill { font-size: 10px; padding: 8px 14px; gap: 6px; } #p2 { right: auto !important; left: 10% !important; } #p4 { left: 20% !important; } #p3 { left: 30% !important; } #p5 { left: 15% !important; } .vibe-emoji { font-size: 2.5rem; } }
         #vibe-footer { min-height: 100vh; background: #000; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         
-        .logo-container { position: relative; display: inline-block; margin-bottom: 20px; padding: 10px; }
+        .logo-scene { display: inline-block; perspective: 1100px; }
+        .logo-container { position: relative; display: inline-block; margin-bottom: 20px; padding: 10px; will-change: transform; transition: box-shadow 0.35s ease; }
         #morph-logo { transition: filter 0.3s ease; position: relative; z-index: 10; animation: atmosphericGlow 3s infinite alternate ease-in-out; will-change: filter, transform; }
-        
         .logo-container::after {
             content: "";
             position: absolute;
             top: 0; left: -150%;
             width: 80%; height: 100%;
-            background: linear-gradient(to right, 
-                transparent 0%, 
-                rgba(255, 45, 85, 0.5) 30%, 
-                rgba(255, 215, 0, 0.8) 50%, 
-                rgba(255, 45, 85, 0.5) 70%, 
+            background: linear-gradient(to right,
+                transparent 0%,
+                rgba(255, 45, 85, 0.5) 30%,
+                rgba(255, 215, 0, 0.8) 50%,
+                rgba(255, 45, 85, 0.5) 70%,
                 transparent 100%);
             transform: skewX(-20deg);
             z-index: 11;
@@ -143,8 +143,15 @@
             mix-blend-mode: color-dodge;
             animation: spectrumLaser 5s infinite cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        @keyframes atmosphericGlow { 
+        /* holo-tilt: the whole .logo-container tilts; laser ::after + #morph-logo stay siblings (exact pushed blend) */
+        .logo-container:hover { box-shadow: 0 26px 60px rgba(255,45,85,0.20); }
+        .holo-sheen { position: absolute; inset: 0; z-index: 12; border-radius: 4px; pointer-events: none; opacity: 0; transition: opacity 0.25s ease; mix-blend-mode: screen;
+            background:
+                radial-gradient(circle at var(--gx,50%) var(--gy,50%), rgba(255,255,255,0.42), rgba(255,255,255,0) 42%),
+                conic-gradient(from 210deg at var(--gx,50%) var(--gy,50%), rgba(255,45,85,0.30), rgba(255,215,0,0.24), rgba(120,120,255,0.28), rgba(255,45,85,0.30)); }
+        @media (prefers-reduced-motion: reduce) { .logo-container { transform: none !important; } .holo-sheen { display: none; } }
+        
+        @keyframes atmosphericGlow {
             0% { filter: drop-shadow(0 0 10px rgba(255, 45, 85, 0.2)) drop-shadow(0 0 2px rgba(255, 215, 0, 0.1)); } 
             100% { filter: drop-shadow(0 0 15px rgba(255, 45, 85, 0.6)) drop-shadow(0 0 30px rgba(255, 215, 0, 0.3)) drop-shadow(0 0 80px rgba(255, 45, 85, 0.1)); } 
         }
@@ -385,8 +392,11 @@
     </section>
 
     <footer id="vibe-footer">
-        <div class="logo-container">
-            <img id="morph-logo" src="white svg-01.svg" class="w-[280px] md:w-[500px] h-auto" alt="BAETHAK">
+        <div class="logo-scene">
+            <div class="logo-container">
+                <img id="morph-logo" src="white svg-01.svg" class="w-[280px] md:w-[500px] h-auto" alt="BAETHAK">
+                <span class="holo-sheen" aria-hidden="true"></span>
+            </div>
         </div>
         
         <div id="footer-live-status" class="mb-6 flex items-center justify-center text-[10px] md:text-xs heavy uppercase tracking-widest text-white/70 relative z-10">
@@ -714,12 +724,55 @@
                 }, 30);
             });
 
+            // --- 3D HOLO-TILT: footer logo card (tilts the .logo-3d wrapper; morph still targets #morph-logo) ---
+            (function initLogoTilt(){
+                const reduceLT = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                const scene = document.querySelector('.logo-scene');
+                const card = document.querySelector('.logo-container');
+                const sheen = document.querySelector('.holo-sheen');
+                if (!scene || !card || reduceLT) return;
+                const MAX = 15;
+                const rx = gsap.quickTo(card, "rotationX", { duration: 0.5, ease: "power3.out" });
+                const ry = gsap.quickTo(card, "rotationY", { duration: 0.5, ease: "power3.out" });
+                // Desktop: pointer tilt + holographic sheen follows the cursor
+                scene.addEventListener('mousemove', (e) => {
+                    const r = scene.getBoundingClientRect();
+                    const px = (e.clientX - r.left) / r.width - 0.5;
+                    const py = (e.clientY - r.top) / r.height - 0.5;
+                    ry(px * MAX * 2);
+                    rx(-py * MAX * 2);
+                    if (sheen) {
+                        sheen.style.setProperty('--gx', (50 + px * 100) + '%');
+                        sheen.style.setProperty('--gy', (50 + py * 100) + '%');
+                        sheen.style.opacity = '1';
+                    }
+                });
+                scene.addEventListener('mouseleave', () => { rx(0); ry(0); if (sheen) sheen.style.opacity = '0'; });
+                // Mobile: gyroscope drives the tilt
+                if (window.DeviceOrientationEvent) {
+                    const gx = gsap.quickTo(card, "rotationX", { duration: 0.6, ease: "power2.out" });
+                    const gy = gsap.quickTo(card, "rotationY", { duration: 0.6, ease: "power2.out" });
+                    let on = false;
+                    const onOrient = (e) => {
+                        if (e.gamma == null || e.beta == null) return;
+                        const px = Math.max(-1, Math.min(1, e.gamma / 30));
+                        const py = Math.max(-1, Math.min(1, (e.beta - 45) / 30));
+                        gy(px * MAX); gx(-py * MAX);
+                        if (sheen) { sheen.style.setProperty('--gx', (50 + px * 50) + '%'); sheen.style.setProperty('--gy', (50 + py * 50) + '%'); sheen.style.opacity = '0.85'; }
+                    };
+                    const enable = () => { if (on) return; const DOE = window.DeviceOrientationEvent;
+                        if (DOE && typeof DOE.requestPermission === 'function') { DOE.requestPermission().then((s) => { if (s === 'granted') { window.addEventListener('deviceorientation', onOrient); on = true; } }).catch(() => {}); }
+                        else { window.addEventListener('deviceorientation', onOrient); on = true; } };
+                    window.addEventListener('touchstart', enable, { once: true, passive: true });
+                }
+            })();
+
             const morphBtn = document.getElementById('morph-trigger-btn');
             const logo = document.getElementById('morph-logo');
             const ticketWrapper = document.getElementById('ticket-wrapper');
             const ticketInner = document.querySelector('.cool-ticket');
             const footerLiveStatus = document.getElementById('footer-live-status');
-            
+
             gsap.set(ticketInner, { rotationX: 110, opacity: 0, scale: 0.8, y: 150 });
 
             morphBtn.addEventListener('click', function() {
