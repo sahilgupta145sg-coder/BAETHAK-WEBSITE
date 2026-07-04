@@ -186,6 +186,22 @@
             box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 -2px 3px rgba(0,0,0,0.35); }
         .lever-pivot { position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 20px; height: 8px; border-radius: 4px;
             background: linear-gradient(180deg, #d7cfba, #877d66); box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+
+        /* ---------- strip chooser (step between landing and camera) ---------- */
+        .strip-stage { display: none; }
+        .strip-stage.visible { display: block; }
+        .strip-choice-title { font-family: 'Instrument Serif', serif; font-size: clamp(1.4rem, 2.6vw, 1.9rem); color: #fdf6e6;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.6); display: block; margin-bottom: 26px; }
+        .strip-cards { display: flex; gap: clamp(12px, 2.4vw, 22px); justify-content: center; align-items: stretch; flex-wrap: wrap; }
+        .strip-card { background: rgba(14,9,5,0.42); border: 1.5px solid rgba(236,226,203,0.4); padding: 14px 14px 10px; cursor: pointer;
+            transition: all 0.25s ease; box-shadow: 0 8px 26px rgba(0,0,0,0.35); }
+        .strip-card:hover { border-color: #ece2cb; transform: translateY(-4px); background: rgba(236,226,203,0.08); }
+        .strip-card img { height: 180px; width: auto; display: block; margin: 0 auto 10px; pointer-events: none; }
+        .classic-mini { width: 50px; height: 180px; margin: 0 auto 10px; box-sizing: border-box; padding: 9px 6px; display: flex; flex-direction: column; gap: 5px;
+            background: linear-gradient(160deg, #efe5cb 0%, #d9c9a4 100%); clip-path: url(#deckleClip); }
+        .classic-mini span { display: block; width: 100%; flex: 1; background: #241c14; }
+        .strip-card-name { font-family: 'Instrument Serif', serif; font-size: 1.02rem; color: rgba(236,226,203,0.85); display: block; }
+        @media (max-width: 640px) { .strip-card img, .classic-mini { height: 132px; } .classic-mini { width: 38px; } }
         .date-toggle { display: flex; align-items: center; gap: 8px; font-family: 'Instrument Serif', serif; font-size: 1.05rem; color: rgba(236,226,203,0.65); }
         .date-toggle input[type="checkbox"] { accent-color: #b98a44; width: 14px; height: 14px; }
         .date-toggle input[type="date"] { background: rgba(0,0,0,0.3); border: 1px solid rgba(236,226,203,0.3); border-radius: 4px; color: #ece2cb;
@@ -328,6 +344,29 @@
     </section>
 
     <main class="booth-stage">
+
+        <!-- ============ STRIP CHOOSER ============ -->
+        <section class="strip-stage" id="stripStage">
+            <span class="strip-choice-title">choose your strip</span>
+            <div class="strip-cards">
+                <button type="button" class="strip-card interactive-item" data-strip="classic">
+                    <span class="classic-mini" aria-hidden="true"><span></span><span></span><span></span></span>
+                    <span class="strip-card-name">the classic</span>
+                </button>
+                <button type="button" class="strip-card interactive-item" data-strip="tpl1">
+                    <img src="strip-tpl-1.png" class="no-drag" draggable="false" alt="Pink hearts strip">
+                    <span class="strip-card-name">love letter</span>
+                </button>
+                <button type="button" class="strip-card interactive-item" data-strip="tpl2">
+                    <img src="strip-tpl-2.png" class="no-drag" draggable="false" alt="Heart stickers strip">
+                    <span class="strip-card-name">sweetheart</span>
+                </button>
+                <button type="button" class="strip-card interactive-item" data-strip="tpl3">
+                    <img src="strip-tpl-3.png" class="no-drag" draggable="false" alt="Red doodles strip">
+                    <span class="strip-card-name">red ink</span>
+                </button>
+            </div>
+        </section>
 
         <!-- ============ CAPTURE STAGE ============ -->
         <section class="booth-capture-stage stage-hidden flt-color" id="captureStage">
@@ -497,12 +536,36 @@
             }
         }
 
-        // ---------- landing → booth transition (camera inits only on entry) ----------
+        // ---------- landing → strip chooser → capture (camera inits on first capture entry) ----------
         const enterBoothBtn = document.getElementById('enterBoothBtn');
+        const stripStage = document.getElementById('stripStage');
         let cameraInited = false;
+        let stripStyle = 'classic';
+        let leverShots = 1; // last 1/3 lever choice (classic only)
+        const TPL = {
+            tpl1: { src: 'strip-tpl-1.png', ink: '#7a2233' },   // love letter — maroon ink on pink
+            tpl2: { src: 'strip-tpl-2.png', ink: '#c2402e' },   // sweetheart — stitched-sticker red
+            tpl3: { src: 'strip-tpl-3.png', ink: '#b41214' }    // red ink — marker red
+        };
+
         function enterBooth() {
             document.body.classList.add('booth-mode');
-            captureStage.classList.remove('stage-hidden');
+            captureStage.classList.add('stage-hidden');
+            resultStage.classList.remove('visible');
+            stripStage.classList.add('visible');
+            gsap.fromTo(stripStage, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', clearProps: 'transform' });
+            window.scrollTo(0, 0);
+        }
+        enterBoothBtn.addEventListener('click', enterBooth);
+
+        function startCapture(style) {
+            stripStyle = style;
+            const isClassic = style === 'classic';
+            document.getElementById('shotLever').style.display = isClassic ? '' : 'none';
+            setMode(isClassic ? leverShots : 4);
+            gsap.set(shotPreview, { opacity: 0 });
+            stripStage.classList.remove('visible');
+            captureStage.classList.remove('stage-hidden', 'hidden');
             gsap.fromTo(captureStage, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', clearProps: 'transform' });
             window.scrollTo(0, 0);
             if (!cameraInited) {
@@ -513,8 +576,11 @@
                     statusEl.textContent = 'camera not supported — upload a photo instead';
                 }
             }
+            if (!isClassic) getTpl(style).catch(() => {}); // pre-process the template while they pose
         }
-        enterBoothBtn.addEventListener('click', enterBooth);
+        document.querySelectorAll('.strip-card').forEach(card => {
+            card.addEventListener('click', () => startCapture(card.dataset.strip));
+        });
 
         // ---------- filters ----------
         function clamp(v){ return v < 0 ? 0 : v > 255 ? 255 : v; }
@@ -661,7 +727,116 @@
             ctx.closePath();
         }
 
+        // ---------- template strips (love letter / sweetheart / red ink) ----------
+        const tplCache = {};
+        function loadImg(src) {
+            return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
+        }
+        // flood-label the keyed-out grey windows → bounding boxes
+        function findBoxes(mask, w, h) {
+            const lab = new Int32Array(w * h); const boxes = []; const stack = [];
+            let n = 0;
+            for (let p = 0; p < w * h; p++) {
+                if (!mask[p] || lab[p]) continue;
+                n++; lab[p] = n; stack.push(p);
+                let x0 = w, x1 = 0, y0 = h, y1 = 0, count = 0;
+                while (stack.length) {
+                    const q = stack.pop(); const qx = q % w, qy = (q / w) | 0;
+                    count++;
+                    if (qx < x0) x0 = qx; if (qx > x1) x1 = qx;
+                    if (qy < y0) y0 = qy; if (qy > y1) y1 = qy;
+                    if (qx > 0 && mask[q - 1] && !lab[q - 1]) { lab[q - 1] = n; stack.push(q - 1); }
+                    if (qx < w - 1 && mask[q + 1] && !lab[q + 1]) { lab[q + 1] = n; stack.push(q + 1); }
+                    if (qy > 0 && mask[q - w] && !lab[q - w]) { lab[q - w] = n; stack.push(q - w); }
+                    if (qy < h - 1 && mask[q + w] && !lab[q + w]) { lab[q + w] = n; stack.push(q + w); }
+                }
+                boxes.push({ x0, x1, y0, y1, count });
+            }
+            return boxes;
+        }
+        // A template image IS the bare strip (edge to edge, no page border).
+        // Key the grey placeholders into transparent photo windows; sample the paper colour.
+        function greyMask(px, w, h) {
+            const m = new Uint8Array(w * h);
+            for (let i = 0, p = 0; i < px.length; i += 4, p++) {
+                const r = px[i], g = px[i + 1], b = px[i + 2];
+                const sat = Math.max(r, g, b) - Math.min(r, g, b);
+                const lum = (r * 2 + g * 3 + b) / 6;
+                if (sat < 25 && lum > 105 && lum < 190) m[p] = 1;
+            }
+            return m;
+        }
+        async function getTpl(style) {
+            if (tplCache[style]) return tplCache[style];
+            const img = await loadImg(TPL[style].src);
+            const cw = img.naturalWidth, chh = img.naturalHeight;
+            const stripC = document.createElement('canvas'); stripC.width = cw; stripC.height = chh;
+            const ctx = stripC.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const id = ctx.getImageData(0, 0, cw, chh); const px = id.data;
+            const mask = greyMask(px, cw, chh);
+            const windows = findBoxes(mask, cw, chh).filter(bx => bx.count > cw * chh * 0.02)
+                .sort((a, b) => b.count - a.count).slice(0, 4).sort((a, b) => a.y0 - b.y0);
+            for (let p = 0, i = 0; p < cw * chh; p++, i += 4) { if (mask[p]) px[i + 3] = 0; }
+            ctx.putImageData(id, 0, 0);
+            // paper colour: brightest of a few margin samples (art is always darker than paper)
+            let body = [255, 255, 255], bestLum = -1;
+            [[0.05, 0.5], [0.95, 0.5], [0.06, 0.28], [0.94, 0.72],
+             [0.5, (windows[0] && windows[1]) ? ((windows[0].y1 + windows[1].y0) / 2) / chh : 0.35]].forEach(pt => {
+                const d = ctx.getImageData(Math.round(cw * pt[0]), Math.round(chh * pt[1]), 1, 1).data;
+                const lum = d[0] * 2 + d[1] * 3 + d[2];
+                if (d[3] > 200 && lum > bestLum) { bestLum = lum; body = [d[0], d[1], d[2]]; }
+            });
+            tplCache[style] = { stripC, windows, cw, chh, body: `rgb(${body[0]},${body[1]},${body[2]})` };
+            return tplCache[style];
+        }
+        function drawCover(ctx, cell, bx) {
+            const bw = bx.x1 - bx.x0 + 1, bh = bx.y1 - bx.y0 + 1;
+            const scale = Math.max(bw / cell.width, bh / cell.height);
+            const sw = bw / scale, sh = bh / scale;
+            const sx = (cell.width - sw) / 2, sy = (cell.height - sh) / 2;
+            ctx.drawImage(cell, sx, sy, sw, sh, bx.x0, bx.y0, bw, bh);
+        }
+        async function composeTemplateStrip() {
+            await ensureFontsLoaded();
+            const meta = TPL[stripStyle];
+            const t = await getTpl(stripStyle);
+            // footer lives ON the strip: the paper simply continues below the artwork
+            const footerH = Math.round(t.chh * (dateEnabledEl.checked ? 0.095 : 0.06));
+            const out = document.createElement('canvas');
+            out.width = t.cw; out.height = t.chh + footerH;
+            const ctx = out.getContext('2d');
+            // paper base for the footer extension (matches the strip body exactly)
+            ctx.fillStyle = t.body;
+            ctx.fillRect(0, 0, t.cw, t.chh + footerH);
+            // photos beneath, artwork (with punched windows) on top like stickers
+            shots.forEach((cell, i) => { if (t.windows[i]) drawCover(ctx, cell, t.windows[i]); });
+            ctx.drawImage(t.stripC, 0, 0);
+            // date + brand in this strip's ink, written on the strip paper
+            ctx.textAlign = 'center';
+            if (dateEnabledEl.checked) {
+                ctx.save();
+                ctx.translate(t.cw / 2, t.chh + footerH * 0.42);
+                ctx.rotate(-0.025);
+                ctx.fillStyle = meta.ink;
+                ctx.font = `400 ${Math.round(t.cw * 0.12)}px "Homemade Apple", cursive`;
+                ctx.fillText(formatDate(dateValueEl.value), 0, 0);
+                ctx.restore();
+                ctx.fillStyle = meta.ink;
+                ctx.globalAlpha = 0.72;
+                ctx.font = `400 ${Math.round(t.cw * 0.05)}px "Instrument Serif", serif`;
+                ctx.fillText('B A E T H A K', t.cw / 2, t.chh + footerH * 0.8);
+                ctx.globalAlpha = 1;
+            } else {
+                ctx.fillStyle = meta.ink;
+                ctx.font = `400 ${Math.round(t.cw * 0.065)}px "Instrument Serif", serif`;
+                ctx.fillText('B A E T H A K', t.cw / 2, t.chh + footerH * 0.62);
+            }
+            return out;
+        }
+
         async function composeStrip() {
+            if (stripStyle !== 'classic') return composeTemplateStrip();
             await ensureFontsLoaded();
             const pad = 52, topPad = 46, footerH = 148, gap = 36;
             const n = shots.length;
@@ -863,7 +1038,7 @@
             setSide('left', false);
             return { setDisabled(d) { root.classList.toggle('disabled', d); } };
         }
-        const shotLever = makeLever('shotLever', s => setMode(s === 'left' ? 1 : 3));
+        const shotLever = makeLever('shotLever', s => { leverShots = (s === 'left' ? 1 : 3); setMode(leverShots); });
         const filterLever = makeLever('filterLever', s => setFilter(s === 'left' ? 'color' : 'bw'));
 
         // ---------- result stage actions ----------
@@ -873,8 +1048,11 @@
             renderThumbs();
             gsap.set(shotPreview, { opacity: 0 });
             resultStage.classList.remove('visible');
+            captureStage.classList.add('stage-hidden');
             captureStage.classList.remove('hidden');
-            gsap.fromTo(captureStage, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', clearProps: 'transform' });
+            stripStage.classList.add('visible');
+            gsap.fromTo(stripStage, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', clearProps: 'transform' });
+            window.scrollTo(0, 0);
         });
 
         downloadBtn.addEventListener('click', () => {
@@ -897,6 +1075,21 @@
             if (!finalCanvas) return;
             printImg.src = finalCanvas.toDataURL('image/png');
             setTimeout(() => window.print(), 80);
+        });
+
+        // borderless chooser thumbnails, rendered from the processed strips (also pre-warms the cache)
+        ['tpl1', 'tpl2', 'tpl3'].forEach(st => {
+            getTpl(st).then(t => {
+                const im = document.querySelector(`.strip-card[data-strip="${st}"] img`);
+                if (!im) return;
+                const th = 360, tw = Math.round(t.cw * th / t.chh);
+                const tc = document.createElement('canvas'); tc.width = tw; tc.height = th;
+                const tx = tc.getContext('2d');
+                tx.fillStyle = '#241c14';
+                tx.fillRect(0, 0, tw, th);
+                tx.drawImage(t.stripC, 0, 0, tw, th);
+                im.src = tc.toDataURL('image/png');
+            }).catch(() => {});
         });
     })();
     </script>
