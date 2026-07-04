@@ -33,7 +33,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Inter:wght@900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Inter:wght@900&family=Space+Mono:wght@700&family=Playfair+Display:wght@700;900&family=Caveat:wght@600&display=swap" rel="stylesheet">
     
     <style>
         :root { --bg: #FAFAFA; --accent: #FF2D55; --gold: #FFD700; --text: #0A0A0A; --black: #000000; }
@@ -96,6 +96,32 @@
         .nav-encrypt-btn:hover { color: var(--accent); transform: scale(1.06); opacity: 0.82; }
         .hero-word { display: inline-block; transform: translateY(100%); opacity: 0; }
         .clip-text { overflow: hidden; display: inline-block; padding-right: 0.15em; margin-right: -0.15em; }
+        /* Vintage marquee-sign button — a prop dropped into the modern hero, linking to /photobooth */
+        .vintage-booth-btn { display: inline-block; text-decoration: none; }
+        .vintage-booth-btn-inner {
+            position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 236px; height: 100px; padding: 8px 22px;
+            background: linear-gradient(180deg, #F8EFDC 0%, #E9DCBE 100%);
+            border-radius: 999px; border: 3px solid #241608;
+            box-shadow: 0 14px 0 -4px rgba(0,0,0,0.14), 0 20px 34px rgba(0,0,0,0.28), inset 0 2px 0 rgba(255,255,255,0.65);
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease;
+        }
+        .vintage-booth-btn:hover .vintage-booth-btn-inner { transform: scale(1.05) translateY(-4px); box-shadow: 0 18px 0 -4px rgba(0,0,0,0.16), 0 28px 44px rgba(0,0,0,0.32), inset 0 2px 0 rgba(255,255,255,0.65); }
+        .vintage-booth-btn:active .vintage-booth-btn-inner { transform: scale(0.97) translateY(2px); }
+        .vintage-booth-btn-bulbs { position: absolute; inset: 7px; border-radius: inherit; pointer-events: none;
+            background-image: radial-gradient(circle, #FFD700 2.1px, transparent 2.5px), radial-gradient(circle, #FFD700 2.1px, transparent 2.5px);
+            background-size: 17px 17px, 17px 17px; background-position: 2px 0, 2px 100%; background-repeat: repeat-x, repeat-x;
+            animation: bulbTwinkle 1.7s ease-in-out infinite alternate; }
+        .vintage-booth-btn-script { font-family: 'Caveat', cursive; font-size: 16px; color: #7A5636; line-height: 1; margin-bottom: 1px; }
+        .vintage-booth-btn-title { font-family: 'Playfair Display', serif; font-weight: 900; font-style: italic; font-size: 23px; color: #241608; letter-spacing: 0.01em; line-height: 1.15; display: flex; align-items: center; gap: 7px; }
+        .vintage-booth-btn-title svg { width: 20px; height: 20px; flex: 0 0 auto; }
+        @keyframes bulbTwinkle { 0% { opacity: 0.55; filter: brightness(0.85); } 100% { opacity: 1; filter: brightness(1.25); } }
+        .vibe-drop-wrap { display: inline-block; text-align: center; }
+        .vibe-line { margin-bottom: 28px; }
+        @media (max-width: 640px) {
+            .vintage-booth-btn-inner { width: 200px; height: 88px; } .vintage-booth-btn-title { font-size: 19px; }
+            .vibe-line { margin-bottom: 22px; }
+        }
         #map-section { height: 500vh; position: relative; background: #000; }
         #map-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         /* CSS-only dark map look (faint hotspot glows) — the old hotlinked mapcustomizer.com
@@ -346,8 +372,22 @@
             <span class="clip-text"><span class="hero-word">IRL.</span></span>
         </h1>
         <p class="text-lg md:text-xl font-medium text-gray-500 max-w-lg opacity-0 hero-sub mb-8">The city is a playground, not a feed. <br> Scroll to zoom into the real world.</p>
-        <div class="opacity-0 hero-sub w-full pr-6 md:pr-0 text-center flex justify-center">
-            <span class="text-[9px] md:text-[14px] uppercase tracking-[0.1em] md:tracking-[0.4em] text-[#FF2D55] font-extrabold animate-pulse inline-block whitespace-nowrap md:whitespace-normal">[ tap anywhere to drop a vibe ]</span>
+        <div class="opacity-0 hero-sub w-full pr-6 md:pr-0 text-center flex justify-center mt-2">
+            <div class="vibe-drop-wrap">
+                <div class="vibe-line">
+                    <span class="text-[9px] md:text-[14px] uppercase tracking-[0.1em] md:tracking-[0.4em] text-[#FF2D55] font-extrabold animate-pulse inline-block whitespace-nowrap md:whitespace-normal">[ tap anywhere to drop a vibe ]</span>
+                </div>
+                <a href="/photobooth" class="vintage-booth-btn interactive-item" aria-label="Enter the Baethak Photobooth">
+                    <span class="vintage-booth-btn-inner">
+                        <span class="vintage-booth-btn-bulbs" aria-hidden="true"></span>
+                        <span class="vintage-booth-btn-script">step into the</span>
+                        <span class="vintage-booth-btn-title">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h1.2l.8-1.4A2 2 0 0 1 9.73 3.6h4.54a2 2 0 0 1 1.73 1L17 6h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="#241608" stroke-width="1.6"/><circle cx="12" cy="13" r="3.4" stroke="#241608" stroke-width="1.6"/></svg>
+                            Photobooth
+                        </span>
+                    </span>
+                </a>
+            </div>
         </div>
     </section>
 

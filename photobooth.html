@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAETHAK Photobooth | Capture the Vibe</title>
+    <meta name="description" content="Step into the Baethak Photobooth. Capture a vintage-styled photo strip, right in your browser — nothing ever leaves your device unless you download it.">
+    <meta name="robots" content="noindex">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Inter:wght@900&family=Space+Mono:wght@700&family=Playfair+Display:wght@700;900&family=Caveat:wght@600&family=Instrument+Serif:ital@0;1&family=Homemade+Apple&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --bg: #0a0a0a; --accent: #FF2D55; --gold: #FFD700; --paper: #F8EFDC; --booth-brown: #484035; --booth-cream: #ece2cb; }
+        html, body { cursor: auto; -webkit-font-smoothing: antialiased; }
+        body { background: #484035; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; overflow-x: hidden; transition: background 0.6s ease; }
+        body.booth-mode { background: radial-gradient(circle at 50% 0%, #1a1210 0%, #050403 60%, #000 100%); }
+        .heavy { font-family: 'Inter', sans-serif; font-weight: 900; }
+        .glitch-font { font-family: 'Space Mono', monospace; }
+        .script-font { font-family: 'Caveat', cursive; }
+        .serif-font { font-family: 'Playfair Display', serif; }
+        a, button, .interactive-item { cursor: pointer; }
+
+        /* ---------- top bar ---------- */
+        .booth-topbar { display: flex; align-items: center; justify-content: space-between; padding: 22px clamp(20px, 5vw, 56px); position: relative; z-index: 20; }
+        .booth-back { display: inline-flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; transition: color 0.25s ease, transform 0.25s ease; }
+        .booth-back:hover { color: #fff; transform: translateX(-3px); }
+        .booth-brand { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 15px; letter-spacing: -0.02em; color: var(--accent); text-transform: uppercase; }
+        .booth-brand span { color: rgba(255,255,255,0.35); font-weight: 700; }
+
+        /* ========== VINTAGE LANDING (booth machine hero) ========== */
+        .booth-landing { display: grid; grid-template-columns: 1fr minmax(320px, 620px) 1fr; align-items: center; gap: 20px;
+            max-width: 1500px; margin: 0 auto; padding: 10px clamp(24px, 5vw, 64px) 60px; min-height: calc(100vh - 90px); }
+        .landing-left { text-align: left; }
+        .landing-headline { font-family: 'Instrument Serif', serif; color: var(--booth-cream); font-size: clamp(3rem, 6vw, 5rem); line-height: 0.98; letter-spacing: 0.01em; margin-bottom: 26px; }
+        .landing-headline em { font-style: italic; }
+        .landing-sub { font-family: 'Instrument Serif', serif; color: rgba(236,226,203,0.82); font-size: clamp(1.05rem, 1.7vw, 1.4rem); line-height: 1.5; max-width: 320px; margin-bottom: 34px; }
+        .landing-cta { display: inline-flex; align-items: center; gap: 14px; padding: 15px 26px; border: 1.5px solid rgba(236,226,203,0.55); background: transparent; color: var(--booth-cream);
+            font-family: 'Instrument Serif', serif; font-size: 1.3rem; letter-spacing: 0.01em; transition: all 0.3s ease; }
+        .landing-cta svg { width: 26px; height: 20px; opacity: 0.9; }
+        .landing-cta:hover { background: var(--booth-cream); color: #2a2318; border-color: var(--booth-cream); transform: translateY(-2px); box-shadow: 0 14px 34px rgba(0,0,0,0.35); }
+        .landing-cta:active { transform: translateY(0) scale(0.98); }
+
+        .landing-center { display: flex; justify-content: center; }
+        /* photoreal booth machine (booth-machine.webp) with live overlays */
+        .booth-svg { position: relative; width: 100%; max-width: 560px; height: auto;
+            animation: boothFloat 6s ease-in-out infinite alternate; }
+        @keyframes boothFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
+        .machine-img { display: block; width: 100%; height: auto; }
+        /* warm light spill from the sign, flickers like a failing tube */
+        .sign-glow { position: absolute; left: 12%; top: -4%; width: 74%; height: 26%; pointer-events: none;
+            background: radial-gradient(ellipse at 50% 55%, rgba(255,238,190,0.45), rgba(255,238,190,0) 68%);
+            mix-blend-mode: screen; animation: signFlicker 5.6s steps(1, end) infinite; }
+        /* the sign face darkening at each flicker dip (board stays solid, its light dims) */
+        .sign-dim { position: absolute; left: 20%; top: 2.2%; width: 60.5%; height: 14%; border-radius: 6px; pointer-events: none;
+            background: rgba(28,19,8,0.6); opacity: 0; animation: signDip 5.6s steps(1, end) infinite; }
+        /* small engraved brass nameplate — our mark on the machine */
+        .machine-plate { position: absolute; left: 26.8%; top: 54.6%; width: 12.6%; padding: 0.7% 0 0.4%; text-align: center; pointer-events: none;
+            background: linear-gradient(180deg, #e8d9ae, #c9b078); border: 1px solid rgba(90,64,28,0.7); border-radius: 3px;
+            font-family: 'Homemade Apple', cursive; font-size: clamp(8px, 1.4vw, 13px); color: #2c1f10; line-height: 1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.55); }
+        /* strip forever printing out of the dispensing slot, then feeding back in.
+           Composed live: aged paper (deckle-clipped) + the three vibe photos, vintage-graded. */
+        .machine-strip-window { position: absolute; left: 27.4%; top: 63%; width: 11.6%; height: 32%; overflow: hidden; pointer-events: none; }
+        .machine-strip { display: flex; flex-direction: column; width: 100%; aspect-ratio: 100 / 360; box-sizing: border-box;
+            padding: 8% 7% 4%; gap: 3.5%; transform: translateY(-40%);
+            background:
+                radial-gradient(ellipse at 30% 12%, rgba(122,98,62,0.16), transparent 40%),
+                radial-gradient(ellipse at 75% 85%, rgba(110,88,55,0.2), transparent 44%),
+                linear-gradient(160deg, #efe5cb 0%, #e3d5b3 55%, #d9c9a4 100%);
+            clip-path: url(#deckleClip);
+            filter: drop-shadow(0 6px 10px rgba(0,0,0,0.45)); animation: stripLoop 9s ease-in-out infinite; }
+        .machine-strip img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover;
+            border: 1px solid rgba(58,44,26,0.55);
+            filter: grayscale(1) sepia(0.22) contrast(1.08) brightness(0.97); }
+        .machine-strip .strip-brand { text-align: center; font-family: 'Instrument Serif', serif; letter-spacing: 0.32em;
+            font-size: clamp(3px, 0.55vw, 7px); color: rgba(70,56,36,0.65); margin-top: auto; }
+        @keyframes stripLoop {
+            0%   { transform: translateY(-40%); }
+            5%   { transform: translateY(-33%); }  8%  { transform: translateY(-33%); }
+            13%  { transform: translateY(-25%); }  16% { transform: translateY(-25%); }
+            21%  { transform: translateY(-17%); }  24% { transform: translateY(-17%); }
+            29%  { transform: translateY(-9%);  }  32% { transform: translateY(-9%);  }
+            37%  { transform: translateY(-2%);  }  40% { transform: translateY(-2%);  }
+            44%  { transform: translateY(0%);   }  58% { transform: translateY(0%);   }
+            63%  { transform: translateY(-9%);  }  66% { transform: translateY(-9%);  }
+            71%  { transform: translateY(-17%); }  74% { transform: translateY(-17%); }
+            79%  { transform: translateY(-25%); }  82% { transform: translateY(-25%); }
+            87%  { transform: translateY(-33%); }  90% { transform: translateY(-33%); }
+            95%, 100% { transform: translateY(-40%); }
+        }
+
+        .landing-right { text-align: left; max-width: 260px; }
+        .landing-strip { width: 74px; margin: 0 0 26px 6px; transform: rotate(9deg); border: 6px solid #f3ece0; border-bottom-width: 26px; background: #f3ece0; box-shadow: 0 18px 30px rgba(0,0,0,0.4); }
+        .landing-strip-cell { display: block; width: 100%; aspect-ratio: 1/1; margin-bottom: 4px; background-size: cover; background-position: center; filter: grayscale(1) sepia(0.35) contrast(1.05); }
+        .landing-strip-cell:last-child { margin-bottom: 0; }
+        .landing-right-rule { width: 100%; height: 1px; background: rgba(236,226,203,0.35); margin: 0 0 18px; }
+        .landing-right h3 { font-family: 'Instrument Serif', serif; color: var(--booth-cream); font-size: 1.7rem; line-height: 1.05; margin-bottom: 14px; }
+        .landing-right p { font-family: 'Instrument Serif', serif; color: rgba(236,226,203,0.75); font-size: 1.02rem; line-height: 1.55; }
+        .landing-right p + p { margin-top: 12px; }
+        .landing-right p a { color: var(--booth-cream); text-decoration: none; border-bottom: 1px solid rgba(236,226,203,0.4); transition: border-color 0.25s ease; }
+        .landing-right p a:hover { border-bottom-color: var(--booth-cream); }
+
+        @media (max-width: 940px) {
+            .booth-landing { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 34px; padding-top: 20px; }
+            .landing-left { text-align: center; order: 1; }
+            .landing-sub { margin-left: auto; margin-right: auto; }
+            .landing-center { order: 0; }
+            .booth-svg { max-width: 340px; }
+            .landing-right { order: 2; text-align: center; max-width: 340px; }
+            .landing-strip { margin: 0 auto 18px; }
+            .landing-right-rule { display: none; }
+        }
+
+        /* ---------- sign light flicker (overlays scoped to the lightbox sign region of the photo) ---------- */
+        @keyframes signFlicker {
+            0%, 4.8%, 8.8%, 38.4%, 43%, 65.4%, 67.4%, 81.4%, 84.4%, 100% { opacity: 1; }
+            5.2%, 7.4% { opacity: 0.03; }      /* main blink: light fully OFF */
+            8%         { opacity: 0.55; }      /* stutters back on */
+            38.8%, 40.2% { opacity: 0.05; }    /* rapid double-blink */
+            40.6%      { opacity: 0.85; }
+            41.2%, 42.2% { opacity: 0.05; }
+            66%        { opacity: 0.4; }       /* soft dip */
+            81.8%, 83.6% { opacity: 0.03; }    /* second full off */
+        }
+        @keyframes signDip {
+            0%, 4.8%, 8.8%, 38.4%, 43%, 65.4%, 67.4%, 81.4%, 84.4%, 100% { opacity: 0; }
+            5.2%, 7.4% { opacity: 0.82; }
+            8%         { opacity: 0.3; }
+            38.8%, 40.2% { opacity: 0.78; }
+            40.6%      { opacity: 0.1; }
+            41.2%, 42.2% { opacity: 0.78; }
+            66%        { opacity: 0.35; }
+            81.8%, 83.6% { opacity: 0.82; }
+        }
+
+        /* ---------- booth mode: landing becomes the dimmed room backdrop ---------- */
+        body.booth-mode { background: radial-gradient(circle at 50% 30%, #241a10 0%, #120c07 55%, #060402 100%); }
+        body.booth-mode .booth-landing { position: fixed; inset: 0; z-index: 0; display: flex; align-items: center; justify-content: center;
+            padding: 0; margin: 0; max-width: none; min-height: 100vh; gap: 0; pointer-events: none; }
+        body.booth-mode .landing-left, body.booth-mode .landing-right { display: none; }
+        body.booth-mode .landing-center { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        body.booth-mode .booth-svg { width: min(160vh, 1200px); max-width: none; animation: none;
+            filter: brightness(0.62) saturate(0.85) drop-shadow(0 40px 60px rgba(0,0,0,0.45)); }
+        body.booth-mode .booth-landing::after { content: ""; position: absolute; inset: 0; background: rgba(16,10,5,0.52); }
+
+        /* ---------- stage ---------- */
+        .booth-stage { position: relative; z-index: 5; max-width: 760px; margin: 0 auto; padding: 0 20px 70px; text-align: center; }
+
+        /* controls row */
+        .booth-controls-row { display: flex; align-items: center; justify-content: center; gap: clamp(18px, 4vw, 44px); margin-bottom: 22px; flex-wrap: wrap; }
+
+        /* ---------- brass lever switches ---------- */
+        .lever-control { display: flex; align-items: center; gap: 12px; transition: opacity 0.25s ease; }
+        .lever-control.disabled { opacity: 0.4; pointer-events: none; }
+        .lever-label { background: none; border: none; font-family: 'Instrument Serif', serif; font-size: clamp(1.1rem, 2vw, 1.4rem);
+            color: rgba(236,226,203,0.4); transition: color 0.25s ease; text-shadow: 0 2px 12px rgba(0,0,0,0.6); padding: 2px 0; }
+        .lever-label.active { color: #fdf6e6; }
+        .lever-label:hover:not(.active) { color: rgba(236,226,203,0.7); }
+        .lever-switch { position: relative; width: 62px; height: 46px; cursor: pointer; flex: 0 0 auto; }
+        .lever-slot { position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%); width: 46px; height: 11px; border-radius: 6px;
+            background: #14100b; border: 1px solid rgba(236,226,203,0.28); box-shadow: inset 0 2px 4px rgba(0,0,0,0.9), 0 1px 0 rgba(236,226,203,0.12); }
+        .lever-arm { position: absolute; bottom: 11px; left: calc(50% - 2.5px); width: 5px; height: 29px; border-radius: 3px;
+            background: linear-gradient(180deg, #e6c988 0%, #b98a44 60%, #8a6a34 100%); transform-origin: 50% 100%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.55); }
+        .lever-arm::after { content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #ffeeb8, #c99a4e 55%, #7a5a28 100%);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 -2px 3px rgba(0,0,0,0.35); }
+        .lever-pivot { position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 20px; height: 8px; border-radius: 4px;
+            background: linear-gradient(180deg, #d7cfba, #877d66); box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .date-toggle { display: flex; align-items: center; gap: 8px; font-family: 'Instrument Serif', serif; font-size: 1.05rem; color: rgba(236,226,203,0.65); }
+        .date-toggle input[type="checkbox"] { accent-color: #b98a44; width: 14px; height: 14px; }
+        .date-toggle input[type="date"] { background: rgba(0,0,0,0.3); border: 1px solid rgba(236,226,203,0.3); border-radius: 4px; color: #ece2cb;
+            font-family: 'Instrument Serif', serif; font-size: 0.95rem; padding: 2px 6px; color-scheme: dark; }
+
+        /* ---------- deckled paper viewfinder ---------- */
+        .booth-frame-wrap { position: relative; width: 100%; max-width: 400px; margin: 0 auto 14px; }
+        .paper-frame { position: relative; width: 100%; aspect-ratio: 4 / 5.1; clip-path: url(#deckleClip);
+            background:
+                radial-gradient(ellipse at 22% 16%, rgba(122,98,62,0.18), transparent 42%),
+                radial-gradient(ellipse at 80% 78%, rgba(110,88,55,0.22), transparent 46%),
+                radial-gradient(ellipse at 65% 30%, rgba(140,116,80,0.12), transparent 38%),
+                linear-gradient(160deg, #ece0c4 0%, #ded0ae 48%, #d4c49e 100%);
+            padding: 5.5%; box-sizing: border-box; }
+        .paper-tex { position: absolute; inset: 0; pointer-events: none; opacity: 0.4; mix-blend-mode: multiply;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>"); }
+        .booth-viewfinder { position: relative; width: 100%; height: 100%; overflow: hidden; background: #171310;
+            box-shadow: inset 0 0 0 1px rgba(60,45,25,0.35), inset 0 4px 18px rgba(40,28,14,0.45); }
+        .booth-viewfinder video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        /* the just-captured shot, shown in the frame right after the flash */
+        .shot-preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; z-index: 3; }
+        /* live filter previews */
+        .flt-color .booth-viewfinder video { filter: sepia(0.3) saturate(0.82) contrast(1.05) brightness(1.04); }
+        .flt-bw .booth-viewfinder video { filter: grayscale(1) sepia(0.16) contrast(1.12) brightness(1.05); }
+        .film-grain { position: absolute; inset: -20px; pointer-events: none; z-index: 4; opacity: 0.3; mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
+            animation: grainShift 0.9s steps(3) infinite; }
+        @keyframes grainShift { 0% { transform: translate(0,0); } 33% { transform: translate(-8px,6px); } 66% { transform: translate(6px,-8px); } 100% { transform: translate(0,0); } }
+        .booth-viewfinder .placeholder-tex { position: absolute; inset: 0; background: radial-gradient(circle at 50% 42%, #2a221b 0%, #14100c 78%); }
+
+        .booth-status { margin: 12px 0 26px; font-family: 'Instrument Serif', serif; font-size: 0.95rem; letter-spacing: 0.32em; text-transform: uppercase;
+            color: rgba(236,226,203,0.78); text-shadow: 0 2px 10px rgba(0,0,0,0.7); }
+        .countdown-num { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-family: 'Instrument Serif', serif; font-style: italic;
+            font-size: 7.5rem; color: #fdf6e6; text-shadow: 0 0 46px rgba(253,230,170,0.65), 0 4px 20px rgba(0,0,0,0.55); z-index: 8; }
+        .flash-overlay { position: absolute; inset: 0; background: #fff8ec; opacity: 0; pointer-events: none; z-index: 10; }
+
+        /* shot progress dots */
+        .shot-thumbs { display: flex; gap: 10px; justify-content: center; margin-bottom: 22px; min-height: 44px; align-items: center; }
+        .shot-thumb { width: 34px; height: 42px; border: 1px solid rgba(236,226,203,0.4); background: rgba(236,226,203,0.06); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .shot-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .shot-thumb.empty::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: rgba(236,226,203,0.35); }
+
+        /* ---------- vintage buttons (cream bordered, like the reference) ---------- */
+        .booth-actions { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2vw, 18px); flex-wrap: wrap; }
+        .booth-btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 24px; border-radius: 0; border: 1.5px solid rgba(236,226,203,0.55);
+            background: rgba(14,9,5,0.42); color: #ece2cb; font-family: 'Instrument Serif', serif; font-size: 1.12rem; letter-spacing: 0.02em;
+            transition: all 0.25s ease; text-decoration: none; box-shadow: 0 8px 26px rgba(0,0,0,0.35); }
+        .booth-btn svg { width: 17px; height: 17px; }
+        .booth-btn:hover:not(:disabled) { background: #ece2cb; color: #241c12; border-color: #ece2cb; transform: translateY(-2px); }
+        .booth-btn:active:not(:disabled) { transform: translateY(0) scale(0.97); }
+        .booth-btn:disabled { opacity: 0.32; cursor: not-allowed; }
+        .booth-btn.primary { border-color: rgba(236,226,203,0.9); background: rgba(236,226,203,0.12); }
+
+        /* ---------- result: the machine prints your strip ---------- */
+        .booth-result { display: none; }
+        .booth-result.visible { display: block; }
+        .booth-capture-stage.hidden { display: none; }
+        .print-scene { display: flex; flex-direction: column; align-items: center; }
+        .print-slot { position: relative; width: min(340px, 76vw); height: 30px; z-index: 3; border-radius: 5px;
+            background: linear-gradient(180deg, #d8cfba 0%, #a89e87 45%, #877d66 100%); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.5); }
+        .print-slot::after { content: ""; position: absolute; left: 7%; right: 7%; top: 50%; transform: translateY(-50%); height: 8px; border-radius: 4px;
+            background: #0c0906; box-shadow: inset 0 2px 4px rgba(0,0,0,0.9); }
+        .print-window { width: min(270px, 62vw); overflow: hidden; margin-top: -6px; padding-bottom: 34px; }
+        .print-window img { display: block; width: 100%; visibility: hidden; filter: drop-shadow(0 26px 40px rgba(0,0,0,0.55)); cursor: zoom-in; }
+        .print-status { margin: 18px 0 26px; font-family: 'Instrument Serif', serif; font-size: 0.95rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(236,226,203,0.75); }
+        .result-actions { opacity: 0; }
+
+        /* lightbox */
+        .lightbox { position: fixed; inset: 0; background: rgba(6,3,1,0.93); display: none; align-items: center; justify-content: center; z-index: 999; padding: 30px; }
+        .lightbox.visible { display: flex; }
+        .lightbox img { max-width: min(88vw, 430px); max-height: 88vh; filter: drop-shadow(0 30px 80px rgba(0,0,0,0.8)); }
+        .lightbox-close { position: absolute; top: 24px; right: 28px; color: #ece2cb; font-size: 30px; background: none; border: none; }
+
+        #print-target { display: none; }
+        @media print {
+            body > *:not(#print-target) { display: none !important; }
+            #print-target { display: block !important; width: 100%; }
+            #print-target img { width: 70%; margin: 0 auto; display: block; }
+        }
+
+        @media (max-width: 480px) {
+            .booth-controls-row { gap: 14px; }
+            .booth-actions { gap: 8px; }
+            .booth-btn { padding: 11px 16px; font-size: 1rem; }
+            .booth-frame-wrap { max-width: 320px; }
+            .countdown-num { font-size: 5.5rem; }
+        }
+        .stage-hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header class="booth-topbar">
+        <a href="/" class="booth-back interactive-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Baethak
+        </a>
+    </header>
+
+    <!-- ============ VINTAGE LANDING ============ -->
+    <section class="booth-landing" id="landingStage">
+        <div class="landing-left">
+            <h1 class="landing-headline">make <em>your</em><br>vintage<br><em>photo</em></h1>
+            <p class="landing-sub">Create an old style photo in a few clicks.</p>
+            <button type="button" class="landing-cta interactive-item" id="enterBoothBtn">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M4 8a2 2 0 0 1 2-2h1.2l.8-1.4A2 2 0 0 1 9.73 3.6h4.54a2 2 0 0 1 1.73 1L17 6h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.5"/></svg>
+                take a photo
+            </button>
+        </div>
+
+        <div class="landing-center">
+            <div class="booth-svg" role="img" aria-label="Vintage Baethak photobooth machine">
+                <img class="machine-img" src="booth-machine.webp" alt="">
+                <div class="machine-strip-window" aria-hidden="true">
+                    <div class="machine-strip">
+                        <img src="vibe-1.jpg" alt="">
+                        <img src="vibe-2.jpg" alt="">
+                        <img src="vibe-3.jpg" alt="">
+                        <span class="strip-brand">BAETHAK</span>
+                    </div>
+                </div>
+                <span class="sign-glow" aria-hidden="true"></span>
+                <span class="sign-dim" aria-hidden="true"></span>
+                <span class="machine-plate" aria-hidden="true">baethak.</span>
+            </div>
+        </div>
+
+        <div class="landing-right">
+            <div class="landing-strip" aria-hidden="true">
+                <span class="landing-strip-cell" style="background-image:url('vibe-1.jpg')"></span>
+                <span class="landing-strip-cell" style="background-image:url('vibe-2.jpg')"></span>
+                <span class="landing-strip-cell" style="background-image:url('vibe-3.jpg')"></span>
+            </div>
+            <div class="landing-right-rule"></div>
+            <h3>idea behind<br>the project</h3>
+            <p>Inspired by 1930s portrait studios, this booth is just a preview of the in-app Polaroid wall built to preserve your favourite moments.</p>
+            <p>Claim your spot on the waitlist, share this Polaroid on your Story, follow and tag <a href="https://instagram.com/baethak.official" target="_blank" rel="noopener">@baethak.official</a> to get featured.</p>
+        </div>
+    </section>
+
+    <main class="booth-stage">
+
+        <!-- ============ CAPTURE STAGE ============ -->
+        <section class="booth-capture-stage stage-hidden flt-color" id="captureStage">
+            <div class="booth-controls-row">
+                <div class="lever-control" id="shotLever" role="group" aria-label="Number of photos">
+                    <button type="button" class="lever-label active" data-side="left">1 photo</button>
+                    <div class="lever-switch" aria-hidden="true">
+                        <div class="lever-slot"></div>
+                        <div class="lever-arm"></div>
+                        <div class="lever-pivot"></div>
+                    </div>
+                    <button type="button" class="lever-label" data-side="right">3 photos</button>
+                </div>
+                <div class="lever-control" id="filterLever" role="group" aria-label="Filter">
+                    <button type="button" class="lever-label active" data-side="left">colour</button>
+                    <div class="lever-switch" aria-hidden="true">
+                        <div class="lever-slot"></div>
+                        <div class="lever-arm"></div>
+                        <div class="lever-pivot"></div>
+                    </div>
+                    <button type="button" class="lever-label" data-side="right">b&amp;w</button>
+                </div>
+                <label class="date-toggle">
+                    <input type="checkbox" id="dateEnabled" checked>
+                    add date
+                    <input type="date" id="dateValue">
+                </label>
+            </div>
+
+            <div class="booth-frame-wrap">
+                <div class="paper-frame">
+                    <div class="booth-viewfinder" id="viewfinder">
+                        <div class="placeholder-tex"></div>
+                        <video id="boothVideo" autoplay playsinline muted></video>
+                        <img id="shotPreview" class="shot-preview" alt="">
+                        <div class="film-grain"></div>
+                        <div class="countdown-num" id="countdownNum">3</div>
+                        <div class="flash-overlay" id="flashOverlay"></div>
+                    </div>
+                    <div class="paper-tex"></div>
+                </div>
+            </div>
+            <div class="booth-status" id="boothStatus">initializing camera&hellip;</div>
+
+            <div class="shot-thumbs" id="shotThumbs"></div>
+
+            <div class="booth-actions">
+                <button type="button" class="booth-btn primary" id="takeBtn" disabled>
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M4 8a2 2 0 0 1 2-2h1.2l.8-1.4A2 2 0 0 1 9.73 3.6h4.54a2 2 0 0 1 1.73 1L17 6h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.8"/></svg>
+                    take a photo
+                </button>
+                <button type="button" class="booth-btn" id="uploadBtn">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4M12 4L7 9M12 4l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    upload photo
+                </button>
+                <input type="file" accept="image/*" id="uploadInput" class="hidden">
+                <button type="button" class="booth-btn" id="retakeBtn" disabled>
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M4 4v5h5M20 20v-5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 13a7 7 0 0 1 12-4.9L20 9M19 11a7 7 0 0 1-12 4.9L4 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    retake
+                </button>
+            </div>
+        </section>
+
+        <!-- ============ RESULT: MACHINE PRINTS THE STRIP ============ -->
+        <section class="booth-result" id="resultStage">
+            <div class="print-scene">
+                <div class="print-slot" aria-hidden="true"></div>
+                <div class="print-window">
+                    <img id="resultImg" alt="Your Baethak photobooth strip">
+                </div>
+                <div class="print-status" id="printStatus">printing&hellip;</div>
+
+                <div class="booth-actions result-actions" id="resultActions">
+                    <button type="button" class="booth-btn primary" id="downloadBtn">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v12M12 16l-4.5-4.5M12 16l4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 18v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        download
+                    </button>
+                    <button type="button" class="booth-btn" id="printBtn">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a1 1 0 0 1-1 1h-2M6 14h12v7H6v-7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                        print
+                    </button>
+                    <button type="button" class="booth-btn" id="recreateBtn">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M4 4v5h5M20 20v-5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 13a7 7 0 0 1 12-4.9L20 9M19 11a7 7 0 0 1-12 4.9L4 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        retake
+                    </button>
+                    <a href="/" class="booth-btn">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        back to baethak
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- deckled (torn paper) edge clip for the viewfinder frame -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <clipPath id="deckleClip" clipPathUnits="objectBoundingBox">
+                <path d="M0.012,0.016 L0.06,0.006 L0.13,0.015 L0.2,0.004 L0.28,0.013 L0.36,0.003 L0.44,0.014 L0.52,0.005 L0.6,0.013 L0.68,0.004 L0.76,0.012 L0.84,0.003 L0.92,0.013 L0.988,0.007
+                       L0.996,0.06 L0.986,0.12 L0.994,0.2 L0.985,0.28 L0.996,0.36 L0.986,0.44 L0.995,0.52 L0.985,0.6 L0.994,0.68 L0.986,0.76 L0.996,0.84 L0.986,0.92 L0.992,0.985
+                       L0.93,0.995 L0.85,0.986 L0.77,0.996 L0.69,0.985 L0.61,0.994 L0.53,0.986 L0.45,0.996 L0.37,0.986 L0.29,0.994 L0.21,0.985 L0.13,0.996 L0.06,0.987 L0.013,0.993
+                       L0.004,0.93 L0.014,0.85 L0.005,0.77 L0.014,0.69 L0.004,0.61 L0.013,0.53 L0.005,0.45 L0.013,0.37 L0.004,0.29 L0.014,0.21 L0.005,0.13 L0.013,0.06 Z"/>
+            </clipPath>
+        </defs>
+    </svg>
+
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+        <img id="lightboxImg" alt="Baethak photobooth strip, full size">
+    </div>
+
+    <div id="print-target"><img id="printImg" alt=""></div>
+
+    <script>
+    (function(){
+        const video = document.getElementById('boothVideo');
+        const statusEl = document.getElementById('boothStatus');
+        const countdownEl = document.getElementById('countdownNum');
+        const flashEl = document.getElementById('flashOverlay');
+        const shotPreview = document.getElementById('shotPreview');
+        const thumbsEl = document.getElementById('shotThumbs');
+
+        const takeBtn = document.getElementById('takeBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadInput = document.getElementById('uploadInput');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const dateEnabledEl = document.getElementById('dateEnabled');
+        const dateValueEl = document.getElementById('dateValue');
+
+        const captureStage = document.getElementById('captureStage');
+        const resultStage = document.getElementById('resultStage');
+        const resultImg = document.getElementById('resultImg');
+        const resultActions = document.getElementById('resultActions');
+        const printStatus = document.getElementById('printStatus');
+
+        const recreateBtn = document.getElementById('recreateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const printBtn = document.getElementById('printBtn');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxClose = document.getElementById('lightboxClose');
+        const printImg = document.getElementById('printImg');
+
+        let shotMode = 1;
+        let filterMode = 'color';
+        let shots = [];
+        let cameraReady = false;
+        let busy = false;
+        let finalCanvas = null;
+        const today = new Date().toISOString().slice(0,10);
+        dateValueEl.value = today;
+
+        // ---------- camera ----------
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 900 }, height: { ideal: 1200 } }, audio: false });
+                video.srcObject = stream;
+                await video.play();
+                cameraReady = true;
+                statusEl.textContent = 'camera ready';
+                takeBtn.disabled = false;
+            } catch (err) {
+                statusEl.textContent = 'camera unavailable — upload a photo instead';
+                cameraReady = false;
+                takeBtn.disabled = true;
+            }
+        }
+
+        // ---------- landing → booth transition (camera inits only on entry) ----------
+        const enterBoothBtn = document.getElementById('enterBoothBtn');
+        let cameraInited = false;
+        function enterBooth() {
+            document.body.classList.add('booth-mode');
+            captureStage.classList.remove('stage-hidden');
+            gsap.fromTo(captureStage, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', clearProps: 'transform' });
+            window.scrollTo(0, 0);
+            if (!cameraInited) {
+                cameraInited = true;
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    initCamera();
+                } else {
+                    statusEl.textContent = 'camera not supported — upload a photo instead';
+                }
+            }
+        }
+        enterBoothBtn.addEventListener('click', enterBooth);
+
+        // ---------- filters ----------
+        function clamp(v){ return v < 0 ? 0 : v > 255 ? 255 : v; }
+        function applyFilter(ctx, w, h, mode) {
+            const imgData = ctx.getImageData(0, 0, w, h);
+            const d = imgData.data;
+            if (mode === 'bw') {
+                for (let i = 0; i < d.length; i += 4) {
+                    const gray = d[i]*0.32 + d[i+1]*0.5 + d[i+2]*0.18;
+                    let v = clamp((gray - 128) * 1.18 + 130);
+                    const noise = (Math.random() - 0.5) * 22;
+                    d[i]   = clamp(v * 1.04 + noise);
+                    d[i+1] = clamp(v * 0.99 + noise);
+                    d[i+2] = clamp(v * 0.94 + noise);
+                }
+            } else {
+                for (let i = 0; i < d.length; i += 4) {
+                    const r = d[i], g = d[i+1], b = d[i+2];
+                    const luma = r*0.3 + g*0.55 + b*0.15;
+                    // desaturate a touch, warm the highlights, lift the blacks — faded kodachrome
+                    let nr = r*0.72 + luma*0.28, ng = g*0.72 + luma*0.28, nb = b*0.72 + luma*0.28;
+                    nr = nr*1.07 + 10; ng = ng*1.0 + 4; nb = nb*0.88 - 4;
+                    const noise = (Math.random() - 0.5) * 13;
+                    d[i]   = clamp(nr*0.93 + 16 + noise);
+                    d[i+1] = clamp(ng*0.93 + 14 + noise);
+                    d[i+2] = clamp(nb*0.93 + 12 + noise);
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+            const grad = ctx.createRadialGradient(w/2, h/2, h*0.34, w/2, h/2, h*0.78);
+            grad.addColorStop(0, 'rgba(0,0,0,0)');
+            grad.addColorStop(1, mode === 'bw' ? 'rgba(0,0,0,0.5)' : 'rgba(40,24,8,0.42)');
+            ctx.fillStyle = grad;
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.fillRect(0, 0, w, h);
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        const CELL_W = 720, CELL_H = 900;
+
+        function grabFrameFromVideo() {
+            const c = document.createElement('canvas');
+            c.width = CELL_W; c.height = CELL_H;
+            const ctx = c.getContext('2d');
+            const vw = video.videoWidth, vh = video.videoHeight;
+            const scale = Math.max(CELL_W / vw, CELL_H / vh);
+            const sw = CELL_W / scale, sh = CELL_H / scale;
+            const sx = (vw - sw) / 2, sy = (vh - sh) / 2;
+            ctx.translate(CELL_W, 0); ctx.scale(-1, 1);
+            ctx.drawImage(video, sx, sy, sw, sh, 0, 0, CELL_W, CELL_H);
+            ctx.setTransform(1,0,0,1,0,0);
+            applyFilter(ctx, CELL_W, CELL_H, filterMode);
+            return c;
+        }
+
+        function frameFromImage(img) {
+            const c = document.createElement('canvas');
+            c.width = CELL_W; c.height = CELL_H;
+            const ctx = c.getContext('2d');
+            const scale = Math.max(CELL_W / img.width, CELL_H / img.height);
+            const sw = CELL_W / scale, sh = CELL_H / scale;
+            const sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
+            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, CELL_W, CELL_H);
+            applyFilter(ctx, CELL_W, CELL_H, filterMode);
+            return c;
+        }
+
+        // ---------- thumbnails ----------
+        function renderThumbs() {
+            thumbsEl.innerHTML = '';
+            for (let i = 0; i < shotMode; i++) {
+                const t = document.createElement('div');
+                if (shots[i]) {
+                    t.className = 'shot-thumb';
+                    const img = document.createElement('img');
+                    img.src = shots[i].toDataURL('image/jpeg', 0.7);
+                    t.appendChild(img);
+                } else {
+                    t.className = 'shot-thumb empty';
+                }
+                thumbsEl.appendChild(t);
+            }
+            retakeBtn.disabled = shots.length === 0 || busy;
+        }
+        renderThumbs();
+
+        // ---------- 3-second countdown + flash ----------
+        function countdownThen(cb) {
+            const seq = [3, 2, 1];
+            let idx = 0;
+            countdownEl.style.display = 'flex';
+            const tick = () => {
+                if (idx >= seq.length) {
+                    countdownEl.style.display = 'none';
+                    flashEl.style.opacity = '0.88';
+                    gsap.to(flashEl, { opacity: 0, duration: 0.5, ease: 'power2.out' });
+                    cb();
+                    return;
+                }
+                countdownEl.textContent = seq[idx];
+                gsap.fromTo(countdownEl, { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2.6)' });
+                idx++;
+                setTimeout(tick, 1000);
+            };
+            tick();
+        }
+
+        function setControlsDisabled(disabled) {
+            takeBtn.disabled = disabled || !cameraReady;
+            uploadBtn.disabled = disabled;
+            shotLever.setDisabled(disabled);
+            filterLever.setDisabled(disabled);
+        }
+
+        // ---------- aged-paper strip compositing ----------
+        async function ensureFontsLoaded() {
+            try {
+                await Promise.all([
+                    document.fonts.load('400 34px "Homemade Apple"'),
+                    document.fonts.load('400 20px "Instrument Serif"'),
+                    document.fonts.load('600 30px Caveat')
+                ]);
+            } catch (e) {}
+        }
+
+        function formatDate(iso) {
+            const d = iso ? new Date(iso + 'T00:00:00') : new Date();
+            return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        // jittered deckle-edge path around the canvas
+        function traceDecklePath(ctx, w, h) {
+            const amp = 7, step = 42;
+            const jitter = () => (Math.random() - 0.5) * 2 * amp;
+            ctx.beginPath();
+            ctx.moveTo(amp + 2, amp + 2 + jitter()/2);
+            for (let x = step; x < w - amp; x += step) ctx.lineTo(x, amp + Math.abs(jitter()));
+            ctx.lineTo(w - amp, amp + Math.abs(jitter()));
+            for (let y = step; y < h - amp; y += step) ctx.lineTo(w - amp - Math.abs(jitter()), y);
+            ctx.lineTo(w - amp - Math.abs(jitter()), h - amp);
+            for (let x = w - step; x > amp; x -= step) ctx.lineTo(x, h - amp - Math.abs(jitter()));
+            ctx.lineTo(amp + Math.abs(jitter()), h - amp);
+            for (let y = h - step; y > amp; y -= step) ctx.lineTo(amp + Math.abs(jitter()), y);
+            ctx.closePath();
+        }
+
+        async function composeStrip() {
+            await ensureFontsLoaded();
+            const pad = 52, topPad = 46, footerH = 148, gap = 36;
+            const n = shots.length;
+            const stripW = CELL_W + pad * 2;
+            const stripH = topPad + n * CELL_H + (n - 1) * gap + footerH;
+            const out = document.createElement('canvas');
+            out.width = stripW; out.height = stripH;
+            const ctx = out.getContext('2d');
+
+            // aged paper with torn edges (transparent outside)
+            traceDecklePath(ctx, stripW, stripH);
+            ctx.save();
+            ctx.clip();
+            const paperGrad = ctx.createLinearGradient(0, 0, stripW * 0.3, stripH);
+            paperGrad.addColorStop(0, '#efe5cb');
+            paperGrad.addColorStop(0.5, '#e6d9b8');
+            paperGrad.addColorStop(1, '#d9c9a4');
+            ctx.fillStyle = paperGrad;
+            ctx.fillRect(0, 0, stripW, stripH);
+
+            // speckles + fibre flecks
+            for (let i = 0; i < 900; i++) {
+                const x = Math.random() * stripW, y = Math.random() * stripH;
+                const r = Math.random() * 1.6 + 0.3;
+                ctx.fillStyle = `rgba(${100 + Math.random()*40|0}, ${80 + Math.random()*30|0}, ${45 + Math.random()*25|0}, ${0.04 + Math.random()*0.09})`;
+                ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+            }
+            for (let i = 0; i < 26; i++) {
+                const x = Math.random() * stripW, y = Math.random() * stripH;
+                ctx.fillStyle = 'rgba(90,68,40,0.16)';
+                ctx.beginPath(); ctx.ellipse(x, y, 2.6 + Math.random()*2.4, 1 + Math.random(), Math.random()*Math.PI, 0, Math.PI*2); ctx.fill();
+            }
+            // edge burn (darker rim)
+            const rim = ctx.createRadialGradient(stripW/2, stripH/2, Math.min(stripW,stripH)*0.36, stripW/2, stripH/2, Math.max(stripW,stripH)*0.72);
+            rim.addColorStop(0, 'rgba(0,0,0,0)');
+            rim.addColorStop(1, 'rgba(96,72,42,0.34)');
+            ctx.fillStyle = rim;
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.fillRect(0, 0, stripW, stripH);
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.restore();
+
+            // rough edge stroke
+            traceDecklePath(ctx, stripW, stripH);
+            ctx.strokeStyle = 'rgba(110,84,50,0.35)';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // photos
+            shots.forEach((cellCanvas, i) => {
+                const y = topPad + i * (CELL_H + gap);
+                ctx.save();
+                ctx.shadowColor = 'rgba(70,50,25,0.4)';
+                ctx.shadowBlur = 14;
+                ctx.shadowOffsetY = 3;
+                ctx.drawImage(cellCanvas, pad, y, CELL_W, CELL_H);
+                ctx.restore();
+                ctx.strokeStyle = 'rgba(58,44,26,0.55)';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(pad, y, CELL_W, CELL_H);
+            });
+
+            // handwritten footer — ink on paper
+            const footerTop = topPad + n * CELL_H + (n - 1) * gap;
+            ctx.textAlign = 'center';
+            if (dateEnabledEl.checked) {
+                ctx.save();
+                ctx.translate(stripW / 2, footerTop + 74);
+                ctx.rotate(-0.028);
+                ctx.fillStyle = 'rgba(46,52,94,0.82)';
+                ctx.font = '400 40px "Homemade Apple", cursive';
+                ctx.fillText(formatDate(dateValueEl.value), 0, 0);
+                ctx.restore();
+                ctx.fillStyle = 'rgba(70,56,36,0.6)';
+                ctx.font = '400 20px "Instrument Serif", serif';
+                ctx.fillText('B A E T H A K', stripW / 2, footerTop + 118);
+            } else {
+                ctx.fillStyle = 'rgba(70,56,36,0.65)';
+                ctx.font = '400 24px "Instrument Serif", serif';
+                ctx.fillText('B A E T H A K', stripW / 2, footerTop + 84);
+            }
+
+            return out;
+        }
+
+        // ---------- realistic print-out ----------
+        function runPrintAnimation() {
+            gsap.set(resultImg, { yPercent: -101, y: 0, rotation: 0, visibility: 'visible' });
+            gsap.set(resultActions, { opacity: 0, y: 18 });
+            printStatus.textContent = 'printing…';
+            const tl = gsap.timeline();
+            tl.to({}, { duration: 0.5 }); // machine "thinking"
+            const steps = 7;
+            for (let i = 1; i <= steps; i++) {
+                tl.to(resultImg, { yPercent: -101 + (101 * i / steps), duration: 0.4, ease: 'power1.inOut' });
+                if (i < steps) tl.to({}, { duration: 0.13 }); // stepper-motor dwell
+            }
+            tl.to(resultImg, { rotation: 0.7, duration: 0.12, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '-=0.08');
+            tl.add(() => { printStatus.textContent = 'fresh off the machine'; });
+            tl.to(resultActions, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' });
+        }
+
+        async function finishSession() {
+            finalCanvas = await composeStrip();
+            resultImg.src = finalCanvas.toDataURL('image/png');
+            captureStage.classList.add('hidden');
+            resultStage.classList.add('visible');
+            window.scrollTo(0, 0);
+            try { await resultImg.decode(); } catch(e) {}
+            runPrintAnimation();
+        }
+
+        // ---------- actions ----------
+        async function handleTakePhoto() {
+            if (!cameraReady || busy) return;
+            busy = true;
+            setControlsDisabled(true);
+            const needed = shotMode - shots.length;
+            for (let i = 0; i < needed; i++) {
+                // 3…2…1 → flash → capture at the flash moment
+                await new Promise((resolve) => countdownThen(resolve));
+                const cell = grabFrameFromVideo();
+                shots.push(cell);
+                renderThumbs();
+                // the clicked photo develops in the frame, holds, then hands back to the live feed
+                shotPreview.src = cell.toDataURL('image/jpeg', 0.85);
+                gsap.fromTo(shotPreview, { opacity: 0 }, { opacity: 1, duration: 0.28, ease: 'power1.out', delay: 0.15 });
+                await new Promise(r => setTimeout(r, 1450));
+                if (shots.length < shotMode) {
+                    gsap.to(shotPreview, { opacity: 0, duration: 0.25 });
+                    await new Promise(r => setTimeout(r, 300));
+                }
+            }
+            setControlsDisabled(false);
+            busy = false;
+            if (shots.length >= shotMode) finishSession();
+        }
+        takeBtn.addEventListener('click', handleTakePhoto);
+
+        uploadBtn.addEventListener('click', () => uploadInput.click());
+        uploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const img = new Image();
+            img.onload = async () => {
+                shots.push(frameFromImage(img));
+                renderThumbs();
+                if (shots.length >= shotMode) await finishSession();
+                URL.revokeObjectURL(img.src);
+            };
+            img.src = URL.createObjectURL(file);
+            e.target.value = '';
+        });
+
+        retakeBtn.addEventListener('click', () => {
+            if (busy) return;
+            shots = [];
+            renderThumbs();
+            gsap.set(shotPreview, { opacity: 0 });
+        });
+
+        function setMode(n) {
+            shotMode = n;
+            shots = [];
+            renderThumbs();
+        }
+
+        function setFilter(mode) {
+            filterMode = mode;
+            captureStage.classList.toggle('flt-color', mode === 'color');
+            captureStage.classList.toggle('flt-bw', mode === 'bw');
+        }
+
+        // ---------- brass levers ----------
+        function makeLever(rootId, onChange) {
+            const root = document.getElementById(rootId);
+            const arm = root.querySelector('.lever-arm');
+            const labels = root.querySelectorAll('.lever-label');
+            let side = 'left';
+            function setSide(s, animate) {
+                side = s;
+                labels.forEach(l => l.classList.toggle('active', l.dataset.side === s));
+                const rot = s === 'left' ? -27 : 27;
+                if (animate) {
+                    gsap.to(arm, { rotation: rot, duration: 0.5, ease: 'back.out(2.4)' });
+                } else {
+                    gsap.set(arm, { rotation: rot });
+                }
+                onChange(s);
+            }
+            root.querySelector('.lever-switch').addEventListener('click', () => {
+                if (busy) return;
+                setSide(side === 'left' ? 'right' : 'left', true);
+            });
+            labels.forEach(l => l.addEventListener('click', () => {
+                if (busy || l.dataset.side === side) return;
+                setSide(l.dataset.side, true);
+            }));
+            setSide('left', false);
+            return { setDisabled(d) { root.classList.toggle('disabled', d); } };
+        }
+        const shotLever = makeLever('shotLever', s => setMode(s === 'left' ? 1 : 3));
+        const filterLever = makeLever('filterLever', s => setFilter(s === 'left' ? 'color' : 'bw'));
+
+        // ---------- result stage actions ----------
+        recreateBtn.addEventListener('click', () => {
+            shots = [];
+            finalCanvas = null;
+            renderThumbs();
+            gsap.set(shotPreview, { opacity: 0 });
+            resultStage.classList.remove('visible');
+            captureStage.classList.remove('hidden');
+            gsap.fromTo(captureStage, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', clearProps: 'transform' });
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!finalCanvas) return;
+            const a = document.createElement('a');
+            a.href = finalCanvas.toDataURL('image/png');
+            a.download = `baethak-photobooth-${Date.now()}.png`;
+            a.click();
+        });
+
+        resultImg.addEventListener('click', () => {
+            if (!finalCanvas) return;
+            lightboxImg.src = finalCanvas.toDataURL('image/png');
+            lightbox.classList.add('visible');
+        });
+        lightboxClose.addEventListener('click', () => lightbox.classList.remove('visible'));
+        lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.classList.remove('visible'); });
+
+        printBtn.addEventListener('click', () => {
+            if (!finalCanvas) return;
+            printImg.src = finalCanvas.toDataURL('image/png');
+            setTimeout(() => window.print(), 80);
+        });
+    })();
+    </script>
+</body>
+</html>
