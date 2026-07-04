@@ -56,6 +56,12 @@
             animation: boothFloat 6s ease-in-out infinite alternate; }
         @keyframes boothFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
         .machine-img { display: block; width: 100%; height: auto; }
+        /* --- casual image protection (deterrent only; not real DRM) --- */
+        .no-drag { -webkit-user-select: none; -moz-user-select: none; user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none; }
+        .protected-img { pointer-events: none; }
+        /* transparent shield sits above the image; a right-click lands on this empty div,
+           so the browser offers no "Save image as…" */
+        .img-shield { position: absolute; inset: 0; z-index: 9; background: transparent; }
         /* warm light spill from the sign, flickers like a failing tube */
         .sign-glow { position: absolute; left: 12%; top: -4%; width: 74%; height: 26%; pointer-events: none;
             background: radial-gradient(ellipse at 50% 55%, rgba(255,238,190,0.45), rgba(255,238,190,0) 68%);
@@ -292,23 +298,24 @@
 
         <div class="landing-center">
             <div class="booth-svg" role="img" aria-label="Vintage Baethak photobooth machine">
-                <img class="machine-img" src="booth-machine.webp" alt="">
+                <img class="machine-img no-drag protected-img" src="booth-machine.webp" alt="" draggable="false">
                 <div class="machine-strip-window" aria-hidden="true">
                     <div class="machine-strip">
-                        <img src="vibe-1.jpg" alt="">
-                        <img src="vibe-2.jpg" alt="">
-                        <img src="vibe-3.jpg" alt="">
+                        <img class="no-drag protected-img" src="vibe-1.jpg" alt="" draggable="false">
+                        <img class="no-drag protected-img" src="vibe-2.jpg" alt="" draggable="false">
+                        <img class="no-drag protected-img" src="vibe-3.jpg" alt="" draggable="false">
                         <span class="strip-brand">BAETHAK</span>
                     </div>
                 </div>
                 <span class="sign-glow" aria-hidden="true"></span>
                 <span class="sign-dim" aria-hidden="true"></span>
                 <span class="machine-plate" aria-hidden="true">baethak.</span>
+                <div class="img-shield" aria-hidden="true" oncontextmenu="return false"></div>
             </div>
         </div>
 
         <div class="landing-right">
-            <div class="landing-strip" aria-hidden="true">
+            <div class="landing-strip no-drag" aria-hidden="true" oncontextmenu="return false">
                 <span class="landing-strip-cell" style="background-image:url('vibe-1.jpg')"></span>
                 <span class="landing-strip-cell" style="background-image:url('vibe-2.jpg')"></span>
                 <span class="landing-strip-cell" style="background-image:url('vibe-3.jpg')"></span>
@@ -355,7 +362,7 @@
                     <div class="booth-viewfinder" id="viewfinder">
                         <div class="placeholder-tex"></div>
                         <video id="boothVideo" autoplay playsinline muted></video>
-                        <img id="shotPreview" class="shot-preview" alt="">
+                        <img id="shotPreview" class="shot-preview no-drag" alt="" draggable="false">
                         <div class="film-grain"></div>
                         <div class="countdown-num" id="countdownNum">3</div>
                         <div class="flash-overlay" id="flashOverlay"></div>
@@ -389,7 +396,7 @@
             <div class="print-scene">
                 <div class="print-slot" aria-hidden="true"></div>
                 <div class="print-window">
-                    <img id="resultImg" alt="Your Baethak photobooth strip">
+                    <img id="resultImg" class="no-drag" alt="Your Baethak photobooth strip" draggable="false">
                 </div>
                 <div class="print-status" id="printStatus">printing&hellip;</div>
 
