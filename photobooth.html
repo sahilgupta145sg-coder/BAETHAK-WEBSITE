@@ -224,7 +224,7 @@
         /* the just-captured shot, shown in the frame right after the flash */
         .shot-preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; z-index: 3; }
         /* live filter previews */
-        .flt-color .booth-viewfinder video { filter: sepia(0.3) saturate(0.82) contrast(1.05) brightness(1.04); }
+        .flt-color .booth-viewfinder video { filter: sepia(0.35) saturate(1.05) contrast(0.94) brightness(0.9) hue-rotate(-6deg); }
         .flt-bw .booth-viewfinder video { filter: grayscale(1) sepia(0.16) contrast(1.12) brightness(1.05); }
         .film-grain { position: absolute; inset: -20px; pointer-events: none; z-index: 4; opacity: 0.3; mix-blend-mode: overlay;
             background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
@@ -597,26 +597,43 @@
                     d[i+2] = clamp(v * 0.94 + noise);
                 }
             } else {
+                // "early 2000s digicam" — warm/underexposed, crushed blacks, high-ISO grain
+                const cf = 0.954; // contrast -6
                 for (let i = 0; i < d.length; i += 4) {
-                    const r = d[i], g = d[i+1], b = d[i+2];
-                    const luma = r*0.3 + g*0.55 + b*0.15;
-                    // desaturate a touch, warm the highlights, lift the blacks — faded kodachrome
-                    let nr = r*0.72 + luma*0.28, ng = g*0.72 + luma*0.28, nb = b*0.72 + luma*0.28;
-                    nr = nr*1.07 + 10; ng = ng*1.0 + 4; nb = nb*0.88 - 4;
-                    const noise = (Math.random() - 0.5) * 13;
-                    d[i]   = clamp(nr*0.93 + 16 + noise);
-                    d[i+1] = clamp(ng*0.93 + 14 + noise);
-                    d[i+2] = clamp(nb*0.93 + 12 + noise);
+                    // contrast (around mid) + brightness -11 + warm colour offsets (R+13 G+12 B-11)
+                    let r = clamp((d[i]   - 128) * cf + 128 - 11 + 13);
+                    let g = clamp((d[i+1] - 128) * cf + 128 - 11 + 12);
+                    let b = clamp((d[i+2] - 128) * cf + 128 - 11 - 11);
+                    // black crush: dead shadows → flat near-pitch-black block
+                    if (r < 26 && g < 26 && b < 26) { r = 2; g = 2; b = 2; }
+                    // digital grain: ±13 per channel
+                    d[i]   = clamp(r + (Math.random() - 0.5) * 26);
+                    d[i+1] = clamp(g + (Math.random() - 0.5) * 26);
+                    d[i+2] = clamp(b + (Math.random() - 0.5) * 26);
                 }
             }
             ctx.putImageData(imgData, 0, 0);
-            const grad = ctx.createRadialGradient(w/2, h/2, h*0.34, w/2, h/2, h*0.78);
-            grad.addColorStop(0, 'rgba(0,0,0,0)');
-            grad.addColorStop(1, mode === 'bw' ? 'rgba(0,0,0,0.5)' : 'rgba(40,24,8,0.42)');
-            ctx.fillStyle = grad;
-            ctx.globalCompositeOperation = 'multiply';
-            ctx.fillRect(0, 0, w, h);
-            ctx.globalCompositeOperation = 'source-over';
+            if (mode === 'bw') {
+                const grad = ctx.createRadialGradient(w/2, h/2, h*0.34, w/2, h/2, h*0.78);
+                grad.addColorStop(0, 'rgba(0,0,0,0)');
+                grad.addColorStop(1, 'rgba(0,0,0,0.5)');
+                ctx.fillStyle = grad;
+                ctx.globalCompositeOperation = 'multiply';
+                ctx.fillRect(0, 0, w, h);
+                ctx.globalCompositeOperation = 'source-over';
+            } else {
+                // harsh point-and-shoot flash vignette: centre 45% clear, edges darkened, multiply 7%
+                const maxR = Math.hypot(w / 2, h / 2);
+                const grad = ctx.createRadialGradient(w/2, h/2, maxR * 0.45, w/2, h/2, maxR);
+                grad.addColorStop(0, 'rgba(0,0,0,0)');
+                grad.addColorStop(1, 'rgba(0,0,0,1)');
+                ctx.save();
+                ctx.globalCompositeOperation = 'multiply';
+                ctx.globalAlpha = 0.07;
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, w, h);
+                ctx.restore();
+            }
         }
 
         const CELL_W = 720, CELL_H = 900;
