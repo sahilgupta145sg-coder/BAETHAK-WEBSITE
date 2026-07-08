@@ -923,8 +923,11 @@
         }
 
         // ---------- realistic print-out ----------
+        const PRINT_SHADOW = 'drop-shadow(0 26px 40px rgba(0,0,0,0.55))';
         function runPrintAnimation() {
-            gsap.set(resultImg, { yPercent: -101, y: 0, rotation: 0, visibility: 'visible' });
+            gsap.set(resultImg, { yPercent: -101, y: 0, rotation: 0, visibility: 'visible',
+                // undeveloped photographic paper: milky, washed out, faintly warm
+                filter: `${PRINT_SHADOW} brightness(1.55) contrast(0.3) saturate(0.25) sepia(0.35)` });
             gsap.set(resultActions, { opacity: 0, y: 18 });
             printStatus.textContent = 'printing…';
             const tl = gsap.timeline();
@@ -935,6 +938,12 @@
                 if (i < steps) tl.to({}, { duration: 0.13 }); // stepper-motor dwell
             }
             tl.to(resultImg, { rotation: 0.7, duration: 0.12, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '-=0.08');
+            // chemical development: runs while the strip feeds out, settles shortly after
+            tl.add(() => { printStatus.textContent = 'developing…'; }, 2.2);
+            tl.to(resultImg, {
+                filter: `${PRINT_SHADOW} brightness(1) contrast(1) saturate(1) sepia(0)`,
+                duration: 4.6, ease: 'power1.in'
+            }, 0.9);
             tl.add(() => { printStatus.textContent = 'fresh off the machine'; });
             tl.to(resultActions, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' });
         }
