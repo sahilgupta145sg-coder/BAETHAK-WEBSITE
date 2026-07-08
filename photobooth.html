@@ -17,7 +17,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Inter:wght@900&family=Space+Mono:wght@700&family=Playfair+Display:wght@700;900&family=Caveat:wght@600&family=Instrument+Serif:ital@0;1&family=Homemade+Apple&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Inter:wght@900&family=Instrument+Serif:ital@0;1&family=Homemade+Apple&display=swap" rel="stylesheet">
 
     <style>
         :root { --bg: #0a0a0a; --accent: #FF2D55; --gold: #FFD700; --paper: #F8EFDC; --booth-brown: #484035; --booth-cream: #ece2cb; }
@@ -25,9 +25,6 @@
         body { background: #484035; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; overflow-x: hidden; transition: background 0.6s ease; }
         body.booth-mode { background: radial-gradient(circle at 50% 0%, #1a1210 0%, #050403 60%, #000 100%); }
         .heavy { font-family: 'Inter', sans-serif; font-weight: 900; }
-        .glitch-font { font-family: 'Space Mono', monospace; }
-        .script-font { font-family: 'Caveat', cursive; }
-        .serif-font { font-family: 'Playfair Display', serif; }
         a, button, .interactive-item { cursor: pointer; }
 
         /* ---------- top bar ---------- */
@@ -358,11 +355,11 @@
                     <span class="strip-card-name">love letter</span>
                 </button>
                 <button type="button" class="strip-card interactive-item" data-strip="tpl2">
-                    <img src="strip-tpl-2.png" class="no-drag" draggable="false" alt="Heart stickers strip">
+                    <img src="strip-tpl-2.jpg" class="no-drag" draggable="false" alt="Heart stickers strip">
                     <span class="strip-card-name">sweetheart</span>
                 </button>
                 <button type="button" class="strip-card interactive-item" data-strip="tpl3">
-                    <img src="strip-tpl-3.png" class="no-drag" draggable="false" alt="Red doodles strip">
+                    <img src="strip-tpl-3.jpg" class="no-drag" draggable="false" alt="Red doodles strip">
                     <span class="strip-card-name">red ink</span>
                 </button>
             </div>
@@ -544,8 +541,8 @@
         let leverShots = 1; // last 1/3 lever choice (classic only)
         const TPL = {
             tpl1: { src: 'strip-tpl-1.png', ink: '#7a2233' },   // love letter — maroon ink on pink
-            tpl2: { src: 'strip-tpl-2.png', ink: '#c2402e' },   // sweetheart — stitched-sticker red
-            tpl3: { src: 'strip-tpl-3.png', ink: '#b41214' }    // red ink — marker red
+            tpl2: { src: 'strip-tpl-2.jpg', ink: '#c2402e' },   // sweetheart — stitched-sticker red
+            tpl3: { src: 'strip-tpl-3.jpg', ink: '#b41214' }    // red ink — marker red
         };
 
         function enterBooth() {
@@ -759,8 +756,7 @@
             try {
                 await Promise.all([
                     document.fonts.load('400 34px "Homemade Apple"'),
-                    document.fonts.load('400 20px "Instrument Serif"'),
-                    document.fonts.load('600 30px Caveat')
+                    document.fonts.load('400 20px "Instrument Serif"')
                 ]);
             } catch (e) {}
         }
