@@ -261,8 +261,9 @@
             background: linear-gradient(180deg, #d8cfba 0%, #a89e87 45%, #877d66 100%); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.5); }
         .print-slot::after { content: ""; position: absolute; left: 7%; right: 7%; top: 50%; transform: translateY(-50%); height: 8px; border-radius: 4px;
             background: #0c0906; box-shadow: inset 0 2px 4px rgba(0,0,0,0.9); }
-        .print-window { width: min(270px, 62vw); overflow: hidden; margin-top: -6px; padding-bottom: 34px; }
-        .print-window img { display: block; width: 100%; visibility: hidden; filter: drop-shadow(0 26px 40px rgba(0,0,0,0.55)); cursor: zoom-in; }
+        /* static shadow on the window keeps the animated filter cheap (no per-frame blur repaint) */
+        .print-window { width: min(270px, 62vw); overflow: hidden; margin-top: -6px; padding-bottom: 34px; filter: drop-shadow(0 26px 40px rgba(0,0,0,0.55)); }
+        .print-window img { display: block; width: 100%; visibility: hidden; cursor: zoom-in; }
         .print-status { margin: 18px 0 26px; font-family: 'Instrument Serif', serif; font-size: 0.95rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(236,226,203,0.75); }
         .result-actions { opacity: 0; }
 
@@ -978,27 +979,27 @@
         }
 
         // ---------- realistic print-out ----------
-        const PRINT_SHADOW = 'drop-shadow(0 26px 40px rgba(0,0,0,0.55))';
         function runPrintAnimation() {
             gsap.set(resultImg, { yPercent: -101, y: 0, rotation: 0, visibility: 'visible',
                 // undeveloped photographic paper: milky, washed out, faintly warm
-                filter: `${PRINT_SHADOW} brightness(1.55) contrast(0.3) saturate(0.25) sepia(0.35)` });
+                filter: 'brightness(1.55) contrast(0.3) saturate(0.25) sepia(0.35)' });
             gsap.set(resultActions, { opacity: 0, y: 18 });
             printStatus.textContent = 'printing…';
             const tl = gsap.timeline();
             tl.to({}, { duration: 0.5 }); // machine "thinking"
+            // mechanical feed: transform only, nothing else animating — keeps it butter-smooth
             const steps = 7;
             for (let i = 1; i <= steps; i++) {
                 tl.to(resultImg, { yPercent: -101 + (101 * i / steps), duration: 0.4, ease: 'power1.inOut' });
                 if (i < steps) tl.to({}, { duration: 0.13 }); // stepper-motor dwell
             }
             tl.to(resultImg, { rotation: 0.7, duration: 0.12, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '-=0.08');
-            // chemical development: runs while the strip feeds out, settles shortly after
-            tl.add(() => { printStatus.textContent = 'developing…'; }, 2.2);
+            // chemical development: after the strip is out, like a real booth
+            tl.add(() => { printStatus.textContent = 'developing…'; });
             tl.to(resultImg, {
-                filter: `${PRINT_SHADOW} brightness(1) contrast(1) saturate(1) sepia(0)`,
-                duration: 4.6, ease: 'power1.in'
-            }, 0.9);
+                filter: 'brightness(1) contrast(1) saturate(1) sepia(0)',
+                duration: 2.6, ease: 'power1.in'
+            });
             tl.add(() => { printStatus.textContent = 'fresh off the machine'; });
             tl.to(resultActions, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' });
         }
