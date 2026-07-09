@@ -263,7 +263,7 @@
             background: #0c0906; box-shadow: inset 0 2px 4px rgba(0,0,0,0.9); }
         /* static shadow on the window keeps the animated filter cheap (no per-frame blur repaint) */
         .print-window { width: min(270px, 62vw); overflow: hidden; margin-top: -6px; padding-bottom: 34px; filter: drop-shadow(0 26px 40px rgba(0,0,0,0.55)); }
-        .print-window img { display: block; width: 100%; visibility: hidden; cursor: zoom-in; }
+        .print-window img { display: block; width: 100%; visibility: hidden; cursor: zoom-in; will-change: filter, transform; transform: translateZ(0); }
         .print-status { margin: 18px 0 26px; font-family: 'Instrument Serif', serif; font-size: 0.95rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(236,226,203,0.75); }
         .result-actions { opacity: 0; }
 
@@ -984,9 +984,15 @@
                 // undeveloped photographic paper: milky, washed out, faintly warm
                 filter: 'brightness(1.55) contrast(0.3) saturate(0.25) sepia(0.35)' });
             gsap.set(resultActions, { opacity: 0, y: 18 });
+            
+            // clear any previous transitions
+            resultImg.style.transition = 'none';
+            resultImg.style.webkitTransition = 'none';
+            
             printStatus.textContent = 'printing…';
             const tl = gsap.timeline();
             tl.to({}, { duration: 0.5 }); // machine "thinking"
+            
             // mechanical feed: transform only, nothing else animating — keeps it butter-smooth
             const steps = 7;
             for (let i = 1; i <= steps; i++) {
@@ -994,13 +1000,30 @@
                 if (i < steps) tl.to({}, { duration: 0.13 }); // stepper-motor dwell
             }
             tl.to(resultImg, { rotation: 0.7, duration: 0.12, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '-=0.08');
+            
             // chemical development: after the strip is out, like a real booth
-            tl.add(() => { printStatus.textContent = 'developing…'; });
-            tl.to(resultImg, {
-                filter: 'brightness(1) contrast(1) saturate(1) sepia(0)',
-                duration: 2.6, ease: 'power1.in'
+            tl.add(() => { 
+                printStatus.textContent = 'developing…'; 
+                
+                // Use native CSS transition to prevent main-thread/GPU lockup on mobile WebKit
+                resultImg.style.transition = 'filter 2.6s ease-in, -webkit-filter 2.6s ease-in';
+                resultImg.style.webkitTransition = '-webkit-filter 2.6s ease-in, filter 2.6s ease-in';
+                
+                // Force layout reflow so the transition is registered
+                void resultImg.offsetWidth;
+                
+                resultImg.style.filter = 'brightness(1) contrast(1) saturate(1) sepia(0)';
+                resultImg.style.webkitFilter = 'brightness(1) contrast(1) saturate(1) sepia(0)';
             });
-            tl.add(() => { printStatus.textContent = 'fresh off the machine'; });
+            
+            // Wait for CSS transition duration
+            tl.to({}, { duration: 2.6 });
+            
+            tl.add(() => { 
+                printStatus.textContent = 'fresh off the machine'; 
+                resultImg.style.transition = 'none';
+                resultImg.style.webkitTransition = 'none';
+            });
             tl.to(resultActions, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' });
         }
 
