@@ -143,6 +143,8 @@
             border-radius: 9999px;
             pointer-events: none;
             overflow: hidden;
+            -webkit-clip-path: inset(0 round 9999px);
+            clip-path: inset(0 round 9999px);
             transform: translateZ(0);
         }
 
@@ -229,42 +231,6 @@
             will-change: transform;
         }
 
-        /* Safari ring engine: Safari supports neither backdrop-filter:url() nor
-           filter:url() on HTML, but it DOES support -webkit-backdrop-filter with
-           masks and transforms. Concentric rings scaled outward sample the LIVE
-           backdrop from beyond the rim — the magnifying-edge pull of a lens —
-           and hue-rotate on the sampled light gives content-derived iridescence
-           (invisible over plain backgrounds, exactly like real dispersion). */
-        .lg-ring {
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            pointer-events: none;
-        }
-
-        .lg-ring.r1 {
-            -webkit-backdrop-filter: blur(1.6px) saturate(1.65) hue-rotate(10deg);
-            backdrop-filter: blur(1.6px) saturate(1.65) hue-rotate(10deg);
-            transform: scale(1.12);
-            -webkit-mask: radial-gradient(closest-side, transparent 82%, #000 90%);
-            mask: radial-gradient(closest-side, transparent 82%, #000 90%);
-        }
-
-        .lg-ring.r2 {
-            -webkit-backdrop-filter: blur(1px) saturate(1.5) hue-rotate(-8deg);
-            backdrop-filter: blur(1px) saturate(1.5) hue-rotate(-8deg);
-            transform: scale(1.07);
-            -webkit-mask: radial-gradient(closest-side, transparent 70%, #000 78%, #000 86%, transparent 92%);
-            mask: radial-gradient(closest-side, transparent 70%, #000 78%, #000 86%, transparent 92%);
-        }
-
-        .lg-ring.r3 {
-            -webkit-backdrop-filter: blur(0.7px) saturate(1.35);
-            backdrop-filter: blur(0.7px) saturate(1.35);
-            transform: scale(1.035);
-            -webkit-mask: radial-gradient(closest-side, transparent 54%, #000 64%, #000 72%, transparent 80%);
-            mask: radial-gradient(closest-side, transparent 54%, #000 64%, #000 72%, transparent 80%);
-        }
 
         /* running light-beam lines flanking the CTA (same idea as .scroll-line) -> signals clickable */
         .cta-row {
@@ -1873,15 +1839,16 @@
                 var isSafariUA = /Safari/.test(ua) && !/Chrome|Chromium|Edg|Firefox/.test(ua);
                 var forceRings = q.has('lgrings');
 
+                // Safari engine: ONE backdrop surface per pill (blur+saturate is the
+                // operation Safari's compositor is fast at — stacked/masked/hue-rotated
+                // backdrop layers tank the whole page's fps there). Dressing layers
+                // (tint/specular/glint) provide the glass read; clip-path guarantees
+                // the capsule shape despite WebKit's rounded-clip compositing bug.
                 function mountRings(el) {
-                    var base = 'blur(1.8px) saturate(1.5)';
+                    var base = 'blur(3px) saturate(1.6)';
                     el.style.webkitBackdropFilter = base;
                     el.style.backdropFilter = base;
-                    ['r1', 'r2', 'r3'].forEach(function (cls) {
-                        var ring = document.createElement('span');
-                        ring.className = 'lg-ring ' + cls;
-                        el.insertBefore(ring, el.firstChild);
-                    });
+                    el.classList.add('lg-safari');
                 }
 
                 document.querySelectorAll('#top-nav .lg-glass').forEach(function (el) {
