@@ -1,268 +1,1160 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BAETHAK | The Real Social World.</title>
 
     <meta name="title" content="BAETHAK | The Real Social World.">
-    <meta name="description" content="Stop scrolling, start meeting. Baethak maps out real-time gatherings and IRL events in your neighborhood. Join the tribe today.">
-    <meta name="keywords" content="Baethak, Baethak App, Local Events, Meetups IRL, Social Networking India, Real World Socializing">
+    <meta name="description"
+        content="Stop scrolling, start meeting. Baethak maps out real-time gatherings and IRL events in your neighborhood. Join the tribe today.">
+    <meta name="keywords"
+        content="Baethak, Baethak App, Local Events, Meetups IRL, Social Networking India, Real World Socializing">
     <meta name="author" content="Baethak Core">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://baethak.com/">
     <meta property="og:title" content="BAETHAK | The Real Social World.">
-    <meta property="og:description" content="The city is a playground, not a feed. Discover real-time gatherings nearby.">
+    <meta property="og:description"
+        content="The city is a playground, not a feed. Discover real-time gatherings nearby.">
     <meta property="og:image" content="https://baethak.com/og-image.jpg">
 
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://baethak.com/">
     <meta property="twitter:title" content="BAETHAK | The Real Social World.">
-    <meta property="twitter:description" content="Stop scrolling profiles. Start seeing locations. Baethak is the real social world.">
+    <meta property="twitter:description"
+        content="Stop scrolling profiles. Start seeing locations. Baethak is the real social world.">
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-    
+    <script src="liquid-glass.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Inter:wght@900&family=Space+Mono:wght@700&family=Playfair+Display:wght@700;900&family=Caveat:wght@600&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Inter:wght@900&family=Space+Mono:wght@700&family=Playfair+Display:wght@700;900&family=Caveat:wght@600&display=swap"
+        rel="stylesheet">
+
     <style>
-        :root { --bg: #FAFAFA; --accent: #FF2D55; --gold: #FFD700; --text: #0A0A0A; --black: #000000; }
-        html, body { cursor: auto; -webkit-font-smoothing: antialiased; }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
-        .heavy { font-family: 'Inter', sans-serif; font-weight: 900; }
-        .glitch-font { font-family: 'Space Mono', monospace; }
-        a, button, .interactive-item { cursor: pointer; }
-        /* ===== Two floating elements ("no pill" at rest); liquid body only appears while moving ===== */
-        #top-nav.nav-drops { position: fixed; top: 0; left: 0; right: 0; height: 76px; z-index: 100; pointer-events: none; }
-        /* the liquid bodies — invisible at rest (opacity driven by JS); the goo filter fuses them as
-           they overlap at the top-center point. drop-shadow floats them while visible. */
-        .goo-layer { position: absolute; inset: 0; filter: url(#liquid-goo) drop-shadow(0 6px 16px rgba(20,20,40,0.22)); opacity: 0; transform: translateZ(0); will-change: transform, opacity; }
-        .blob {
-            position: absolute; top: 13px; height: 46px; width: 158px; border-radius: 9999px;
-            background: linear-gradient(180deg, rgba(250,250,253,0.98) 0%, rgba(224,224,234,0.95) 100%);
-            transform-origin: center center; will-change: transform;
+        :root {
+            --bg: #FAFAFA;
+            --accent: #FF2D55;
+            --gold: #FFD700;
+            --text: #0A0A0A;
+            --black: #000000;
         }
-        /* transform-origin = each pill's INNER-TOP corner, so it stretches/collapses toward top-center */
-        .blob-left  { left: 18px; transform-origin: 100% 0%; }
-        .blob-right { right: 18px; transform-origin: 0% 0%; }
+
+        html,
+        body {
+            cursor: auto;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .heavy {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+        }
+
+        .glitch-font {
+            font-family: 'Space Mono', monospace;
+        }
+
+        a,
+        button,
+        .interactive-item {
+            cursor: pointer;
+        }
+
+        /* ===== Two floating elements ("no pill" at rest); liquid body only appears while moving ===== */
+        #top-nav.nav-drops {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 76px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
         /* crisp content rides on top (NOT goo-filtered, so text stays sharp) */
         .pill-content {
-            position: absolute; top: 13px; height: 46px; width: 158px; z-index: 2; pointer-events: auto;
-            display: flex; align-items: center; justify-content: center;
-            transform-origin: center center; will-change: transform, opacity;
+            position: absolute;
+            top: 13px;
+            height: 46px;
+            width: 158px;
+            z-index: 2;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-origin: center center;
+            will-change: transform;
         }
-        .content-left  { left: 18px; transform-origin: 100% 0%; }
-        .content-right { right: 18px; flex-direction: column; gap: 1px; transform-origin: 0% 0%; }
-        .content-right > * { position: relative; z-index: 1; }
+
+        .content-left {
+            left: 18px;
+            transform-origin: 100% 0%;
+        }
+
+        .content-right {
+            right: 18px;
+            flex-direction: column;
+            gap: 1px;
+            transform-origin: 0% 0%;
+        }
+
+        /* right pill hugs its content (+padding) so nothing can leak outside the glass */
+        .content-right {
+            width: auto;
+            min-width: 158px;
+            padding: 0 18px;
+        }
+
+        .content-right>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== Apple liquid-glass pill bodies =====
+           .lg-glass gets the optics: real SVG-refraction backdrop on Chromium via
+           liquid-glass.js; Safari/Firefox get frosted blur + a masked stronger-blur
+           rim band that fakes the edge lensing. The dressing (tint, specular,
+           prism fringe) is shared by both paths. Lives INSIDE .pill-content so it
+           inherits the existing scroll morph transform frame-for-frame. */
+        .lg-glass {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            border-radius: 9999px;
+            pointer-events: none;
+            overflow: hidden;
+            transform: translateZ(0);
+        }
+
+        /* tint + inner light: what makes it read as a physical pane */
+        .lg-tint {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(180deg,
+                    rgba(255, 255, 255, 0.07) 0%,
+                    rgba(255, 255, 255, 0.02) 50%,
+                    rgba(255, 255, 255, 0.04) 100%);
+            box-shadow:
+                0 10px 28px rgba(20, 20, 40, 0.18),
+                0 2px 6px rgba(20, 20, 40, 0.10);
+        }
+
+        /* curved top specular + a soft under-glow — the "sheet of glass" lighting */
+        .lg-shine {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background:
+                radial-gradient(120% 95% at 50% -40%, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 55%),
+                radial-gradient(90% 70% at 50% 135%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 60%);
+            mix-blend-mode: screen;
+            opacity: 0.55;
+        }
+
+        /* travelling glint: a narrow diagonal streak that drifts with scroll (--lgx) */
+        .lg-shine::after {
+            content: "";
+            position: absolute;
+            top: -30%;
+            bottom: -30%;
+            left: 0;
+            width: 34%;
+            background: linear-gradient(105deg, transparent 15%, rgba(255, 255, 255, 0.55) 50%, transparent 85%);
+            filter: blur(2px);
+            opacity: 0.5;
+            transform: translateX(calc(var(--lgx, 0) * 1%)) skewX(-14deg);
+        }
+
+
+        /* Safari/Firefox rim booster: a second, stronger backdrop blur masked to an
+           edge band — the "bent light at the rim" illusion where SVG-filtered
+           backdrops aren't supported. Only activated alongside .lg-fallback. */
+        .lg-frost {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            display: none;
+        }
+
+        .lg-fallback .lg-frost {
+            display: block;
+            -webkit-backdrop-filter: blur(6px) saturate(1.7) brightness(1.06);
+            backdrop-filter: blur(6px) saturate(1.7) brightness(1.06);
+            -webkit-mask: radial-gradient(closest-side, transparent 58%, #000 88%);
+            mask: radial-gradient(closest-side, transparent 58%, #000 88%);
+        }
+
+
+        .pill-content:hover .lg-shine {
+            opacity: 0.8;
+        }
+
+        /* Safari-from-scratch engine: a live-synced clone of the page, clipped to the
+           pill and displaced through the SAME map via filter:url() — real refraction
+           where backdrop-filter:url() doesn't exist. */
+        .lg-mirror {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .lg-mirror-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        /* Safari ring engine: Safari supports neither backdrop-filter:url() nor
+           filter:url() on HTML, but it DOES support -webkit-backdrop-filter with
+           masks and transforms. Concentric rings scaled outward sample the LIVE
+           backdrop from beyond the rim — the magnifying-edge pull of a lens —
+           and hue-rotate on the sampled light gives content-derived iridescence
+           (invisible over plain backgrounds, exactly like real dispersion). */
+        .lg-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        .lg-ring.r1 {
+            -webkit-backdrop-filter: blur(1.6px) saturate(1.65) hue-rotate(10deg);
+            backdrop-filter: blur(1.6px) saturate(1.65) hue-rotate(10deg);
+            transform: scale(1.12);
+            -webkit-mask: radial-gradient(closest-side, transparent 82%, #000 90%);
+            mask: radial-gradient(closest-side, transparent 82%, #000 90%);
+        }
+
+        .lg-ring.r2 {
+            -webkit-backdrop-filter: blur(1px) saturate(1.5) hue-rotate(-8deg);
+            backdrop-filter: blur(1px) saturate(1.5) hue-rotate(-8deg);
+            transform: scale(1.07);
+            -webkit-mask: radial-gradient(closest-side, transparent 70%, #000 78%, #000 86%, transparent 92%);
+            mask: radial-gradient(closest-side, transparent 70%, #000 78%, #000 86%, transparent 92%);
+        }
+
+        .lg-ring.r3 {
+            -webkit-backdrop-filter: blur(0.7px) saturate(1.35);
+            backdrop-filter: blur(0.7px) saturate(1.35);
+            transform: scale(1.035);
+            -webkit-mask: radial-gradient(closest-side, transparent 54%, #000 64%, #000 72%, transparent 80%);
+            mask: radial-gradient(closest-side, transparent 54%, #000 64%, #000 72%, transparent 80%);
+        }
+
         /* running light-beam lines flanking the CTA (same idea as .scroll-line) -> signals clickable */
-        .cta-row { display: flex; align-items: center; gap: 9px; }
-        .cta-beam { width: 1.5px; height: 18px; flex: 0 0 auto; position: relative; overflow: hidden;
-            background: linear-gradient(to bottom, transparent, var(--accent), transparent); }
-        .cta-beam::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        .cta-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .cta-beam {
+            width: 1.5px;
+            height: 18px;
+            flex: 0 0 auto;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+        }
+
+        .cta-beam::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(to bottom, transparent, #fff, transparent);
-            animation: ctaBeam 1.8s infinite cubic-bezier(0.7, 0, 0.3, 1); }
-        .cta-beam:last-child::after { animation-delay: 0.9s; }
-        @keyframes ctaBeam { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+            animation: ctaBeam 1.8s infinite cubic-bezier(0.7, 0, 0.3, 1);
+        }
+
+        .cta-beam:last-child::after {
+            animation-delay: 0.9s;
+        }
+
+        @keyframes ctaBeam {
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
         /* BAETHAK wordmark rendered as plain bold text (guaranteed to render in every browser) */
-        .wordmark-text { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 20px; line-height: 1;
-            letter-spacing: -0.5px; color: #EE365B; text-transform: uppercase; white-space: nowrap; }
-        .pill-logo { position: relative; z-index: 1; width: 140px; height: 17px; }
-        .pill-logo svg { display: block; width: 100%; height: 100%; }
-        @media (max-width: 640px) { .wordmark-text { font-size: 16px; } }
-        @media (max-width: 640px) {
-            #top-nav.nav-drops { height: 62px; }
-            .blob, .pill-content { top: 10px; height: 40px; width: 128px; }
-            .blob-left, .content-left { left: 12px; }
-            .blob-right, .content-right { right: 12px; }
-            .pill-logo { width: 112px; height: 14px; }
+        .wordmark-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            font-size: 20px;
+            line-height: 1;
+            letter-spacing: -0.5px;
+            color: #EE365B;
+            text-transform: uppercase;
+            white-space: nowrap;
         }
+
+        .pill-logo {
+            position: relative;
+            z-index: 1;
+            width: 140px;
+            height: 17px;
+        }
+
+        .pill-logo svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (max-width: 640px) {
+            .wordmark-text {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #top-nav.nav-drops {
+                height: 62px;
+            }
+
+            .pill-content {
+                top: 10px;
+                height: 40px;
+                width: 128px;
+            }
+
+            .content-left {
+                left: 12px;
+            }
+
+            .content-right {
+                right: 12px;
+                width: auto;
+                min-width: 128px;
+                padding: 0 12px;
+            }
+
+            .pill-logo {
+                width: 112px;
+                height: 14px;
+            }
+        }
+
         /* Lenis smooth scroll */
-        html.lenis, html.lenis body { height: auto; }
-        .lenis.lenis-smooth { scroll-behavior: auto !important; }
-        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-        .lenis.lenis-stopped { overflow: hidden; }
-        .lenis.lenis-smooth iframe { pointer-events: none; }
-        .nav-encrypt-btn { background: transparent; color: var(--accent); border: none; font-family: 'Inter', sans-serif; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; transition: transform 0.3s ease, opacity 0.3s ease; display: flex; align-items: center; justify-content: center; z-index: 1; white-space: nowrap; }
-        .nav-encrypt-btn:hover { color: var(--accent); transform: scale(1.06); opacity: 0.82; }
-        .hero-word { display: inline-block; transform: translateY(100%); opacity: 0; }
-        .clip-text { overflow: hidden; display: inline-block; padding-right: 0.15em; margin-right: -0.15em; }
+        html.lenis,
+        html.lenis body {
+            height: auto;
+        }
+
+        .lenis.lenis-smooth {
+            scroll-behavior: auto !important;
+        }
+
+        .lenis.lenis-smooth [data-lenis-prevent] {
+            overscroll-behavior: contain;
+        }
+
+        .lenis.lenis-stopped {
+            overflow: hidden;
+        }
+
+        .lenis.lenis-smooth iframe {
+            pointer-events: none;
+        }
+
+        .nav-encrypt-btn {
+            background: transparent;
+            color: var(--accent);
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            white-space: nowrap;
+        }
+
+        .nav-encrypt-btn:hover {
+            color: var(--accent);
+            transform: scale(1.06);
+            opacity: 0.82;
+        }
+
+        .hero-word {
+            display: inline-block;
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        .clip-text {
+            overflow: hidden;
+            display: inline-block;
+            padding-right: 0.15em;
+            margin-right: -0.15em;
+        }
+
         /* Vintage marquee-sign button — a prop dropped into the modern hero, linking to /photobooth */
-        .vintage-booth-btn { display: inline-block; text-decoration: none; }
+        .vintage-booth-btn {
+            display: inline-block;
+            text-decoration: none;
+        }
+
         .vintage-booth-btn-inner {
-            position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 236px; height: 100px; padding: 8px 22px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 236px;
+            height: 100px;
+            padding: 8px 22px;
             background: linear-gradient(180deg, #F8EFDC 0%, #E9DCBE 100%);
-            border-radius: 999px; border: 3px solid #241608;
-            box-shadow: 0 14px 0 -4px rgba(0,0,0,0.14), 0 20px 34px rgba(0,0,0,0.28), inset 0 2px 0 rgba(255,255,255,0.65);
-            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease;
+            border-radius: 999px;
+            border: 3px solid #241608;
+            box-shadow: 0 14px 0 -4px rgba(0, 0, 0, 0.14), 0 20px 34px rgba(0, 0, 0, 0.28), inset 0 2px 0 rgba(255, 255, 255, 0.65);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
         }
-        .vintage-booth-btn:hover .vintage-booth-btn-inner { transform: scale(1.05) translateY(-4px); box-shadow: 0 18px 0 -4px rgba(0,0,0,0.16), 0 28px 44px rgba(0,0,0,0.32), inset 0 2px 0 rgba(255,255,255,0.65); }
-        .vintage-booth-btn:active .vintage-booth-btn-inner { transform: scale(0.97) translateY(2px); }
-        .vintage-booth-btn-bulbs { position: absolute; inset: 7px; border-radius: inherit; pointer-events: none;
+
+        .vintage-booth-btn:hover .vintage-booth-btn-inner {
+            transform: scale(1.05) translateY(-4px);
+            box-shadow: 0 18px 0 -4px rgba(0, 0, 0, 0.16), 0 28px 44px rgba(0, 0, 0, 0.32), inset 0 2px 0 rgba(255, 255, 255, 0.65);
+        }
+
+        .vintage-booth-btn:active .vintage-booth-btn-inner {
+            transform: scale(0.97) translateY(2px);
+        }
+
+        .vintage-booth-btn-bulbs {
+            position: absolute;
+            inset: 7px;
+            border-radius: inherit;
+            pointer-events: none;
             background-image: radial-gradient(circle, #FFD700 2.1px, transparent 2.5px), radial-gradient(circle, #FFD700 2.1px, transparent 2.5px);
-            background-size: 17px 17px, 17px 17px; background-position: 2px 0, 2px 100%; background-repeat: repeat-x, repeat-x;
-            animation: bulbTwinkle 1.7s ease-in-out infinite alternate; }
-        .vintage-booth-btn-script { font-family: 'Caveat', cursive; font-size: 16px; color: #7A5636; line-height: 1; margin-bottom: 1px; }
-        .vintage-booth-btn-title { font-family: 'Playfair Display', serif; font-weight: 900; font-style: italic; font-size: 23px; color: #241608; letter-spacing: 0.01em; line-height: 1.15; display: flex; align-items: center; gap: 7px; }
-        .vintage-booth-btn-title svg { width: 20px; height: 20px; flex: 0 0 auto; }
-        @keyframes bulbTwinkle { 0% { opacity: 0.55; filter: brightness(0.85); } 100% { opacity: 1; filter: brightness(1.25); } }
-        .vibe-drop-wrap { display: inline-block; text-align: center; }
-        .vibe-line { margin-bottom: 28px; }
-        @media (max-width: 640px) {
-            .vintage-booth-btn-inner { width: 200px; height: 88px; } .vintage-booth-btn-title { font-size: 19px; }
-            .vibe-line { margin-bottom: 22px; }
+            background-size: 17px 17px, 17px 17px;
+            background-position: 2px 0, 2px 100%;
+            background-repeat: repeat-x, repeat-x;
+            animation: bulbTwinkle 1.7s ease-in-out infinite alternate;
         }
-        #map-section { height: 500vh; position: relative; background: #000; }
-        #map-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+
+        .vintage-booth-btn-script {
+            font-family: 'Caveat', cursive;
+            font-size: 16px;
+            color: #7A5636;
+            line-height: 1;
+            margin-bottom: 1px;
+        }
+
+        .vintage-booth-btn-title {
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            font-style: italic;
+            font-size: 23px;
+            color: #241608;
+            letter-spacing: 0.01em;
+            line-height: 1.15;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .vintage-booth-btn-title svg {
+            width: 20px;
+            height: 20px;
+            flex: 0 0 auto;
+        }
+
+        @keyframes bulbTwinkle {
+            0% {
+                opacity: 0.55;
+                filter: brightness(0.85);
+            }
+
+            100% {
+                opacity: 1;
+                filter: brightness(1.25);
+            }
+        }
+
+        .vibe-drop-wrap {
+            display: inline-block;
+            text-align: center;
+        }
+
+        .vibe-line {
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 640px) {
+            .vintage-booth-btn-inner {
+                width: 200px;
+                height: 88px;
+            }
+
+            .vintage-booth-btn-title {
+                font-size: 19px;
+            }
+
+            .vibe-line {
+                margin-bottom: 22px;
+            }
+        }
+
+        #map-section {
+            height: 500vh;
+            position: relative;
+            background: #000;
+        }
+
+        #map-viewport {
+            position: sticky;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         /* CSS-only dark map look (faint hotspot glows) — the old hotlinked mapcustomizer.com
            image 404s permanently, so this has no external dependency. The grid+dots texture
            lives on #globe-ui::after below, so it only shows inside the eclipse. */
-        #map-imagery { position: absolute; width: 150%; height: 150%; background-color: #050505;
+        #map-imagery {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background-color: #050505;
             background-image:
                 radial-gradient(circle at 25% 35%, rgba(255, 45, 85, 0.10), transparent 42%),
                 radial-gradient(circle at 75% 65%, rgba(255, 45, 85, 0.08), transparent 46%);
-            background-size: cover; background-position: center;
-            transform: scale(1) translateZ(0); filter: saturate(0.2) brightness(0.4); z-index: 1; will-change: transform, filter; backface-visibility: hidden; }
-        #globe-ui { position: absolute; bottom: -60vh; width: 120vw; height: 120vh; border-radius: 50%; border: 1px solid rgba(255, 45, 85, 0.2); background: radial-gradient(circle at center, rgba(255, 45, 85, 0.08) 0%, transparent 70%), linear-gradient(to top, rgba(0,0,0,1) 40%, transparent 100%); opacity: 0; pointer-events: none; z-index: 2; will-change: transform, opacity; }
+            background-size: cover;
+            background-position: center;
+            transform: scale(1) translateZ(0);
+            filter: saturate(0.2) brightness(0.4);
+            z-index: 1;
+            will-change: transform, filter;
+            backface-visibility: hidden;
+        }
+
+        #globe-ui {
+            position: absolute;
+            bottom: -60vh;
+            width: 120vw;
+            height: 120vh;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 45, 85, 0.2);
+            background: radial-gradient(circle at center, rgba(255, 45, 85, 0.08) 0%, transparent 70%), linear-gradient(to top, rgba(0, 0, 0, 1) 40%, transparent 100%);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 2;
+            will-change: transform, opacity;
+        }
+
         /* grid + dots, masked to the circle so it never spills outside the eclipse and
            moves/fades as one unit with #globe-ui (only visible once the eclipse appears) */
-        #globe-ui::after { content: ""; position: absolute; inset: 0; border-radius: 50%;
+        #globe-ui::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
             background-image:
-                radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px),
-                repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 64px),
-                repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 64px);
+                radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 64px),
+                repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 64px);
             background-size: 40px 40px, 64px 64px, 64px 64px;
-            mask-image: radial-gradient(circle at center, black 20%, transparent 80%); }
-        .pin-container { position: absolute; transform: translate(-50%, -50%) scale(0); z-index: 100; opacity: 0; }
-        .pin-dot { width: 14px; height: 14px; background: var(--accent); border: 2px solid #FFF; border-radius: 50%; box-shadow: 0 0 30px rgba(255, 45, 85, 0.8); }
-        .pin-pill { position: absolute; top: 50%; left: 50%; transform: translateY(-50%) scaleX(0); transform-origin: left center; background: #000; border: 1px solid rgba(255, 45, 85, 0.3); color: #fff; padding: 12px 28px; border-radius: 100px; font-weight: 800; font-size: 0.8rem; white-space: nowrap; opacity: 0; display: flex; align-items: center; gap: 10px; }
-        .vibe-tag { color: var(--accent); text-transform: lowercase; font-style: italic; opacity: 0.8; }
-        .vibe-emoji { position: absolute; font-size: 4rem; pointer-events: none; z-index: 10; filter: drop-shadow(0 15px 30px rgba(0,0,0,1)); transform: translateY(110vh); }
-        .reveal { opacity: 0; transform: translateY(30px); }
+            mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
+        }
+
+        .pin-container {
+            position: absolute;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 100;
+            opacity: 0;
+        }
+
+        .pin-dot {
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border: 2px solid #FFF;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 45, 85, 0.8);
+        }
+
+        .pin-pill {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateY(-50%) scaleX(0);
+            transform-origin: left center;
+            background: #000;
+            border: 1px solid rgba(255, 45, 85, 0.3);
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 100px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vibe-tag {
+            color: var(--accent);
+            text-transform: lowercase;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .vibe-emoji {
+            position: absolute;
+            font-size: 4rem;
+            pointer-events: none;
+            z-index: 10;
+            filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 1));
+            transform: translateY(110vh);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
         /* Clips only the tilted marquee's horizontal spill (from scale(1.05)+rotate).
            overflow-x: clip keeps overflow-y visible, so the tilt still bleeds vertically.
            Local to the marquee — NOT an ancestor of the sticky map, so pinning is unaffected. */
-        .marquee-clip { overflow-x: clip; }
-        .marquee-wrapper { overflow: hidden; white-space: nowrap; background: #FF2D55; color: #FFF; padding: 15px 0; transform: rotate(-2deg) scale(1.05); margin: 40px 0; position: relative; z-index: 50; }
-        .marquee-content { display: inline-block; animation: marquee 15s linear infinite; font-size: 1.5rem; font-family: 'Inter', sans-serif; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .sticker { position: fixed; font-size: 3.5rem; pointer-events: none; z-index: 9998; transform: translate(-50%, -50%); user-select: none; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.2)); will-change: transform, opacity, filter; }
-        .scroll-indicator { position: fixed; bottom: 40px; right: 40px; display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 90; opacity: 0; transform: translateY(20px); }
-        .scroll-line { width: 1px; height: 60px; background: linear-gradient(to bottom, var(--accent), transparent); position: relative; overflow: hidden; }
-        .scroll-line::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; animation: scrollAnim 2s infinite cubic-bezier(0.7, 0, 0.3, 1); }
-        @keyframes scrollAnim { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
-        .scroll-text { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: var(--text); writing-mode: vertical-rl; }
-        @media (max-width: 768px) { .scroll-indicator { right: 8px; bottom: 20px; transform: scale(0.7); transform-origin: bottom right; } .pin-pill { font-size: 10px; padding: 8px 14px; gap: 6px; } #p2 { right: auto !important; left: 10% !important; } #p4 { left: 20% !important; } #p3 { left: 30% !important; } #p5 { left: 15% !important; } .vibe-emoji { font-size: 2.5rem; } }
-        #vibe-footer { min-height: 100vh; background: #000; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        
-        .logo-scene { display: inline-block; perspective: 1100px; }
-        .logo-container { position: relative; display: inline-block; margin-bottom: 20px; padding: 10px; will-change: transform; transition: box-shadow 0.35s ease; }
-        #morph-logo { transition: filter 0.3s ease; position: relative; z-index: 10; will-change: transform; }
+        .marquee-clip {
+            overflow-x: clip;
+        }
+
+        .marquee-wrapper {
+            overflow: hidden;
+            white-space: nowrap;
+            background: #FF2D55;
+            color: #FFF;
+            padding: 15px 0;
+            transform: rotate(-2deg) scale(1.05);
+            margin: 40px 0;
+            position: relative;
+            z-index: 50;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 15s linear infinite;
+            font-size: 1.5rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .sticker {
+            position: fixed;
+            font-size: 3.5rem;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            user-select: none;
+            filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.2));
+            will-change: transform, opacity, filter;
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            z-index: 90;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scroll-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            animation: scrollAnim 2s infinite cubic-bezier(0.7, 0, 0.3, 1);
+        }
+
+        @keyframes scrollAnim {
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        .scroll-text {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text);
+            writing-mode: vertical-rl;
+        }
+
+        @media (max-width: 768px) {
+            .scroll-indicator {
+                right: 8px;
+                bottom: 20px;
+                transform: scale(0.7);
+                transform-origin: bottom right;
+            }
+
+            .pin-pill {
+                font-size: 10px;
+                padding: 8px 14px;
+                gap: 6px;
+            }
+
+            #p2 {
+                right: auto !important;
+                left: 10% !important;
+            }
+
+            #p4 {
+                left: 20% !important;
+            }
+
+            #p3 {
+                left: 30% !important;
+            }
+
+            #p5 {
+                left: 15% !important;
+            }
+
+            .vibe-emoji {
+                font-size: 2.5rem;
+            }
+        }
+
+        #vibe-footer {
+            min-height: 100vh;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .logo-scene {
+            display: inline-block;
+            perspective: 1100px;
+        }
+
+        .logo-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px;
+            will-change: transform;
+            transition: box-shadow 0.35s ease;
+        }
+
+        #morph-logo {
+            transition: filter 0.3s ease;
+            position: relative;
+            z-index: 10;
+            will-change: transform;
+        }
+
         /* holo-tilt: the whole .logo-container tilts; #morph-logo stays a sibling (exact pushed blend) */
-        .logo-container:hover { box-shadow: 0 26px 60px rgba(255,45,85,0.20); }
+        .logo-container:hover {
+            box-shadow: 0 26px 60px rgba(255, 45, 85, 0.20);
+        }
+
         /* left-to-right light sweep across the logo — same look as the original (skewed spectrum
            gradient, color-dodge blend), one continuous clean pass with a slight ease-out at the end. */
         .logo-container::after {
             content: "";
             position: absolute;
-            top: 0; left: -150%;
-            width: 80%; height: 100%;
+            top: 0;
+            left: -150%;
+            width: 80%;
+            height: 100%;
             background: linear-gradient(to right,
-                transparent 0%,
-                rgba(255, 45, 85, 0.5) 30%,
-                rgba(255, 215, 0, 0.8) 50%,
-                rgba(255, 45, 85, 0.5) 70%,
-                transparent 100%);
+                    transparent 0%,
+                    rgba(255, 45, 85, 0.5) 30%,
+                    rgba(255, 215, 0, 0.8) 50%,
+                    rgba(255, 45, 85, 0.5) 70%,
+                    transparent 100%);
             transform: skewX(-20deg);
             z-index: 11;
             pointer-events: none;
             mix-blend-mode: color-dodge;
             animation: spectrumLaser 1.8s infinite cubic-bezier(0.33, 1, 0.68, 1);
         }
+
         /* Same drop-shadow glow as before, hugging the logo's silhouette — but split into two STATIC
            filter states that cross-fade via opacity, instead of animating `filter` directly frame-by-frame.
            Each layer's blur is rasterized once and cached; only compositor-side opacity changes per frame. */
-        .logo-glow { position: absolute; inset: 10px; z-index: 1; pointer-events: none; will-change: opacity; }
-        .logo-glow-dim { filter: drop-shadow(0 0 10px rgba(255, 45, 85, 0.2)) drop-shadow(0 0 2px rgba(255, 215, 0, 0.1)); animation: logoGlowDim 3s ease-in-out infinite alternate; }
-        .logo-glow-bright { filter: drop-shadow(0 0 15px rgba(255, 45, 85, 0.6)) drop-shadow(0 0 30px rgba(255, 215, 0, 0.3)) drop-shadow(0 0 80px rgba(255, 45, 85, 0.1)); animation: logoGlowBright 3s ease-in-out infinite alternate; }
-        .holo-sheen { position: absolute; inset: 0; z-index: 12; border-radius: 4px; pointer-events: none; opacity: 0; transition: opacity 0.25s ease; mix-blend-mode: screen;
+        .logo-glow {
+            position: absolute;
+            inset: 10px;
+            z-index: 1;
+            pointer-events: none;
+            will-change: opacity;
+        }
+
+        .logo-glow-dim {
+            filter: drop-shadow(0 0 10px rgba(255, 45, 85, 0.2)) drop-shadow(0 0 2px rgba(255, 215, 0, 0.1));
+            animation: logoGlowDim 3s ease-in-out infinite alternate;
+        }
+
+        .logo-glow-bright {
+            filter: drop-shadow(0 0 15px rgba(255, 45, 85, 0.6)) drop-shadow(0 0 30px rgba(255, 215, 0, 0.3)) drop-shadow(0 0 80px rgba(255, 45, 85, 0.1));
+            animation: logoGlowBright 3s ease-in-out infinite alternate;
+        }
+
+        .holo-sheen {
+            position: absolute;
+            inset: 0;
+            z-index: 12;
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            mix-blend-mode: screen;
             background:
-                radial-gradient(circle at var(--gx,50%) var(--gy,50%), rgba(255,255,255,0.42), rgba(255,255,255,0) 42%),
-                conic-gradient(from 210deg at var(--gx,50%) var(--gy,50%), rgba(255,45,85,0.30), rgba(255,215,0,0.24), rgba(120,120,255,0.28), rgba(255,45,85,0.30)); }
-        @media (prefers-reduced-motion: reduce) { .logo-container { transform: none !important; } .holo-sheen { display: none; } .logo-glow-dim, .logo-glow-bright { animation: none; } .logo-glow-dim { opacity: 1; } .logo-glow-bright { opacity: 0; } }
+                radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0) 42%),
+                conic-gradient(from 210deg at var(--gx, 50%) var(--gy, 50%), rgba(255, 45, 85, 0.30), rgba(255, 215, 0, 0.24), rgba(120, 120, 255, 0.28), rgba(255, 45, 85, 0.30));
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .logo-container {
+                transform: none !important;
+            }
+
+            .holo-sheen {
+                display: none;
+            }
+
+            .logo-glow-dim,
+            .logo-glow-bright {
+                animation: none;
+            }
+
+            .logo-glow-dim {
+                opacity: 1;
+            }
+
+            .logo-glow-bright {
+                opacity: 0;
+            }
+        }
 
         @keyframes logoGlowDim {
-            0% { opacity: 1; }
-            100% { opacity: 0; }
+            0% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
         }
+
         @keyframes logoGlowBright {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
 
         @keyframes spectrumLaser {
-            0% { left: -150%; opacity: 0; }
-            8% { opacity: 1; }
-            92% { opacity: 1; }
-            100% { left: 150%; opacity: 0; }
+            0% {
+                left: -150%;
+                opacity: 0;
+            }
+
+            8% {
+                opacity: 1;
+            }
+
+            92% {
+                opacity: 1;
+            }
+
+            100% {
+                left: 150%;
+                opacity: 0;
+            }
         }
 
-        .morph-trigger { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 16px 40px; border-radius: 100px; font-size: 1.2rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; position: relative; z-index: 10; }
-        .morph-trigger:hover { background: var(--accent); color: #fff; box-shadow: 0 10px 30px rgba(255, 45, 85, 0.4); transform: translateY(-3px); }
-        .perspective-container { perspective: 2000px; width: 100%; display: none; justify-content: center; align-items: center; position: absolute; left: 0; right: 0; z-index: 20; }
-        .cool-ticket { width: 320px; margin: 0 auto; background: linear-gradient(145deg, #0f0f0f 0%, #030303 100%); border: 1px solid rgba(255, 45, 85, 0.4); border-radius: 24px; box-shadow: 0 30px 60px rgba(255, 45, 85, 0.2), inset 0 0 20px rgba(255, 45, 85, 0.05); display: flex; flex-direction: column; overflow: hidden; position: relative; transform-origin: center center; will-change: transform, opacity; }
-        .ticket-metal-sweep { position: absolute; top: 0; left: -150%; width: 100%; height: 100%; background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 60%, transparent 80%); z-index: 5; pointer-events: none; animation: sweepLoop 4s infinite linear; }
-        .secure-btn-obsidian-wrapper { width: 100%; position: relative; overflow: hidden; border-radius: 12px; background: #000; border: 1px solid rgba(255, 45, 85, 0.5); box-shadow: 0 0 15px rgba(255, 45, 85, 0.1); transition: 0.3s; }
-        .secure-btn-obsidian-wrapper:hover { box-shadow: 0 0 30px rgba(255, 45, 85, 0.4); transform: scale(1.02); border-color: #FF2D55; }
-        .shimmer-bg { background: linear-gradient(90deg, var(--accent) 0%, #ff7592 50%, var(--accent) 100%); background-size: 200% 100%; animation: shimmer 2.5s infinite linear; position: relative; overflow: hidden; }
-        @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
-        .light-sweep-element { position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent); transform: skewX(-25deg); animation: sweepLoop 4s infinite linear; animation-delay: 0.5s; pointer-events: none; }
-        @keyframes sweepLoop { 0% { left: -150%; } 40% { left: 150%; } 100% { left: 150%; } }
-        .laser-line { position: absolute; top: 0; left: -100%; width: 40px; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 45, 85, 0.2) 20%, rgba(255, 45, 85, 1) 50%, rgba(255, 45, 85, 0.2) 80%, transparent); box-shadow: 0 0 20px rgba(255, 45, 85, 0.8); transform: skewX(-20deg); z-index: 10; }
-        
+        .morph-trigger {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 16px 40px;
+            border-radius: 100px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .morph-trigger:hover {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(255, 45, 85, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .perspective-container {
+            perspective: 2000px;
+            width: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            left: 0;
+            right: 0;
+            z-index: 20;
+        }
+
+        .cool-ticket {
+            width: 320px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #0f0f0f 0%, #030303 100%);
+            border: 1px solid rgba(255, 45, 85, 0.4);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(255, 45, 85, 0.2), inset 0 0 20px rgba(255, 45, 85, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            transform-origin: center center;
+            will-change: transform, opacity;
+        }
+
+        .ticket-metal-sweep {
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.05) 40%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.05) 60%, transparent 80%);
+            z-index: 5;
+            pointer-events: none;
+            animation: sweepLoop 4s infinite linear;
+        }
+
+        .secure-btn-obsidian-wrapper {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #000;
+            border: 1px solid rgba(255, 45, 85, 0.5);
+            box-shadow: 0 0 15px rgba(255, 45, 85, 0.1);
+            transition: 0.3s;
+        }
+
+        .secure-btn-obsidian-wrapper:hover {
+            box-shadow: 0 0 30px rgba(255, 45, 85, 0.4);
+            transform: scale(1.02);
+            border-color: #FF2D55;
+        }
+
+        .shimmer-bg {
+            background: linear-gradient(90deg, var(--accent) 0%, #ff7592 50%, var(--accent) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2.5s infinite linear;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 100% 0;
+            }
+
+            100% {
+                background-position: -100% 0;
+            }
+        }
+
+        .light-sweep-element {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-25deg);
+            animation: sweepLoop 4s infinite linear;
+            animation-delay: 0.5s;
+            pointer-events: none;
+        }
+
+        @keyframes sweepLoop {
+            0% {
+                left: -150%;
+            }
+
+            40% {
+                left: 150%;
+            }
+
+            100% {
+                left: 150%;
+            }
+        }
+
+        .laser-line {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 40px;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 45, 85, 0.2) 20%, rgba(255, 45, 85, 1) 50%, rgba(255, 45, 85, 0.2) 80%, transparent);
+            box-shadow: 0 0 20px rgba(255, 45, 85, 0.8);
+            transform: skewX(-20deg);
+            z-index: 10;
+        }
+
         /* --- 3D TILT CARDS (No content / No ghosts) --- */
-        .tilt-card { perspective: 1200px; }
-        .tilt-inner { position: relative; transform-style: preserve-3d; will-change: transform; box-shadow: 0 20px 50px rgba(0,0,0,0.12); transition: box-shadow 0.35s ease; }
-        .tilt-card:hover .tilt-inner { box-shadow: 0 40px 90px rgba(0,0,0,0.25); }
-        .tilt-content { transform-style: preserve-3d; position: relative; }
-        .tilt-pop { transform: translateZ(60px); }
-        .tilt-sub { transform: translateZ(32px); }
-        .tilt-glare { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transform: translateZ(65px); transition: opacity 0.25s ease;
-            background: radial-gradient(circle at var(--gx,50%) var(--gy,50%), rgba(255,255,255,0.35), rgba(255,255,255,0) 55%); }
+        .tilt-card {
+            perspective: 1200px;
+        }
+
+        .tilt-inner {
+            position: relative;
+            transform-style: preserve-3d;
+            will-change: transform;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+            transition: box-shadow 0.35s ease;
+        }
+
+        .tilt-card:hover .tilt-inner {
+            box-shadow: 0 40px 90px rgba(0, 0, 0, 0.25);
+        }
+
+        .tilt-content {
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .tilt-pop {
+            transform: translateZ(60px);
+        }
+
+        .tilt-sub {
+            transform: translateZ(32px);
+        }
+
+        .tilt-glare {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateZ(65px);
+            transition: opacity 0.25s ease;
+            background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%);
+        }
+
         @media (prefers-reduced-motion: reduce) {
-            .tilt-inner { transform: none !important; }
-            .tilt-glare { display: none; }
+            .tilt-inner {
+                transform: none !important;
+            }
+
+            .tilt-glare {
+                display: none;
+            }
         }
     </style>
-    
+
     <!-- Vercel Speed Insights -->
     <script>
         window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
+
 <body>
 
-    <div id="baethak-preloader" style="position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+    <div id="baethak-preloader"
+        style="position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden;">
         <div id="loader-content" style="text-align: center;">
-            <h1 id="loader-text" style="font-family: sans-serif; font-weight: 900; font-size: 3rem; color: #FF2D55; text-transform: uppercase; letter-spacing: -3px; line-height: 1;">
+            <h1 id="loader-text"
+                style="font-family: sans-serif; font-weight: 900; font-size: 3rem; color: #FF2D55; text-transform: uppercase; letter-spacing: -3px; line-height: 1;">
                 बैठक.
             </h1>
         </div>
     </div>
 
     <script>
-        (function() {
+        (function () {
             // Always start at the top on reload (disable the browser's scroll restoration)
             if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
             window.scrollTo(0, 0);
@@ -280,109 +1172,126 @@
             });
 
             tl
-            // 1) Hold बैठक ~0.6s, then a small anticipation wind-up before the snap
-            .to(textElement, {
-                delay: 0.6,
-                duration: 0.1,
-                scaleX: 1.06,
-                scaleY: 0.94,
-                ease: "power1.out",
-                transformOrigin: "center center",
-            })
-            // morphs inward to center — decisive, accelerating snap shut
-            .to(textElement, {
-                duration: 0.2,
-                scaleX: 0,
-                scaleY: 1.3,
-                ease: "power3.in",
-                onComplete: () => {
-                    textElement.innerHTML = '<img src="logo.svg" style="width: 599px; height: auto; display: inline-block;" alt="BAETHAK">';
-                }
-            })
-            // 2) BAETHAK wordmark stretches outward from center — single clean overshoot, settles once (no bounce)
-            .to(textElement, {
-                duration: 0.45,
-                scaleX: 1,
-                scaleY: 1,
-                ease: "back.out(1.7)",
-            })
-            // 3) Hold the BAETHAK wordmark ~1s, then slide the preloader up to reveal the page
-            .to(loaderBg, {
-                delay: 0.6,
-                duration: 0.45,
-                y: "-100%",
-                ease: "expo.inOut"
-            });
+                // 1) Hold बैठक ~0.6s, then a small anticipation wind-up before the snap
+                .to(textElement, {
+                    delay: 0.6,
+                    duration: 0.1,
+                    scaleX: 1.06,
+                    scaleY: 0.94,
+                    ease: "power1.out",
+                    transformOrigin: "center center",
+                })
+                // morphs inward to center — decisive, accelerating snap shut
+                .to(textElement, {
+                    duration: 0.2,
+                    scaleX: 0,
+                    scaleY: 1.3,
+                    ease: "power3.in",
+                    onComplete: () => {
+                        textElement.innerHTML = '<img src="logo.svg" style="width: 599px; height: auto; display: inline-block;" alt="BAETHAK">';
+                    }
+                })
+                // 2) BAETHAK wordmark stretches outward from center — single clean overshoot, settles once (no bounce)
+                .to(textElement, {
+                    duration: 0.45,
+                    scaleX: 1,
+                    scaleY: 1,
+                    ease: "back.out(1.7)",
+                })
+                // 3) Hold the BAETHAK wordmark ~1s, then slide the preloader up to reveal the page
+                .to(loaderBg, {
+                    delay: 0.6,
+                    duration: 0.45,
+                    y: "-100%",
+                    ease: "expo.inOut"
+                });
         })();
     </script>
-    
+
     <div class="scroll-indicator hero-sub">
         <div class="scroll-text">Scroll to vibe</div>
         <div class="scroll-line"></div>
     </div>
 
-    <!-- SVG goo filter: blurs then hard-thresholds alpha so overlapping blobs fuse like liquid -->
-    <svg width="0" height="0" aria-hidden="true" style="position:absolute">
-        <defs>
-            <filter id="liquid-goo">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="b"/>
-                <feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/>
-            </filter>
-        </defs>
-    </svg>
-
     <nav id="top-nav" class="nav-drops">
-        <div class="goo-layer">
-            <div class="blob blob-left" id="blob-left"></div>
-            <div class="blob blob-right" id="blob-right"></div>
-        </div>
         <div class="pill-content content-left" id="content-left">
+            <span class="lg-glass" aria-hidden="true">
+                <span class="lg-frost"></span>
+                <span class="lg-tint"></span>
+                <span class="lg-shine"></span>
+            </span>
             <div class="pill-logo">
-                <svg class="wordmark-svg" viewBox="552 946 896 108" preserveAspectRatio="xMidYMid meet" role="img" aria-label="BAETHAK" fill="#EE365B" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M664.38,1006.19c-5.19-2.93-11.73-4.9-19.61-5.92c5.19-1.13,9.73-2.81,13.62-5.06 c3.9-2.25,6.95-5.07,9.15-8.45c2.2-3.38,3.31-7.37,3.31-11.97c0-3.66-0.8-7.11-2.39-10.35c-1.6-3.24-4.11-6.03-7.53-8.38 c-3.43-2.35-7.86-4.2-13.31-5.56c-5.45-1.36-12.07-2.04-19.86-2.04h-44.78h-15.07H552v105.62h21.41h9.58h55.21 c5.54,0,10.63-0.61,15.28-1.83c4.65-1.22,8.66-2.98,12.04-5.28c3.38-2.3,6.03-5.16,7.96-8.59c1.92-3.43,2.89-7.34,2.89-11.76 C676.35,1017.5,672.36,1010.69,664.38,1006.19z M630.3,975.2c3.29,0,5.7,0.63,7.25,1.9c1.55,1.27,2.32,2.98,2.32,5.14 c0,2.35-0.84,4.11-2.53,5.28c-1.69,1.17-4.04,1.76-7.04,1.76h-16.05h-31.26V975.2H630.3z M642.62,1025.76 c-1.83,1.03-4.06,1.55-6.69,1.55h-52.95v-14.08h39.29h12.68c3.57,0,6.2,0.66,7.89,1.97c1.69,1.32,2.54,3.1,2.54,5.35 C645.37,1023,644.45,1024.73,642.62,1025.76z"/>
-                    <path d="M728.74,948.45l-49.57,105.62h34.93l6.48-14.79h51.83l6.48,14.79h34.93l-49.57-105.62H728.74z M731.84,1013.93 l14.65-33.1l14.65,33.1H731.84z"/>
-                    <polygon points="822.26,1054.07 926.75,1054.07 926.75,1027.31 853.24,1027.31 853.24,1014.21 923.94,1014.21 923.94,988.87 853.24,988.87 853.24,975.2 926.75,975.2 926.75,948.45 822.26,948.45"/>
-                    <polygon points="938.02,975.2 983.93,975.2 983.93,1054.07 1014.92,1054.07 1014.92,975.2 1060.83,975.2 1060.83,948.45 938.02,948.45"/>
-                    <polygon points="1163.91,989.57 1103.07,989.57 1103.07,948.45 1072.09,948.45 1072.09,1054.07 1103.07,1054.07 1103.07,1016.33 1163.91,1016.33 1163.91,1054.07 1194.9,1054.07 1194.9,948.45 1163.91,948.45"/>
-                    <polygon points="1408.85,1054.07 1448,1054.07 1399.99,991.72 1447.86,948.45 1405.47,948.45 1353.36,995.52 1353.36,948.45 1322.38,948.45 1322.38,1054.07 1353.36,1054.07 1353.36,1033.88 1376.83,1012.66"/>
-                    <path d="M1296.52,960.94c-9.45-9.31-22.47-14.42-35.57-14.97c-0.7-0.03-1.4-0.05-2.1-0.05 c-13.12-0.06-26.34,4.44-36.29,13.21c-4.63,4.09-8.51,9.08-11.12,14.73c-5.26,11.36-3.16,25.23-3.16,37.4c0,14.27,0,28.53,0,42.8 h37.4v-64.98c0.8-5.93,6.63-10.39,13.34-10.3c6.56,0.09,12.14,4.51,12.92,10.3c0,21.66,0,43.32,0,64.98h36.91 c0-18.26,0-36.51,0-54.77c0-7.84,0.73-15.68-2.17-23.11C1304.45,970.43,1300.9,965.25,1296.52,960.94z"/>
-                    <path d="M1262.79,1010.64c-3.47,0-6.28,2.84-6.28,6.35s2.81,6.35,6.28,6.35c3.47,0,6.28-2.84,6.28-6.35 S1266.26,1010.64,1262.79,1010.64z"/>
+                <svg class="wordmark-svg" viewBox="552 946 896 108" preserveAspectRatio="xMidYMid meet" role="img"
+                    aria-label="BAETHAK" fill="#EE365B" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M664.38,1006.19c-5.19-2.93-11.73-4.9-19.61-5.92c5.19-1.13,9.73-2.81,13.62-5.06 c3.9-2.25,6.95-5.07,9.15-8.45c2.2-3.38,3.31-7.37,3.31-11.97c0-3.66-0.8-7.11-2.39-10.35c-1.6-3.24-4.11-6.03-7.53-8.38 c-3.43-2.35-7.86-4.2-13.31-5.56c-5.45-1.36-12.07-2.04-19.86-2.04h-44.78h-15.07H552v105.62h21.41h9.58h55.21 c5.54,0,10.63-0.61,15.28-1.83c4.65-1.22,8.66-2.98,12.04-5.28c3.38-2.3,6.03-5.16,7.96-8.59c1.92-3.43,2.89-7.34,2.89-11.76 C676.35,1017.5,672.36,1010.69,664.38,1006.19z M630.3,975.2c3.29,0,5.7,0.63,7.25,1.9c1.55,1.27,2.32,2.98,2.32,5.14 c0,2.35-0.84,4.11-2.53,5.28c-1.69,1.17-4.04,1.76-7.04,1.76h-16.05h-31.26V975.2H630.3z M642.62,1025.76 c-1.83,1.03-4.06,1.55-6.69,1.55h-52.95v-14.08h39.29h12.68c3.57,0,6.2,0.66,7.89,1.97c1.69,1.32,2.54,3.1,2.54,5.35 C645.37,1023,644.45,1024.73,642.62,1025.76z" />
+                    <path
+                        d="M728.74,948.45l-49.57,105.62h34.93l6.48-14.79h51.83l6.48,14.79h34.93l-49.57-105.62H728.74z M731.84,1013.93 l14.65-33.1l14.65,33.1H731.84z" />
+                    <polygon
+                        points="822.26,1054.07 926.75,1054.07 926.75,1027.31 853.24,1027.31 853.24,1014.21 923.94,1014.21 923.94,988.87 853.24,988.87 853.24,975.2 926.75,975.2 926.75,948.45 822.26,948.45" />
+                    <polygon
+                        points="938.02,975.2 983.93,975.2 983.93,1054.07 1014.92,1054.07 1014.92,975.2 1060.83,975.2 1060.83,948.45 938.02,948.45" />
+                    <polygon
+                        points="1163.91,989.57 1103.07,989.57 1103.07,948.45 1072.09,948.45 1072.09,1054.07 1103.07,1054.07 1103.07,1016.33 1163.91,1016.33 1163.91,1054.07 1194.9,1054.07 1194.9,948.45 1163.91,948.45" />
+                    <polygon
+                        points="1408.85,1054.07 1448,1054.07 1399.99,991.72 1447.86,948.45 1405.47,948.45 1353.36,995.52 1353.36,948.45 1322.38,948.45 1322.38,1054.07 1353.36,1054.07 1353.36,1033.88 1376.83,1012.66" />
+                    <path
+                        d="M1296.52,960.94c-9.45-9.31-22.47-14.42-35.57-14.97c-0.7-0.03-1.4-0.05-2.1-0.05 c-13.12-0.06-26.34,4.44-36.29,13.21c-4.63,4.09-8.51,9.08-11.12,14.73c-5.26,11.36-3.16,25.23-3.16,37.4c0,14.27,0,28.53,0,42.8 h37.4v-64.98c0.8-5.93,6.63-10.39,13.34-10.3c6.56,0.09,12.14,4.51,12.92,10.3c0,21.66,0,43.32,0,64.98h36.91 c0-18.26,0-36.51,0-54.77c0-7.84,0.73-15.68-2.17-23.11C1304.45,970.43,1300.9,965.25,1296.52,960.94z" />
+                    <path
+                        d="M1262.79,1010.64c-3.47,0-6.28,2.84-6.28,6.35s2.81,6.35,6.28,6.35c3.47,0,6.28-2.84,6.28-6.35 S1266.26,1010.64,1262.79,1010.64z" />
                 </svg>
             </div>
         </div>
         <div class="pill-content content-right" id="content-right">
+            <span class="lg-glass" aria-hidden="true">
+                <span class="lg-frost"></span>
+                <span class="lg-tint"></span>
+                <span class="lg-shine"></span>
+            </span>
             <div class="cta-row">
                 <span class="cta-beam"></span>
-                <a href="https://forms.gle/hYXFSkrAM6Gx29qx7" id="nav-encrypt-btn" class="nav-encrypt-btn interactive-item text-[9px] md:text-[12px]">
+                <a href="https://forms.gle/hYXFSkrAM6Gx29qx7" id="nav-encrypt-btn"
+                    class="nav-encrypt-btn interactive-item text-[9px] md:text-[12px]">
                     Join the Waitlist
                 </a>
                 <span class="cta-beam"></span>
             </div>
-            <div class="whitespace-nowrap text-[6.5px] md:text-[9px] uppercase tracking-tighter font-bold opacity-60 text-center">
-                JOIN <span class="live-counter-val text-[8px] md:text-[10px] text-[#FF2D55]">2,413</span> PEOPLE WAITING FOR THE DROP
+            <div
+                class="whitespace-nowrap text-[6.5px] md:text-[9px] uppercase tracking-tighter font-bold opacity-60 text-center">
+                JOIN <span class="live-counter-val text-[8px] md:text-[10px] text-[#FF2D55]">2,413</span> PEOPLE WAITING
+                FOR THE DROP
             </div>
         </div>
     </nav>
 
     <section class="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20">
         <h1 class="text-6xl md:text-[10rem] heavy uppercase tracking-tighter leading-[0.8] mb-6">
-            <span class="clip-text"><span class="hero-word text-gray-300">LESS</span></span> 
+            <span class="clip-text"><span class="hero-word text-gray-300">LESS</span></span>
             <span class="clip-text"><span class="hero-word text-gray-300">URL.</span></span><br>
-            <span class="clip-text"><span class="hero-word">MORE</span></span> 
+            <span class="clip-text"><span class="hero-word">MORE</span></span>
             <span class="clip-text"><span class="hero-word">IRL.</span></span>
         </h1>
-        <p class="text-lg md:text-xl font-medium text-gray-500 max-w-lg opacity-0 hero-sub mb-8">The city is a playground, not a feed. <br> Scroll to zoom into the real world.</p>
+        <p class="text-lg md:text-xl font-medium text-gray-500 max-w-lg opacity-0 hero-sub mb-8">The city is a
+            playground, not a feed. <br> Scroll to zoom into the real world.</p>
         <div class="opacity-0 hero-sub w-full pr-6 md:pr-0 text-center flex justify-center mt-2">
             <div class="vibe-drop-wrap">
                 <div class="vibe-line">
-                    <span class="text-[9px] md:text-[14px] uppercase tracking-[0.1em] md:tracking-[0.4em] text-[#FF2D55] font-extrabold animate-pulse inline-block whitespace-nowrap md:whitespace-normal">[ tap anywhere to drop a vibe ]</span>
+                    <span
+                        class="text-[9px] md:text-[14px] uppercase tracking-[0.1em] md:tracking-[0.4em] text-[#FF2D55] font-extrabold animate-pulse inline-block whitespace-nowrap md:whitespace-normal">[
+                        tap anywhere to drop a vibe ]</span>
                 </div>
-                <a href="/photobooth" class="vintage-booth-btn interactive-item" aria-label="Enter the Baethak Photobooth">
+                <a href="/photobooth" class="vintage-booth-btn interactive-item"
+                    aria-label="Enter the Baethak Photobooth">
                     <span class="vintage-booth-btn-inner">
                         <span class="vintage-booth-btn-bulbs" aria-hidden="true"></span>
                         <span class="vintage-booth-btn-script">step into the</span>
                         <span class="vintage-booth-btn-title">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h1.2l.8-1.4A2 2 0 0 1 9.73 3.6h4.54a2 2 0 0 1 1.73 1L17 6h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="#241608" stroke-width="1.6"/><circle cx="12" cy="13" r="3.4" stroke="#241608" stroke-width="1.6"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path
+                                    d="M4 8a2 2 0 0 1 2-2h1.2l.8-1.4A2 2 0 0 1 9.73 3.6h4.54a2 2 0 0 1 1.73 1L17 6h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z"
+                                    stroke="#241608" stroke-width="1.6" />
+                                <circle cx="12" cy="13" r="3.4" stroke="#241608" stroke-width="1.6" />
+                            </svg>
                             Photobooth
                         </span>
                     </span>
@@ -395,21 +1304,43 @@
         <div id="map-viewport">
             <div id="map-imagery"></div>
             <div id="globe-ui"></div>
-            
-            <div class="vibe-emoji" style="left: 5%;">🍕</div><div class="vibe-emoji" style="left: 15%;">🏔️</div>
-            <div class="vibe-emoji" style="right: 10%;">🏕️</div><div class="vibe-emoji" style="right: 25%;">🎧</div>
-            <div class="vibe-emoji" style="left: 35%;">🏃</div><div class="vibe-emoji" style="right: 5%;">🏏</div>
-            <div class="vibe-emoji" style="left: 50%;">🍻</div><div class="vibe-emoji" style="right: 40%;">🎳</div>
-            <div class="vibe-emoji" style="left: 20%;">⚡</div><div class="vibe-emoji" style="right: 15%;">🍀</div>
 
-            <div class="pin-container interactive-item" id="p1" style="top: 35%; left: 30%;"><div class="pin-dot"></div><div class="pin-pill">morning run <span class="vibe-tag">// leisure valley</span></div></div>
-            <div class="pin-container interactive-item" id="p2" style="top: 60%; right: 30%;"><div class="pin-dot"></div><div class="pin-pill">cyberhub brunch <span class="vibe-tag">// weekend main</span></div></div>
-            <div class="pin-container interactive-item" id="p3" style="top: 50%; left: 50%;"><div class="pin-dot animate-pulse"></div><div class="pin-pill">midnight rave <span class="vibe-tag">// chhattarpur secrets</span></div></div>
-            <div class="pin-container interactive-item" id="p4" style="top: 25%; left: 65%;"><div class="pin-dot"></div><div class="pin-pill">sunset jam <span class="vibe-tag">// marine drive</span></div></div>
-            <div class="pin-container interactive-item" id="p5" style="top: 75%; left: 30%;"><div class="pin-dot animate-pulse"></div><div class="pin-pill">indie gig <span class="vibe-tag">// juhu beach</span></div></div>
+            <div class="vibe-emoji" style="left: 5%;">🍕</div>
+            <div class="vibe-emoji" style="left: 15%;">🏔️</div>
+            <div class="vibe-emoji" style="right: 10%;">🏕️</div>
+            <div class="vibe-emoji" style="right: 25%;">🎧</div>
+            <div class="vibe-emoji" style="left: 35%;">🏃</div>
+            <div class="vibe-emoji" style="right: 5%;">🏏</div>
+            <div class="vibe-emoji" style="left: 50%;">🍻</div>
+            <div class="vibe-emoji" style="right: 40%;">🎳</div>
+            <div class="vibe-emoji" style="left: 20%;">⚡</div>
+            <div class="vibe-emoji" style="right: 15%;">🍀</div>
+
+            <div class="pin-container interactive-item" id="p1" style="top: 35%; left: 30%;">
+                <div class="pin-dot"></div>
+                <div class="pin-pill">morning run <span class="vibe-tag">// leisure valley</span></div>
+            </div>
+            <div class="pin-container interactive-item" id="p2" style="top: 60%; right: 30%;">
+                <div class="pin-dot"></div>
+                <div class="pin-pill">cyberhub brunch <span class="vibe-tag">// weekend main</span></div>
+            </div>
+            <div class="pin-container interactive-item" id="p3" style="top: 50%; left: 50%;">
+                <div class="pin-dot animate-pulse"></div>
+                <div class="pin-pill">midnight rave <span class="vibe-tag">// chhattarpur secrets</span></div>
+            </div>
+            <div class="pin-container interactive-item" id="p4" style="top: 25%; left: 65%;">
+                <div class="pin-dot"></div>
+                <div class="pin-pill">sunset jam <span class="vibe-tag">// marine drive</span></div>
+            </div>
+            <div class="pin-container interactive-item" id="p5" style="top: 75%; left: 30%;">
+                <div class="pin-dot animate-pulse"></div>
+                <div class="pin-pill">indie gig <span class="vibe-tag">// juhu beach</span></div>
+            </div>
 
             <div class="absolute z-30 text-white text-center pointer-events-none w-full px-4">
-                <h2 class="text-5xl md:text-[9rem] heavy italic uppercase intro-title tracking-tighter leading-[1.1] pt-4">Your City <br> is Hot.</h2>
+                <h2
+                    class="text-5xl md:text-[9rem] heavy italic uppercase intro-title tracking-tighter leading-[1.1] pt-4">
+                    Your City <br> is Hot.</h2>
             </div>
         </div>
     </section>
@@ -417,8 +1348,10 @@
     <div class="marquee-clip">
         <div class="marquee-wrapper">
             <div class="marquee-content">
-                ✦ STAY CONNECTED ✦ JUST PINS ✦ REAL PEOPLE ✦ MEETUP OFFLINE ✦ FIND YOUR TRIBE ✦ BAETHAK APP ✦ NO GHOSTS ✦ THE REAL SOCIAL WORLD ✦
-                ✦ STAY CONNECTED ✦ JUST PINS ✦ REAL PEOPLE ✦ MEETUP OFFLINE ✦ FIND YOUR TRIBE ✦ BAETHAK APP ✦ NO GHOSTS ✦ THE REAL SOCIAL WORLD ✦
+                ✦ STAY CONNECTED ✦ JUST PINS ✦ REAL PEOPLE ✦ MEETUP OFFLINE ✦ FIND YOUR TRIBE ✦ BAETHAK APP ✦ NO GHOSTS
+                ✦ THE REAL SOCIAL WORLD ✦
+                ✦ STAY CONNECTED ✦ JUST PINS ✦ REAL PEOPLE ✦ MEETUP OFFLINE ✦ FIND YOUR TRIBE ✦ BAETHAK APP ✦ NO GHOSTS
+                ✦ THE REAL SOCIAL WORLD ✦
             </div>
         </div>
     </div>
@@ -429,12 +1362,14 @@
                 <div class="reveal">
                     <span class="text-6xl heavy text-gray-200">01.</span>
                     <h3 class="text-4xl heavy uppercase mt-4 mb-6">LOOK</h3>
-                    <p class="text-xl text-gray-600 leading-relaxed">Stop scrolling profiles. Start seeing locations. Baethak maps out real-time gatherings in your neighborhood.</p>
+                    <p class="text-xl text-gray-600 leading-relaxed">Stop scrolling profiles. Start seeing locations.
+                        Baethak maps out real-time gatherings in your neighborhood.</p>
                 </div>
                 <div class="reveal">
                     <span class="text-6xl heavy text-gray-200">02.</span>
                     <h3 class="text-4xl heavy uppercase mt-4 mb-6">MEET</h3>
-                    <p class="text-xl text-gray-600 leading-relaxed">Whether it's a 5-person book club or a 50-person rooftop mixer, join the energy that matches yours.</p>
+                    <p class="text-xl text-gray-600 leading-relaxed">Whether it's a 5-person book club or a 50-person
+                        rooftop mixer, join the energy that matches yours.</p>
                 </div>
             </div>
         </div>
@@ -442,7 +1377,8 @@
 
     <section class="py-32 bg-[#F2F2F2] px-6">
         <div class="max-w-4xl mx-auto mb-32">
-            <h3 class="text-4xl md:text-6xl heavy tracking-tighter reveal mb-8">Last weekend, 40 people met up at a secret rooftop in Juhu. You were probably scrolling at home.</h3>
+            <h3 class="text-4xl md:text-6xl heavy tracking-tighter reveal mb-8">Last weekend, 40 people met up at a
+                secret rooftop in Juhu. You were probably scrolling at home.</h3>
             <p class="text-xl heavy uppercase text-[#FF2D55] reveal">// THE BETA IS LIVE. THE WAITLIST IS LONG.</p>
         </div>
         <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-8">
@@ -450,7 +1386,8 @@
                 <div class="tilt-inner bg-black text-[#FF2D55] p-12 rounded-[3rem]">
                     <div class="tilt-content">
                         <h4 class="tilt-pop text-3xl heavy uppercase italic mb-4">No content.</h4>
-                        <p class="tilt-sub text-white text-lg opacity-70">We don't do feeds. We do pins. You see where the vibe is, and you just show up.</p>
+                        <p class="tilt-sub text-white text-lg opacity-70">We don't do feeds. We do pins. You see where
+                            the vibe is, and you just show up.</p>
                     </div>
                     <span class="tilt-glare"></span>
                 </div>
@@ -459,7 +1396,8 @@
                 <div class="tilt-inner bg-[#FF2D55] text-white p-12 rounded-[3rem]">
                     <div class="tilt-content">
                         <h4 class="tilt-pop text-3xl heavy uppercase italic mb-4">No ghosts.</h4>
-                        <p class="tilt-sub text-lg">Stay connected with people you actually met. No random followers, just real-world history.</p>
+                        <p class="tilt-sub text-lg">Stay connected with people you actually met. No random followers,
+                            just real-world history.</p>
                     </div>
                     <span class="tilt-glare"></span>
                 </div>
@@ -476,42 +1414,67 @@
                 <span class="holo-sheen" aria-hidden="true"></span>
             </div>
         </div>
-        
-        <div id="footer-live-status" class="mb-6 flex items-center justify-center text-[10px] md:text-xs heavy uppercase tracking-widest text-white/70 relative z-10">
-            <span class="inline-block w-2 h-2 bg-[#FF2D55] rounded-full shadow-[0_0_10px_#FF2D55] animate-[pulse_1.5s_infinite] mr-2"></span>
+
+        <div id="footer-live-status"
+            class="mb-6 flex items-center justify-center text-[10px] md:text-xs heavy uppercase tracking-widest text-white/70 relative z-10">
+            <span
+                class="inline-block w-2 h-2 bg-[#FF2D55] rounded-full shadow-[0_0_10px_#FF2D55] animate-[pulse_1.5s_infinite] mr-2"></span>
             LIVE: <span class="live-counter-val mx-1 text-[#FF2D55]">2,408</span> WAITING
         </div>
 
         <button id="morph-trigger-btn" class="morph-trigger interactive-item">JOIN WAITLIST</button>
-        
+
         <div id="ticket-wrapper" class="perspective-container">
             <div class="cool-ticket">
                 <div class="ticket-metal-sweep"></div>
                 <div class="p-8 flex flex-col items-center text-center pb-8 relative overflow-hidden">
-                     <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#FF2D55] rounded-full mix-blend-screen filter blur-[50px] opacity-20 pointer-events-none"></div>
-                     <div class="w-full flex justify-between items-center mb-8"><span class="heavy text-[#FF2D55] text-[10px] uppercase tracking-widest">Admit One</span><span class="text-white/40 text-[9px] uppercase font-mono tracking-wider">EST. IRL</span></div>
-                     <span class="text-[#FF2D55] text-xs heavy uppercase tracking-[0.2em] italic mb-2">Welcome to the</span><h3 class="text-5xl text-white heavy uppercase tracking-tighter mb-2 leading-none" style="text-shadow: 0 0 20px rgba(255,255,255,0.2);">Guestlist</h3><p class="text-white/40 text-[9px] font-semibold tracking-[0.15em] uppercase mt-3">Baethak Core // INDIA</p>
+                    <div
+                        class="absolute -top-10 -right-10 w-32 h-32 bg-[#FF2D55] rounded-full mix-blend-screen filter blur-[50px] opacity-20 pointer-events-none">
+                    </div>
+                    <div class="w-full flex justify-between items-center mb-8"><span
+                            class="heavy text-[#FF2D55] text-[10px] uppercase tracking-widest">Admit One</span><span
+                            class="text-white/40 text-[9px] uppercase font-mono tracking-wider">EST. IRL</span></div>
+                    <span class="text-[#FF2D55] text-xs heavy uppercase tracking-[0.2em] italic mb-2">Welcome to
+                        the</span>
+                    <h3 class="text-5xl text-white heavy uppercase tracking-tighter mb-2 leading-none"
+                        style="text-shadow: 0 0 20px rgba(255,255,255,0.2);">Guestlist</h3>
+                    <p class="text-white/40 text-[9px] font-semibold tracking-[0.15em] uppercase mt-3">Baethak Core //
+                        INDIA</p>
                 </div>
-                <div class="relative w-full flex items-center"><div class="absolute left-0 w-4 h-8 bg-black rounded-r-full border-y border-r border-[#FF2D55]/40 -ml-[1px]"></div><div class="w-full border-b-2 border-dashed border-white/10"></div><div class="absolute right-0 w-4 h-8 bg-black rounded-l-full border-y border-l border-[#FF2D55]/40 -mr-[1px]"></div></div>
-                
+                <div class="relative w-full flex items-center">
+                    <div
+                        class="absolute left-0 w-4 h-8 bg-black rounded-r-full border-y border-r border-[#FF2D55]/40 -ml-[1px]">
+                    </div>
+                    <div class="w-full border-b-2 border-dashed border-white/10"></div>
+                    <div
+                        class="absolute right-0 w-4 h-8 bg-black rounded-l-full border-y border-l border-[#FF2D55]/40 -mr-[1px]">
+                    </div>
+                </div>
+
                 <div class="p-6 pt-8 flex flex-col items-center justify-between bg-[#050505] flex-grow">
-                    <div class="text-white/20 font-mono text-6xl tracking-[-4px] mb-6 overflow-hidden h-14 flex items-center justify-center w-full select-none">||||||||||||||</div>
-                    
-                    <a href="https://forms.gle/hYXFSkrAM6Gx29qx7" target="_blank" rel="noopener noreferrer" class="secure-btn-obsidian-wrapper block group interactive-item w-full">
-                        <div class="shimmer-bg py-5 px-2 rounded-xl text-center text-black heavy uppercase text-[12px] tracking-[0.2em] relative overflow-hidden">
+                    <div
+                        class="text-white/20 font-mono text-6xl tracking-[-4px] mb-6 overflow-hidden h-14 flex items-center justify-center w-full select-none">
+                        ||||||||||||||</div>
+
+                    <a href="https://forms.gle/hYXFSkrAM6Gx29qx7" target="_blank" rel="noopener noreferrer"
+                        class="secure-btn-obsidian-wrapper block group interactive-item w-full">
+                        <div
+                            class="shimmer-bg py-5 px-2 rounded-xl text-center text-black heavy uppercase text-[12px] tracking-[0.2em] relative overflow-hidden">
                             <div class="laser-line" id="button-laser"></div>
                             <span class="relative z-20">AUTHORIZE ENTRY →</span>
                         </div>
                     </a>
-                    
-                    <p id="urgency-msg" class="text-[#FF2D55] text-[9px] heavy uppercase tracking-[0.2em] mt-4 opacity-0">
+
+                    <p id="urgency-msg"
+                        class="text-[#FF2D55] text-[9px] heavy uppercase tracking-[0.2em] mt-4 opacity-0">
                         Status: Pending Verification
                     </p>
                 </div>
             </div>
         </div>
-        
-        <div class="absolute bottom-8 opacity-40 text-[10px] text-white heavy tracking-widest uppercase">BAETHAK CORE © 2026 // EST. IRL</div>
+
+        <div class="absolute bottom-8 opacity-40 text-[10px] text-white heavy tracking-widest uppercase">BAETHAK CORE ©
+            2026 // EST. IRL</div>
     </footer>
 
 
@@ -536,14 +1499,14 @@
             window.lenis = lenis;
 
             // --- STICKER SLAP ENGINE ---
-            const stickersList = ['🎫', '🍻', '🍕', '🎧', '🎮', '🧘🏻‍♀️', '📍', '💥', '🏏', '🏃🏽‍♀️','🏕️','☘️','🏍️'];
+            const stickersList = ['🎫', '🍻', '🍕', '🎧', '🎮', '🧘🏻‍♀️', '📍', '💥', '🏏', '🏃🏽‍♀️', '🏕️', '☘️', '🏍️'];
             let dragDist = 0, startX = 0, startY = 0;
 
             document.addEventListener('mousedown', (e) => { startX = e.clientX; startY = e.clientY; dragDist = 0; });
             document.addEventListener('mousemove', (e) => { dragDist = Math.hypot(e.clientX - startX, e.clientY - startY); });
-            
+
             document.addEventListener('mouseup', (e) => {
-                if (dragDist > 10) return; 
+                if (dragDist > 10) return;
                 if (e.target.closest('a, button, .pin-container, .waitlist-btn, .cool-ticket')) return;
 
                 const sticker = document.createElement('div');
@@ -553,39 +1516,39 @@
                 sticker.style.top = e.clientY + 'px';
                 document.body.appendChild(sticker);
 
-                const randomRot = Math.random() * 80 - 40; 
+                const randomRot = Math.random() * 80 - 40;
 
                 const tlSticker = gsap.timeline({ onComplete: () => sticker.remove() });
-                tlSticker.fromTo(sticker, 
-                    { scale: 0, rotation: randomRot - 60, opacity: 1, filter: "blur(0px) brightness(1)" }, 
+                tlSticker.fromTo(sticker,
+                    { scale: 0, rotation: randomRot - 60, opacity: 1, filter: "blur(0px) brightness(1)" },
                     { scale: 1, rotation: randomRot, duration: 0.7, ease: "elastic.out(1.2, 0.4)" }
                 )
-                .to(sticker, {
-                    y: "-=60", opacity: 0, filter: "blur(12px) brightness(2)", duration: 2, ease: "power2.inOut", delay: 2 
-                });
+                    .to(sticker, {
+                        y: "-=60", opacity: 0, filter: "blur(12px) brightness(2)", duration: 2, ease: "power2.inOut", delay: 2
+                    });
             });
 
 
             // --- GSAP SCROLL ANIMATIONS ---
-            window.heroTimeline = gsap.timeline({paused: true});
+            window.heroTimeline = gsap.timeline({ paused: true });
             window.heroTimeline.to('.hero-word', { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power4.out" })
-                               .to('.hero-sub', { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
+                .to('.hero-sub', { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
 
-            const tl = gsap.timeline({ scrollTrigger: { trigger: "#map-section", start: "top top", end: "bottom bottom", scrub: 0.6 }});
+            const tl = gsap.timeline({ scrollTrigger: { trigger: "#map-section", start: "top top", end: "bottom bottom", scrub: 0.6 } });
 
             tl.to("#map-imagery", { scale: 3, filter: "brightness(0.6)", duration: 2 }, 0)
-              .to(".intro-title", { scale: 1.15, duration: 1 }, 0)
-              .to(".vibe-emoji", { y: "-180vh", x: (i) => (i % 2 === 0 ? "25vw" : "-25vw"), rotate: (i) => (i * 25), stagger: 0.05, duration: 3 }, 0)
-              .to(".intro-title", { opacity: 0, y: -150, scale: 1.8, duration: 1.5 }, 1)
-              .to("#globe-ui", { opacity: 1, y: "-30vh", duration: 1.5 }, 1)
-              .to("#map-imagery", { scale: 6, x: -100, y: -50, filter: "brightness(1) saturate(1.1)", duration: 2.5 }, 1.5);
+                .to(".intro-title", { scale: 1.15, duration: 1 }, 0)
+                .to(".vibe-emoji", { y: "-180vh", x: (i) => (i % 2 === 0 ? "25vw" : "-25vw"), rotate: (i) => (i * 25), stagger: 0.05, duration: 3 }, 0)
+                .to(".intro-title", { opacity: 0, y: -150, scale: 1.8, duration: 1.5 }, 1)
+                .to("#globe-ui", { opacity: 1, y: "-30vh", duration: 1.5 }, 1)
+                .to("#map-imagery", { scale: 6, x: -100, y: -50, filter: "brightness(1) saturate(1.1)", duration: 2.5 }, 1.5);
 
             const animatePin = (id, width, startTime) => {
                 gsap.set(`${id} .pin-pill`, { width: width });
                 tl.to(id, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(2)" }, startTime)
-                  .to(`${id} .pin-pill`, { scaleX: 1, opacity: 1, duration: 0.8 }, startTime + 0.1);
+                    .to(`${id} .pin-pill`, { scaleX: 1, opacity: 1, duration: 0.8 }, startTime + 0.1);
             };
-            
+
             animatePin("#p1", "280px", 2.2); animatePin("#p2", "260px", 2.5); animatePin("#p3", "300px", 2.8); animatePin("#p4", "270px", 3.1); animatePin("#p5", "250px", 3.4);
 
             document.querySelectorAll('.reveal').forEach((el) => {
@@ -593,7 +1556,7 @@
             });
 
             // --- 3D TILT CARDS (No content / No ghosts) ---
-            (function initTiltCards(){
+            (function initTiltCards() {
                 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
                 const cards = document.querySelectorAll('.tilt-card');
                 const MAX = 10; // max tilt degrees
@@ -651,10 +1614,13 @@
                 opacity: 0, y: 20, duration: 0.5
             });
 
-            const blobLeft = document.getElementById('blob-left');
-            const blobRight = document.getElementById('blob-right');
             const contentLeft = document.getElementById('content-left');
             const contentRight = document.getElementById('content-right');
+            // text/logo children (everything except the glass body) — these fade during
+            // the liquefaction while the glass itself keeps bending light until it
+            // collapses into the point
+            const innerLeft = [...contentLeft.children].filter(c => !c.classList.contains('lg-glass'));
+            const innerRight = [...contentRight.children].filter(c => !c.classList.contains('lg-glass'));
             let nearFooter = false;
 
             ScrollTrigger.create({
@@ -683,9 +1649,8 @@
             // the body stretches/collapses from it.
             let icxL = 0, icyL = 0, icxR = 0, icyR = 0, ox = 0;
             const oy = 6;                                          // the top-center dot
-            const gooLayer = document.querySelector('.goo-layer');
             const measureNav = () => {
-                ox   = window.innerWidth / 2;
+                ox = window.innerWidth / 2;
                 icxL = contentLeft.offsetLeft + contentLeft.offsetWidth;   // left pill inner-top = right-top
                 icyL = contentLeft.offsetTop;
                 icxR = contentRight.offsetLeft;                            // right pill inner-top = left-top
@@ -699,30 +1664,30 @@
             const smooth = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
 
             if (navReduce) {
-                ScrollTrigger.create({ onUpdate: () => {
-                    const t = navTarget;
-                    const setT = (el, icx, icy) => { el.style.transform = t ? ('translate(' + (ox - icx) + 'px,' + (oy - icy) + 'px) scale(0.02)') : 'none'; };
-                    setT(blobLeft, icxL, icyL); setT(contentLeft, icxL, icyL);
-                    setT(blobRight, icxR, icyR); setT(contentRight, icxR, icyR);
-                    contentLeft.style.opacity = contentRight.style.opacity = t ? '0' : '1';
-                    gooLayer.style.opacity = '0';
-                }});
+                ScrollTrigger.create({
+                    onUpdate: () => {
+                        const t = navTarget;
+                        const setT = (el, icx, icy) => { el.style.transform = t ? ('translate(' + (ox - icx) + 'px,' + (oy - icy) + 'px) scale(0.02)') : 'none'; };
+                        setT(contentLeft, icxL, icyL);
+                        setT(contentRight, icxR, icyR);
+                        contentLeft.style.opacity = contentRight.style.opacity = t ? '0' : '1';
+                    }
+                });
             } else {
-                // --- "NO PILL" LIQUID DROPS -> stretch from the inner-top corner into one dot at top-center ---
-                // Each pill's inner-top corner (transform-origin) travels to the top-center point and LEADS;
-                // the body stretches out behind it (liquid reach) then gradually collapses into the point.
-                // Both mirror, meet at the point, and fuse (goo). Reverse on scroll-up. NO bounce (crit. damped).
-                // Softer spring => the whole liquid morph is SLOW enough to clearly watch it happen.
+                // --- LIQUID GLASS MORPH: the glass pills ARE the liquid ---
+                // Each pill's inner-top corner (transform-origin) travels to the top-center
+                // point and LEADS; the glass body stretches along the pull axis (thinning
+                // perpendicular, area ~preserved — real liquid physics) then collapses into
+                // the point. The refraction rides the whole way: the backdrop keeps bending
+                // through the stretching pane. Text fades out as the pane liquefies; the
+                // glass itself only vanishes when sucked to scale 0. Critically damped —
+                // no bounce, reverses cleanly mid-flight on scroll-up.
                 let p = 0, v = 0;
                 const K = 0.045, C = 2 * Math.sqrt(0.045);
                 const EPS = 0.00016;
 
-                const apply = (blob, content, icx, icy) => {
-                    // DIRECTIONAL liquid pull (not a size-up): from the inner-top corner (transform-origin),
-                    // the shape stretches ALONG the axis toward the top-center point and THINS perpendicular
-                    // -> a real liquid stretch (area ~preserved), applied identically to the pill AND the
-                    // element/SVG inside it. Then it collapses (sucks) into the point.
-                    const posP  = smooth(0, 0.6, p);                       // corner travels to the point
+                const apply = (content, inner, icx, icy) => {
+                    const posP = smooth(0, 0.6, p);                       // corner travels to the point
                     const pullP = smooth(0, 0.5, p) * (1 - smooth(0.6, 1, p)); // stretch peaks mid, releases into suck
                     const suckP = smooth(0.55, 1, p);                      // final collapse into the point
                     const tx = (ox - icx) * posP;
@@ -730,33 +1695,238 @@
                     const ang = Math.atan2(oy - icy, ox - icx) * 180 / Math.PI; // pull axis: corner -> point
                     const mult = 1 - suckP;                                // overall 1 -> 0 (sucked to a point)
                     const sAlong = Math.max(0, mult * (1 + 0.85 * pullP)); // elongate TOWARD the point
-                    const sPerp  = Math.max(0, mult * (1 - 0.55 * pullP)); // thin perpendicular (so it isn't "bigger")
-                    const tf = 'translate(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px) rotate(' + ang.toFixed(2) + 'deg) scale(' + sAlong.toFixed(4) + ',' + sPerp.toFixed(4) + ') rotate(' + (-ang).toFixed(2) + 'deg)';
-                    blob.style.transform = tf;
-                    content.style.transform = tf;
-                    content.style.opacity = (1 - smooth(0.5, 0.82, p)).toFixed(3); // element fades as it liquefies in
+                    const sPerp = Math.max(0, mult * (1 - 0.55 * pullP)); // thin perpendicular (so it isn't "bigger")
+                    content.style.transform = 'translate(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px) rotate(' + ang.toFixed(2) + 'deg) scale(' + sAlong.toFixed(4) + ',' + sPerp.toFixed(4) + ') rotate(' + (-ang).toFixed(2) + 'deg)';
+                    const textFade = (1 - smooth(0.35, 0.7, p)).toFixed(3); // text dissolves as the pane liquefies
+                    for (let i = 0; i < inner.length; i++) inner[i].style.opacity = textFade;
                 };
 
                 gsap.ticker.add(() => {
                     if (Math.abs(navTarget - p) < EPS && Math.abs(v) < EPS) return;
                     v += (navTarget - p) * K - v * C; p += v;               // critically-damped spring
-                    apply(blobLeft, contentLeft, icxL, icyL);
-                    apply(blobRight, contentRight, icxR, icyR);
-                    gooLayer.style.opacity = (0.72 * smooth(0.03, 0.22, p)).toFixed(3); // liquid only while moving
+                    apply(contentLeft, innerLeft, icxL, icyL);
+                    apply(contentRight, innerRight, icxR, icyR);
                 });
             }
 
 
+            // ---- Apple liquid-glass pill optics (two engines, one physics) ----
+            // Chromium: true refraction — liquid-glass.js displaces the LIVE backdrop
+            //   via backdrop-filter:url(#svg) (gradient-difference displacement map,
+            //   3 staggered passes => chromatic dispersion at the rim).
+            // Safari/Firefox (built from scratch, same maths): backdrop-filter:url()
+            //   doesn't exist there, but filter:url() on normal content does. So each
+            //   pill carries a live-synced clone of the page, clipped to the capsule
+            //   and pushed through the IDENTICAL displacement filter => same bending,
+            //   same rainbow, no library support needed.
+            // Test hooks: ?lgmirror forces the clone engine anywhere; ?lgfb forces
+            //   the plain frosted fallback.
+            (function initHeaderGlass() {
+                if (!window.liquidGlass) return;
+                var q = new URLSearchParams(location.search);
+                var forceFrost = q.has('lgfb');
+                var forceMirror = q.has('lgmirror');
+                var OPT = { scale: -190, chroma: 18, border: 0.22, mapBlur: 6, blur: 1.4, saturate: 1.6, fallbackBlur: 12 };
+                var SVG_NS = 'http://www.w3.org/2000/svg';
+
+                // Displacement map — gradient-difference method, same as liquid-glass.js:
+                // red X-ramp + blue Y-ramp ("difference" keeps both), blurred neutral-gray
+                // inset confines the bulge to an edge band. (c) rezmason-style technique,
+                // per the vendored library.
+                function makeMap(w, h, radius, border, mapBlur) {
+                    var canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    var ctx = canvas.getContext('2d');
+                    var gx = ctx.createLinearGradient(0, 0, w, 0);
+                    gx.addColorStop(0, 'rgb(0,0,0)'); gx.addColorStop(1, 'rgb(255,0,0)');
+                    ctx.fillStyle = gx; ctx.fillRect(0, 0, w, h);
+                    var gy = ctx.createLinearGradient(0, 0, 0, h);
+                    gy.addColorStop(0, 'rgb(0,0,0)'); gy.addColorStop(1, 'rgb(0,0,255)');
+                    ctx.globalCompositeOperation = 'difference';
+                    ctx.fillStyle = gy; ctx.fillRect(0, 0, w, h);
+                    ctx.globalCompositeOperation = 'source-over';
+                    var inset = border * Math.min(w, h);
+                    ctx.filter = 'blur(' + mapBlur + 'px)';
+                    ctx.fillStyle = 'rgba(128,128,128,0.93)';
+                    ctx.beginPath();
+                    ctx.roundRect(inset, inset, w - inset * 2, h - inset * 2, Math.max(radius - inset, 2));
+                    ctx.fill();
+                    ctx.filter = 'none';
+                    return canvas.toDataURL();
+                }
+
+                var mirrorDefs = null, mid = 0;
+                function ensureMirrorDefs() {
+                    if (mirrorDefs) return mirrorDefs;
+                    var svg = document.createElementNS(SVG_NS, 'svg');
+                    svg.setAttribute('width', '0'); svg.setAttribute('height', '0');
+                    svg.setAttribute('aria-hidden', 'true');
+                    svg.style.position = 'absolute';
+                    mirrorDefs = document.createElementNS(SVG_NS, 'defs');
+                    svg.appendChild(mirrorDefs);
+                    document.body.appendChild(svg);
+                    return mirrorDefs;
+                }
+                function mirrorFilter(id, scales) {
+                    var filter = document.createElementNS(SVG_NS, 'filter');
+                    filter.setAttribute('id', id);
+                    filter.setAttribute('x', '0'); filter.setAttribute('y', '0');
+                    filter.setAttribute('width', '100%'); filter.setAttribute('height', '100%');
+                    filter.setAttribute('color-interpolation-filters', 'sRGB');
+                    var feImage = document.createElementNS(SVG_NS, 'feImage');
+                    feImage.setAttribute('x', '0'); feImage.setAttribute('y', '0');
+                    feImage.setAttribute('result', 'map');
+                    feImage.setAttribute('preserveAspectRatio', 'none');
+                    filter.appendChild(feImage);
+                    var keep = [
+                        '1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0',
+                        '0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0',
+                        '0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0'
+                    ];
+                    var chans = [];
+                    for (var i = 0; i < 3; i++) {
+                        var disp = document.createElementNS(SVG_NS, 'feDisplacementMap');
+                        disp.setAttribute('in', 'SourceGraphic');
+                        disp.setAttribute('in2', 'map');
+                        disp.setAttribute('scale', scales[i]);
+                        disp.setAttribute('xChannelSelector', 'R');
+                        disp.setAttribute('yChannelSelector', 'B');
+                        disp.setAttribute('result', 'd' + i);
+                        filter.appendChild(disp);
+                        var cm = document.createElementNS(SVG_NS, 'feColorMatrix');
+                        cm.setAttribute('in', 'd' + i);
+                        cm.setAttribute('type', 'matrix');
+                        cm.setAttribute('values', keep[i]);
+                        cm.setAttribute('result', 'c' + i);
+                        filter.appendChild(cm);
+                        chans.push('c' + i);
+                    }
+                    var b1 = document.createElementNS(SVG_NS, 'feBlend');
+                    b1.setAttribute('in', chans[0]); b1.setAttribute('in2', chans[1]);
+                    b1.setAttribute('mode', 'screen'); b1.setAttribute('result', 'c01');
+                    filter.appendChild(b1);
+                    var b2 = document.createElementNS(SVG_NS, 'feBlend');
+                    b2.setAttribute('in', 'c01'); b2.setAttribute('in2', chans[2]);
+                    b2.setAttribute('mode', 'screen');
+                    filter.appendChild(b2);
+                    ensureMirrorDefs().appendChild(filter);
+                    return { filter: filter, feImage: feImage };
+                }
+
+                var mirrorTpl = null;
+                function buildTemplate() {
+                    var tpl = document.createElement('div');
+                    var kids = document.body.children;
+                    for (var i = 0; i < kids.length; i++) {
+                        var el = kids[i], tag = el.tagName;
+                        if (tag === 'SCRIPT' || tag === 'SVG' || tag === 'svg') continue;
+                        if (el.id === 'top-nav' || el.id === 'baethak-preloader') continue;
+                        if (el.classList && el.classList.contains('scroll-indicator')) continue;
+                        tpl.appendChild(el.cloneNode(true));
+                    }
+                    tpl.querySelectorAll('script').forEach(function (n) { n.remove(); });
+                    tpl.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); });
+                    tpl.setAttribute('aria-hidden', 'true');
+                    return tpl;
+                }
+
+                var mirrors = [];
+                function mountMirror(el) {
+                    if (!mirrorTpl) mirrorTpl = buildTemplate();
+                    var host = el.closest('.pill-content');
+                    var win = document.createElement('div');
+                    win.className = 'lg-mirror';
+                    var content = document.createElement('div');
+                    content.className = 'lg-mirror-content';
+                    content.appendChild(mirrorTpl.cloneNode(true));
+                    win.appendChild(content);
+                    el.insertBefore(win, el.firstChild);
+                    var fid = 'lgm-' + (++mid);
+                    var scales = [OPT.scale, OPT.scale + OPT.chroma, OPT.scale + 2 * OPT.chroma];
+                    var parts = mirrorFilter(fid, scales);
+                    function refresh() {
+                        var w = el.offsetWidth, h = el.offsetHeight;
+                        if (!w || !h) return;
+                        parts.feImage.setAttribute('href', makeMap(w, h, h / 2, OPT.border, OPT.mapBlur));
+                        parts.feImage.setAttribute('width', w);
+                        parts.feImage.setAttribute('height', h);
+                        content.style.width = document.documentElement.clientWidth + 'px';
+                    }
+                    refresh();
+                    win.style.filter = 'url(#' + fid + ') blur(' + OPT.blur + 'px) saturate(' + OPT.saturate + ')';
+                    win.style.webkitFilter = win.style.filter;
+                    mirrors.push({ host: host, content: content, refresh: refresh });
+                }
+                function syncMirrors() {
+                    for (var i = 0; i < mirrors.length; i++) {
+                        var m = mirrors[i];
+                        var r = m.host.getBoundingClientRect();
+                        m.content.style.transform = 'translate(' + (-r.left).toFixed(1) + 'px,' + (-(r.top + window.scrollY)).toFixed(1) + 'px)';
+                    }
+                }
+
+                // Safari supports NEITHER backdrop-filter:url() NOR filter:url()
+                // on HTML content — the mirror engine no-ops there. It gets the
+                // ring engine (real live-backdrop displacement via scaled masked
+                // rings). Firefox runs the mirror engine (its filter:url() works).
+                var ua = navigator.userAgent;
+                var isSafariUA = /Safari/.test(ua) && !/Chrome|Chromium|Edg|Firefox/.test(ua);
+                var forceRings = q.has('lgrings');
+
+                function mountRings(el) {
+                    var base = 'blur(1.8px) saturate(1.5)';
+                    el.style.webkitBackdropFilter = base;
+                    el.style.backdropFilter = base;
+                    ['r1', 'r2', 'r3'].forEach(function (cls) {
+                        var ring = document.createElement('span');
+                        ring.className = 'lg-ring ' + cls;
+                        el.insertBefore(ring, el.firstChild);
+                    });
+                }
+
+                document.querySelectorAll('#top-nav .lg-glass').forEach(function (el) {
+                    if (forceRings) { mountRings(el); return; }
+                    if (forceMirror) { mountMirror(el); return; }
+                    if (isSafariUA) { mountRings(el); return; }
+                    var g = liquidGlass(el, OPT);
+                    if (forceFrost && g.supported) {
+                        g.destroy();
+                        var frosted = 'blur(12px) saturate(1.55)';
+                        el.style.backdropFilter = frosted;
+                        el.style.webkitBackdropFilter = frosted;
+                        el.classList.add('lg-fallback');
+                    } else if (!g.supported && !forceFrost) {
+                        g.destroy();
+                        el.classList.remove('lg-fallback');
+                        mountMirror(el);
+                    }
+                });
+                if (mirrors.length) {
+                    syncMirrors();
+                    gsap.ticker.add(syncMirrors);
+                    window.addEventListener('resize', function () {
+                        for (var i = 0; i < mirrors.length; i++) mirrors[i].refresh();
+                        syncMirrors();
+                    });
+                }
+
+                // scroll-linked specular glint drift (subtle life, both engines)
+                lenis.on('scroll', (e) => {
+                    const drift = Math.max(-120, Math.min(320, (e.scroll * 0.18) % 320));
+                    document.documentElement.style.setProperty('--lgx', drift.toFixed(1));
+                });
+            })();
+
             let liveCount = 2408;
             const liveCounterEls = document.querySelectorAll('.live-counter-val');
-            
+
             function updateCounter(amount) {
                 liveCount += amount;
                 const formattedCount = liveCount.toLocaleString();
                 liveCounterEls.forEach(el => el.innerText = formattedCount);
-                
-                gsap.fromTo('.live-counter-val', 
-                    { scale: 1.25, color: '#FFF' }, 
+
+                gsap.fromTo('.live-counter-val',
+                    { scale: 1.25, color: '#FFF' },
                     { scale: 1, color: '#FF2D55', duration: 0.4, ease: 'power2.out' }
                 );
             }
@@ -769,10 +1939,10 @@
             loadBurst();
 
             setInterval(() => {
-                if(Math.random() > 0.7) {
+                if (Math.random() > 0.7) {
                     updateCounter(1);
                 }
-            }, 6500); 
+            }, 6500);
 
             ScrollTrigger.create({
                 trigger: "#vibe-footer",
@@ -785,25 +1955,25 @@
             });
 
             const navEncryptBtn = document.getElementById('nav-encrypt-btn');
-            navEncryptBtn.addEventListener('click', function(e) {
-                e.preventDefault(); 
-                if(this.classList.contains('is-hacking')) return;
+            navEncryptBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (this.classList.contains('is-hacking')) return;
                 this.classList.add('is-hacking');
                 const targetUrl = this.href;
                 let iterations = 0;
-                this.classList.add('glitch-font'); 
+                this.classList.add('glitch-font');
                 const hackInterval = setInterval(() => {
                     this.innerText = "Join the Waitlist".split("").map((letter, index) => {
-                        if(index < iterations) return "ACCESS GRANTED"[index] || ""; 
+                        if (index < iterations) return "ACCESS GRANTED"[index] || "";
                         return "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"[Math.floor(Math.random() * 40)];
                     }).join("");
-                    if(iterations >= 17) { clearInterval(hackInterval); window.location.href = targetUrl; }
+                    if (iterations >= 17) { clearInterval(hackInterval); window.location.href = targetUrl; }
                     iterations += 0.4;
                 }, 30);
             });
 
             // --- 3D HOLO-TILT: footer logo card (tilts the .logo-3d wrapper; morph still targets #morph-logo) ---
-            (function initLogoTilt(){
+            (function initLogoTilt() {
                 const reduceLT = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
                 const scene = document.querySelector('.logo-scene');
                 const card = document.querySelector('.logo-container');
@@ -838,9 +2008,11 @@
                         gy(px * MAX); gx(-py * MAX);
                         if (sheen) { sheen.style.setProperty('--gx', (50 + px * 50) + '%'); sheen.style.setProperty('--gy', (50 + py * 50) + '%'); sheen.style.opacity = '0.85'; }
                     };
-                    const enable = () => { if (on) return; const DOE = window.DeviceOrientationEvent;
-                        if (DOE && typeof DOE.requestPermission === 'function') { DOE.requestPermission().then((s) => { if (s === 'granted') { window.addEventListener('deviceorientation', onOrient); on = true; } }).catch(() => {}); }
-                        else { window.addEventListener('deviceorientation', onOrient); on = true; } };
+                    const enable = () => {
+                        if (on) return; const DOE = window.DeviceOrientationEvent;
+                        if (DOE && typeof DOE.requestPermission === 'function') { DOE.requestPermission().then((s) => { if (s === 'granted') { window.addEventListener('deviceorientation', onOrient); on = true; } }).catch(() => { }); }
+                        else { window.addEventListener('deviceorientation', onOrient); on = true; }
+                    };
                     window.addEventListener('touchstart', enable, { once: true, passive: true });
                 }
             })();
@@ -853,34 +2025,34 @@
 
             gsap.set(ticketInner, { rotationX: 110, opacity: 0, scale: 0.8, y: 150 });
 
-            morphBtn.addEventListener('click', function() {
+            morphBtn.addEventListener('click', function () {
                 const tlMorph = gsap.timeline();
-                
+
                 updateCounter(1);
                 setTimeout(() => updateCounter(2), 250);
                 setTimeout(() => updateCounter(3), 1100);
 
                 // ULTRA-SEAMLESS APPLE TRANSITION
-                tlMorph.to([logo, morphBtn, footerLiveStatus], { 
-                    opacity: 0, 
+                tlMorph.to([logo, morphBtn, footerLiveStatus], {
+                    opacity: 0,
                     scale: 0.6,
                     y: -50,
                     filter: "blur(20px)",
-                    duration: 0.6, 
+                    duration: 0.6,
                     stagger: 0.05,
-                    ease: "power4.in" 
+                    ease: "power4.in"
                 });
 
                 tlMorph.set([logo, morphBtn, footerLiveStatus], { display: 'none' })
-                       .set(ticketWrapper, { display: 'flex' }) 
-                       .to(ticketInner, {
-                           rotationX: 0,
-                           opacity: 1,
-                           scale: 1,
-                           y: 0,
-                           duration: 1.4,
-                           ease: "expo.out"
-                       }, "-=0.3");
+                    .set(ticketWrapper, { display: 'flex' })
+                    .to(ticketInner, {
+                        rotationX: 0,
+                        opacity: 1,
+                        scale: 1,
+                        y: 0,
+                        duration: 1.4,
+                        ease: "expo.out"
+                    }, "-=0.3");
 
                 tlMorph.to("#button-laser", {
                     left: "150%",
@@ -908,4 +2080,5 @@
         });
     </script>
 </body>
-</html> 
+
+</html>
