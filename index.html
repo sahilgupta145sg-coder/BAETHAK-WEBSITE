@@ -30,6 +30,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+    <link rel="preload" as="image" href="logo.svg">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -1129,10 +1130,17 @@
             const loaderBg = document.getElementById('baethak-preloader');
             document.body.style.overflow = 'hidden';
 
+            // warm the wordmark so the mid-morph swap never stretches an empty img (cold-cache glitch)
+            const logoWarm = new Image();
+            logoWarm.src = 'logo.svg';
+
             const tl = gsap.timeline({
                 onComplete: () => {
                     loaderBg.style.display = 'none';
                     document.body.style.overflow = '';
+                    // window.load may not have fired yet on a cold tab — flag it so the
+                    // load handler plays the hero entrance the moment it exists
+                    window.__preloaderDone = true;
                     if (window.heroTimeline) window.heroTimeline.play();
                 }
             });
@@ -1499,6 +1507,8 @@
             window.heroTimeline = gsap.timeline({ paused: true });
             window.heroTimeline.to('.hero-word', { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power4.out" })
                 .to('.hero-sub', { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
+            // cold-cache race: if the preloader already finished, play the entrance now
+            if (window.__preloaderDone) window.heroTimeline.play();
 
             const tl = gsap.timeline({ scrollTrigger: { trigger: "#map-section", start: "top top", end: "bottom bottom", scrub: 0.6 } });
 
