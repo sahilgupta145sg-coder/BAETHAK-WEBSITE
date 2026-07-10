@@ -453,6 +453,10 @@
                         <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v12M12 16l-4.5-4.5M12 16l4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 18v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                         download
                     </button>
+                    <button type="button" class="booth-btn" id="shareBtn" style="display:none">
+                        <svg viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="2.4" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="12" r="2.4" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="19" r="2.4" stroke="currentColor" stroke-width="1.8"/><path d="M8.1 10.8l7.8-4.6M8.1 13.2l7.8 4.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        share
+                    </button>
                     <button type="button" class="booth-btn" id="printBtn">
                         <svg viewBox="0 0 24 24" fill="none"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a1 1 0 0 1-1 1h-2M6 14h12v7H6v-7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
                         print
@@ -514,6 +518,7 @@
 
         const recreateBtn = document.getElementById('recreateBtn');
         const downloadBtn = document.getElementById('downloadBtn');
+        const shareBtn = document.getElementById('shareBtn');
         const printBtn = document.getElementById('printBtn');
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightboxImg');
@@ -1184,6 +1189,34 @@
             a.download = `baethak-photobooth-${Date.now()}.png`;
             a.click();
         });
+
+        // Share — opens the native share sheet so the strip can go straight to
+        // Instagram / Snapchat stories, WhatsApp, etc. Only shown where the
+        // browser can actually share image files (phones + some desktops).
+        function canShareStrip() {
+            try {
+                return !!(navigator.canShare && navigator.canShare({
+                    files: [new File([new Blob()], 's.png', { type: 'image/png' })]
+                }));
+            } catch (e) { return false; }
+        }
+        if (canShareStrip()) {
+            shareBtn.style.display = '';
+            shareBtn.addEventListener('click', async () => {
+                if (!finalCanvas || shareBtn.disabled) return;
+                shareBtn.disabled = true;
+                try {
+                    const blob = await new Promise(res => finalCanvas.toBlob(res, 'image/png'));
+                    const file = new File([blob], `baethak-photobooth-${Date.now()}.png`, { type: 'image/png' });
+                    await navigator.share({
+                        files: [file],
+                        title: 'Baethak Photobooth',
+                        text: 'my baethak photobooth strip ✨'
+                    });
+                } catch (e) { /* user dismissed the sheet, or share unavailable — no-op */ }
+                shareBtn.disabled = false;
+            });
+        }
 
         resultImg.addEventListener('click', () => {
             if (!finalCanvas) return;
