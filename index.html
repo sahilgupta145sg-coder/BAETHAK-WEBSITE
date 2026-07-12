@@ -4,27 +4,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAETHAK | The Real Social World.</title>
+    <title>Baethak — Local Events, Community &amp; IRL Meetups</title>
 
-    <meta name="title" content="BAETHAK | The Real Social World.">
+    <link rel="canonical" href="https://baethak.com/">
+    <meta name="title" content="Baethak — Local Events, Community &amp; IRL Meetups">
     <meta name="description"
-        content="Stop scrolling, start meeting. Baethak maps out real-time gatherings and IRL events in your neighborhood. Join the tribe today.">
+        content="Baethak (Baithak) maps real-time gatherings, local events, community meetups and IRL socializing near you. Stop scrolling, start meeting — join the tribe today.">
     <meta name="keywords"
-        content="Baethak, Baethak App, Local Events, Meetups IRL, Social Networking India, Real World Socializing">
+        content="Baethak, Baithak, Baethak app, events, local events, community, community events, meetups, IRL meetups, meetups near me, social networking India, real world socializing, gatherings">
     <meta name="author" content="Baethak Core">
+    <meta name="robots" content="index, follow, max-image-preview:large">
 
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Baethak">
     <meta property="og:url" content="https://baethak.com/">
-    <meta property="og:title" content="BAETHAK | The Real Social World.">
+    <meta property="og:title" content="Baethak — Local Events, Community &amp; IRL Meetups">
     <meta property="og:description"
-        content="The city is a playground, not a feed. Discover real-time gatherings nearby.">
-    <meta property="og:image" content="https://baethak.com/og-image.jpg">
+        content="The city is a playground, not a feed. Discover real-time gatherings, community events and meetups near you.">
+    <meta property="og:image" content="https://baethak.com/android-chrome-512x512.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
 
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://baethak.com/">
-    <meta property="twitter:title" content="BAETHAK | The Real Social World.">
+    <meta property="twitter:title" content="Baethak — Local Events, Community &amp; IRL Meetups">
     <meta property="twitter:description"
-        content="Stop scrolling profiles. Start seeing locations. Baethak is the real social world.">
+        content="Stop scrolling profiles. Start seeing locations. Baethak is real-world events, community and meetups near you.">
+    <meta property="twitter:image" content="https://baethak.com/android-chrome-512x512.png">
+
+    <!-- Structured data: tells Google this site is the "Baethak / Baithak" entity
+         for events, community and meetups (aids entity recognition + rich results). -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://baethak.com/#org",
+          "name": "Baethak",
+          "alternateName": ["Baithak", "Baethak App"],
+          "url": "https://baethak.com/",
+          "logo": "https://baethak.com/android-chrome-512x512.png",
+          "description": "Baethak maps real-time gatherings, local events, community meetups and IRL socializing in your neighborhood."
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://baethak.com/#website",
+          "name": "Baethak",
+          "alternateName": "Baithak",
+          "url": "https://baethak.com/",
+          "publisher": { "@id": "https://baethak.com/#org" },
+          "description": "Discover real-time gatherings, local events, community meetups and IRL socializing near you.",
+          "keywords": "events, community, meetups, local events, IRL meetups, gatherings"
+        }
+      ]
+    }
+    </script>
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -32,7 +67,6 @@
     <link rel="manifest" href="/site.webmanifest">
     <link rel="preload" as="image" href="logo.svg">
 
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
@@ -1100,6 +1134,10 @@
             }
         }
     </style>
+
+    <!-- Pre-built Tailwind utilities (was the cdn.tailwindcss.com runtime JIT — replaced
+         with the exact same generated CSS as a static file to remove the in-browser compiler) -->
+    <link rel="stylesheet" href="tailwind.css">
 
     <!-- Vercel Speed Insights -->
     <script>

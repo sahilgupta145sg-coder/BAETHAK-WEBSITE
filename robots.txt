@@ -1,0 +1,6 @@
+# https://baethak.com — allow all crawlers full access
+User-agent: *
+Allow: /
+
+# Point crawlers at the sitemap
+Sitemap: https://baethak.com/sitemap.xml
