@@ -1963,10 +1963,15 @@
                     });
                 }
 
-                // scroll-linked specular glint drift (subtle life, both engines)
+                // scroll-linked specular glint drift (subtle life, both engines).
+                // Scope the per-frame custom-property write to #top-nav (the only subtree
+                // that reads --lgx). Writing it on :root every frame forces Safari into a
+                // whole-document style invalidation each scroll tick — a real scroll-jank
+                // source there; the nav is the only thing that needs it.
+                var navGlintHost = document.getElementById('top-nav');
                 lenis.on('scroll', (e) => {
                     const drift = Math.max(-120, Math.min(320, (e.scroll * 0.18) % 320));
-                    document.documentElement.style.setProperty('--lgx', drift.toFixed(1));
+                    if (navGlintHost) navGlintHost.style.setProperty('--lgx', drift.toFixed(1));
                 });
             })();
 
