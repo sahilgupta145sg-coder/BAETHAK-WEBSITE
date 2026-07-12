@@ -1351,7 +1351,7 @@
 
             <div class="absolute z-30 text-white text-center pointer-events-none w-full px-4">
                 <h2
-                    class="text-5xl md:text-[9rem] heavy italic uppercase intro-title tracking-tighter leading-[1.1] pt-4">
+                    class="text-5xl md:text-[9rem] heavy uppercase intro-title tracking-tighter leading-[1.1] pt-4">
                     Your City <br> is Hot.</h2>
             </div>
         </div>
@@ -1569,6 +1569,47 @@
                 gsap.to(el, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 1, ease: "power4.out" });
             });
 
+            // Hover-on-scroll sync: when the page scrolls under a STATIONARY cursor the
+            // browser fires no mousemove, so a pointer-driven tile the cursor lands over
+            // stays dormant until the mouse moves. On scroll we test the cursor against
+            // CACHED tile geometry (no per-frame layout reads = no added scroll cost) and
+            // replay the pointer to the one tile it's over — but only after that tile's
+            // entrance animation has finished, so we never fight the intro tween. Real
+            // mouse pointers only (skipped on touch); dispatched non-bubbling so nothing
+            // else on the page is affected.
+            const hoverTiles = [];
+            let __lastPtr = null, __geomOK = false, __activeTile = null;
+            const __coarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+            if (!__coarse) {
+                const measureTiles = () => {
+                    for (const t of hoverTiles) {
+                        const r = t.el.getBoundingClientRect();
+                        t.top = r.top + window.scrollY; t.left = r.left + window.scrollX;
+                        t.w = r.width; t.h = r.height;
+                    }
+                    __geomOK = true;
+                };
+                window.addEventListener('mousemove', (e) => { __lastPtr = { x: e.clientX, y: e.clientY }; }, { passive: true });
+                window.addEventListener('resize', () => { __geomOK = false; });
+                lenis.on('scroll', () => {
+                    if (!__lastPtr || !hoverTiles.length) return;
+                    if (!__geomOK) measureTiles();
+                    const px = __lastPtr.x, dy = __lastPtr.y + window.scrollY; // cursor in document space
+                    let over = null;
+                    for (const t of hoverTiles) {
+                        if (!t.ready) continue;
+                        if (px >= t.left && px < t.left + t.w && dy >= t.top && dy < t.top + t.h) { over = t; break; }
+                    }
+                    if (over) {
+                        over.el.dispatchEvent(new MouseEvent('mousemove', { clientX: __lastPtr.x, clientY: __lastPtr.y, bubbles: false }));
+                    }
+                    if (__activeTile && __activeTile !== over) {
+                        __activeTile.el.dispatchEvent(new MouseEvent('mouseleave', { bubbles: false }));
+                    }
+                    __activeTile = over;
+                });
+            }
+
             // --- 3D TILT CARDS (No content / No ghosts) ---
             (function initTiltCards() {
                 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1585,20 +1626,14 @@
                     if (reduce) { gsap.set(inner, { opacity: 1 }); return; }
 
                     if (touchMode) {
-                        // --- MOBILE ---: clean flat cards for now (no 3D tilt; TBD later).
-                        gsap.from(inner, {
-                            y: 44, opacity: 0, duration: 1.0, ease: "power3.out",
-                            scrollTrigger: { trigger: card, start: "top 88%" }
-                        });
+                        // --- MOBILE ---: clean flat cards, shown in their resting state (no snap-in).
                         return;
                     }
 
                     // --- DESKTOP ---
-                    // Cinematic 3D entrance (settles before pointer control kicks in)
-                    gsap.from(inner, {
-                        rotateX: -22, y: 44, opacity: 0, duration: 1.1, ease: "power3.out",
-                        scrollTrigger: { trigger: card, start: "top 85%" }
-                    });
+                    // No scroll-triggered entrance — the card rests in its final state and is
+                    // hover-ready the moment it's on screen (no snap-in as you scroll to it).
+                    const tile = { el: card, ready: true };
 
                     const rx = gsap.quickTo(inner, "rotationX", { duration: 0.5, ease: "power3.out" });
                     const ry = gsap.quickTo(inner, "rotationY", { duration: 0.5, ease: "power3.out" });
@@ -1620,6 +1655,7 @@
                         rx(0); ry(0);
                         if (glare) glare.style.opacity = '0';
                     });
+                    hoverTiles.push(tile); // also activate when the page scrolls under a still cursor
                 });
             })();
 
@@ -1697,7 +1733,9 @@
                 // glass itself only vanishes when sucked to scale 0. Critically damped —
                 // no bounce, reverses cleanly mid-flight on scroll-up.
                 let p = 0, v = 0;
-                const K = 0.045, C = 2 * Math.sqrt(0.045);
+                // K = spring stiffness (higher = quicker journey to centre). C stays 2*sqrt(K)
+                // so it remains critically damped — same no-bounce shape, just a faster timeline.
+                const K = 0.075, C = 2 * Math.sqrt(K);
                 const EPS = 0.00016;
 
                 const apply = (content, inner, icx, icy) => {
@@ -2011,6 +2049,7 @@
                     }
                 });
                 scene.addEventListener('mouseleave', () => { rx(0); ry(0); if (sheen) sheen.style.opacity = '0'; });
+                hoverTiles.push({ el: scene, ready: true }); // also activate when the page scrolls under a still cursor
                 // Mobile: gyroscope drives the tilt
                 if (window.DeviceOrientationEvent) {
                     const gx = gsap.quickTo(card, "rotationX", { duration: 0.6, ease: "power2.out" });
