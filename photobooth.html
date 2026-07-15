@@ -47,7 +47,7 @@
         .landing-cta:active { transform: translateY(0) scale(0.98); }
 
         .landing-center { display: flex; justify-content: center; }
-        /* photoreal booth machine (booth-machine.webp) with live overlays */
+        /* photoreal booth machine (booth-machine-v2.webp) with live overlays */
         .booth-svg { position: relative; width: 100%; max-width: 560px; height: auto;
             animation: boothFloat 6s ease-in-out infinite alternate; }
         @keyframes boothFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
@@ -59,20 +59,20 @@
            so the browser offers no "Save image as…" */
         .img-shield { position: absolute; inset: 0; z-index: 9; background: transparent; }
         /* warm light spill from the sign, flickers like a failing tube */
-        .sign-glow { position: absolute; left: 12%; top: -4%; width: 74%; height: 26%; pointer-events: none;
+        .sign-glow { position: absolute; left: 13%; top: -4%; width: 74%; height: 26%; pointer-events: none;
             background: radial-gradient(ellipse at 50% 55%, rgba(255,238,190,0.45), rgba(255,238,190,0) 68%);
             mix-blend-mode: screen; animation: signFlicker 5.6s steps(1, end) infinite; }
         /* the sign face darkening at each flicker dip (board stays solid, its light dims) */
-        .sign-dim { position: absolute; left: 20%; top: 2.2%; width: 60.5%; height: 14%; border-radius: 6px; pointer-events: none;
+        .sign-dim { position: absolute; left: 22.2%; top: 3.4%; width: 56.5%; height: 13.2%; border-radius: 6px; pointer-events: none;
             background: rgba(28,19,8,0.6); opacity: 0; animation: signDip 5.6s steps(1, end) infinite; }
         /* small engraved brass nameplate — our mark on the machine */
-        .machine-plate { position: absolute; left: 26.8%; top: 54.6%; width: 12.6%; padding: 0.7% 0 0.4%; text-align: center; pointer-events: none;
+        .machine-plate { position: absolute; left: 26.5%; top: 55%; width: 12.6%; padding: 0.7% 0 0.4%; text-align: center; pointer-events: none;
             background: linear-gradient(180deg, #e8d9ae, #c9b078); border: 1px solid rgba(90,64,28,0.7); border-radius: 3px;
             font-family: 'Homemade Apple', cursive; font-size: clamp(8px, 1.4vw, 13px); color: #2c1f10; line-height: 1;
             box-shadow: 0 1px 3px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.55); }
         /* strip forever printing out of the dispensing slot, then feeding back in.
            Composed live: aged paper (deckle-clipped) + the three vibe photos, vintage-graded. */
-        .machine-strip-window { position: absolute; left: 27.4%; top: 63%; width: 11.6%; height: 32%; overflow: hidden; pointer-events: none; }
+        .machine-strip-window { position: absolute; left: 25.9%; top: 65.4%; width: 13.5%; height: 32%; overflow: hidden; pointer-events: none; }
         .machine-strip { display: flex; flex-direction: column; width: 100%; aspect-ratio: 100 / 360; box-sizing: border-box;
             padding: 8% 7% 4%; gap: 3.5%; transform: translateY(-40%);
             background:
@@ -316,7 +316,7 @@
 
         <div class="landing-center">
             <div class="booth-svg" role="img" aria-label="Vintage Baethak photobooth machine">
-                <img class="machine-img no-drag protected-img" src="booth-machine.webp" alt="" draggable="false">
+                <img class="machine-img no-drag protected-img" src="booth-machine-v2.webp" alt="" draggable="false">
                 <div class="machine-strip-window" aria-hidden="true">
                     <div class="machine-strip">
                         <img class="no-drag protected-img" src="vibe-1.jpg" alt="" draggable="false">
