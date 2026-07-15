@@ -12,7 +12,11 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- the booth machine is the page's hero — fetch it first, before anything else -->
+    <link rel="preload" as="image" href="booth-machine-v2.webp" fetchpriority="high">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <!-- deferred: gsap must not block the machine render; the page script waits for DOMContentLoaded -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,8 +51,11 @@
         .landing-cta:active { transform: translateY(0) scale(0.98); }
 
         .landing-center { display: flex; justify-content: center; }
-        /* photoreal booth machine (booth-machine-v2.webp) with live overlays */
+        /* photoreal booth machine (booth-machine-v2.webp) with live overlays.
+           aspect-ratio matches the image (1120×1436) so the layout & overlays
+           are correct BEFORE the image arrives — no pop-in reflow on cold cache */
         .booth-svg { position: relative; width: 100%; max-width: 560px; height: auto;
+            aspect-ratio: 1120 / 1436;
             animation: boothFloat 6s ease-in-out infinite alternate; }
         @keyframes boothFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
         .machine-img { display: block; width: 100%; height: auto; }
@@ -316,7 +323,7 @@
 
         <div class="landing-center">
             <div class="booth-svg" role="img" aria-label="Vintage Baethak photobooth machine">
-                <img class="machine-img no-drag protected-img" src="booth-machine-v2.webp" alt="" draggable="false">
+                <img class="machine-img no-drag protected-img" src="booth-machine-v2.webp" alt="" draggable="false" fetchpriority="high" decoding="async" width="1120" height="1436">
                 <div class="machine-strip-window" aria-hidden="true">
                     <div class="machine-strip">
                         <img class="no-drag protected-img" src="vibe-1.jpg" alt="" draggable="false">
@@ -356,15 +363,15 @@
                     <span class="strip-card-name">the classic</span>
                 </button>
                 <button type="button" class="strip-card interactive-item" data-strip="tpl1">
-                    <img src="strip-tpl-1.png" class="no-drag" draggable="false" alt="Pink hearts strip">
+                    <img src="strip-tpl-1.png" class="no-drag" draggable="false" alt="Pink hearts strip" loading="lazy" decoding="async">
                     <span class="strip-card-name">love letter</span>
                 </button>
                 <button type="button" class="strip-card interactive-item" data-strip="tpl2">
-                    <img src="strip-tpl-2.jpg" class="no-drag" draggable="false" alt="Heart stickers strip">
+                    <img src="strip-tpl-2.jpg" class="no-drag" draggable="false" alt="Heart stickers strip" loading="lazy" decoding="async">
                     <span class="strip-card-name">sweetheart</span>
                 </button>
                 <button type="button" class="strip-card interactive-item" data-strip="tpl3">
-                    <img src="strip-tpl-3.jpg" class="no-drag" draggable="false" alt="Red doodles strip">
+                    <img src="strip-tpl-3.jpg" class="no-drag" draggable="false" alt="Red doodles strip" loading="lazy" decoding="async">
                     <span class="strip-card-name">red ink</span>
                 </button>
             </div>
@@ -497,7 +504,10 @@
     <div id="print-target"><img id="printImg" alt=""></div>
 
     <script>
-    (function(){
+    // gsap is deferred (so the booth image renders without waiting on the CDN);
+    // deferred scripts are guaranteed to execute before DOMContentLoaded, so
+    // running the booth at DOMContentLoaded keeps the original gsap-ready order.
+    function __boothInit(){
         const video = document.getElementById('boothVideo');
         const statusEl = document.getElementById('boothStatus');
         const countdownEl = document.getElementById('countdownNum');
@@ -1234,21 +1244,41 @@
             setTimeout(() => window.print(), 80);
         });
 
-        // borderless chooser thumbnails, rendered from the processed strips (also pre-warms the cache)
-        ['tpl1', 'tpl2', 'tpl3'].forEach(st => {
-            getTpl(st).then(t => {
-                const im = document.querySelector(`.strip-card[data-strip="${st}"] img`);
-                if (!im) return;
-                const th = 360, tw = Math.round(t.cw * th / t.chh);
-                const tc = document.createElement('canvas'); tc.width = tw; tc.height = th;
-                const tx = tc.getContext('2d');
-                tx.fillStyle = '#241c14';
-                tx.fillRect(0, 0, tw, th);
-                tx.drawImage(t.stripC, 0, 0, tw, th);
-                im.src = tc.toDataURL('image/png');
-            }).catch(() => {});
-        });
-    })();
+        // borderless chooser thumbnails, rendered from the processed strips (also pre-warms the cache).
+        // Deferred until the booth machine image has landed: on a cold cache these
+        // ~460KB of templates must not compete with the page's hero image.
+        let __tplsWarmed = false;
+        const warmTpls = () => {
+            if (__tplsWarmed) return;
+            __tplsWarmed = true;
+            ['tpl1', 'tpl2', 'tpl3'].forEach(st => {
+                getTpl(st).then(t => {
+                    const im = document.querySelector(`.strip-card[data-strip="${st}"] img`);
+                    if (!im) return;
+                    const th = 360, tw = Math.round(t.cw * th / t.chh);
+                    const tc = document.createElement('canvas'); tc.width = tw; tc.height = th;
+                    const tx = tc.getContext('2d');
+                    tx.fillStyle = '#241c14';
+                    tx.fillRect(0, 0, tw, th);
+                    tx.drawImage(t.stripC, 0, 0, tw, th);
+                    im.src = tc.toDataURL('image/png');
+                }).catch(() => {});
+            });
+        };
+        const machineImg = document.querySelector('.machine-img');
+        if (machineImg && !machineImg.complete) {
+            machineImg.addEventListener('load', () => setTimeout(warmTpls, 200), { once: true });
+            machineImg.addEventListener('error', warmTpls, { once: true });
+            setTimeout(warmTpls, 3000);   // safety net — warm regardless
+        } else {
+            setTimeout(warmTpls, 300);
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', __boothInit);
+    } else {
+        __boothInit();
+    }
     </script>
 </body>
 </html>
