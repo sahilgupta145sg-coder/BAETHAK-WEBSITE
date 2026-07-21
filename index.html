@@ -61,9 +61,15 @@
     }
     </script>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <!-- favicons: the "B" mark now fills the frame; Google prefers a square icon
+         that's a multiple of 48px, so 96/48 are declared alongside the ico.
+         ?v=2 busts stale browser-cached copies of the old tiny icon. -->
+    <link rel="icon" href="/favicon.ico?v=2" sizes="48x48">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png?v=2">
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=2">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2">
     <link rel="manifest" href="/site.webmanifest">
     <!-- warm the CDN connections early; the script tags themselves live at the top
          of <body> AFTER the preloader markup, so on a cold cache the preloader
@@ -1197,7 +1203,7 @@
         style="position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden;">
         <div id="loader-content" style="text-align: center;">
             <h1 id="loader-text"
-                style="font-family: sans-serif; font-weight: 900; font-size: 3rem; color: #FF2D55; text-transform: uppercase; letter-spacing: -3px; line-height: 1;">
+                style="font-family: 'Nirmala UI', 'Kohinoor Devanagari', 'Noto Sans Devanagari', 'Devanagari Sangam MN', 'Mangal', sans-serif; font-weight: 900; font-size: 3rem; color: #FF2D55; text-transform: uppercase; letter-spacing: -3px; line-height: 1;">
                 बैठक.
             </h1>
         </div>
