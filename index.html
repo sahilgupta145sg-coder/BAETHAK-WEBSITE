@@ -834,7 +834,11 @@
            upper zone, the Photobooth button pinned to the bottom centre */
         .hero-screen {
             min-height: 100vh;
-            min-height: 100dvh;
+            /* svh (static, toolbar-visible height) instead of dvh: the first
+               screen no longer grows as the mobile URL bar retracts, so there
+               is no expand/jump when you start scrolling from the top. The
+               Photobooth button also stays clear of the toolbar. */
+            min-height: 100svh;
         }
 
         .hero-headline-zone {
