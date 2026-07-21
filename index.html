@@ -791,14 +791,53 @@
 
         #vibe-footer {
             min-height: 100vh;
+            min-height: 100dvh;   /* dvh: stays one clean screen even as mobile chrome shows/hides */
             background: #000;
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             padding: 20px;
+        }
+
+        /* logo + live status + button live here and stay vertically centered;
+           flex-grow fills the slack, flex-shrink:0 means on a short window the
+           footer grows (page scrolls) instead of the content overlapping the
+           copyright line below. This is what makes the footer overlap-proof. */
+        .footer-main {
+            flex: 1 1 auto;
+            min-height: 0;        /* allow the centered stack to fit one screen */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* copyright is a real flowed child now (was position:absolute, which is
+           why it collided with the button when the window got short) */
+        .footer-copy {
+            flex: 0 0 auto;
+            margin-top: 28px;
+            padding-bottom: 12px;
+        }
+
+        /* first white screen (after the preloader): headline centred in the
+           upper zone, the Photobooth button pinned to the bottom centre */
+        .hero-screen {
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        .hero-headline-zone {
+            flex: 1 1 auto;
+            min-height: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .logo-scene {
@@ -820,6 +859,11 @@
             position: relative;
             z-index: 10;
             will-change: transform;
+            /* square logo: driven by the smallest of a px cap, page width, and the
+               height the footer can spare — so it shrinks (never distorts) only
+               when the window is too short, keeping the footer one clean screen */
+            width: min(500px, 80vw, calc(100dvh - 252px));
+            height: auto;
         }
 
         /* holo-tilt: the whole .logo-container tilts; #morph-logo stays a sibling (exact pushed blend) */
@@ -978,6 +1022,8 @@
             position: absolute;
             left: 0;
             right: 0;
+            top: 0;
+            bottom: 0;
             z-index: 20;
         }
 
@@ -1311,7 +1357,8 @@
         </div>
     </nav>
 
-    <section class="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20">
+    <section class="hero-screen flex flex-col items-center text-center px-6 pt-20 pb-8">
+        <div class="hero-headline-zone">
         <h1 class="text-6xl md:text-[10rem] heavy uppercase tracking-tighter leading-[0.8] mb-6">
             <span class="clip-text"><span class="hero-word text-gray-300">LESS</span></span>
             <span class="clip-text"><span class="hero-word text-gray-300">URL.</span></span><br>
@@ -1320,6 +1367,7 @@
         </h1>
         <p class="text-lg md:text-xl font-medium text-gray-500 max-w-lg opacity-0 hero-sub mb-8">The city is a
             playground, not a feed. <br> Scroll to zoom into the real world.</p>
+        </div><!-- /.hero-headline-zone -->
         <div class="opacity-0 hero-sub w-full pr-6 md:pr-0 text-center flex justify-center mt-2">
             <div class="vibe-drop-wrap">
                 <div class="vibe-line">
@@ -1453,6 +1501,7 @@
     </section>
 
     <footer id="vibe-footer">
+        <div class="footer-main">
         <div class="logo-scene">
             <div class="logo-container">
                 <img src="white svg-01.svg" class="logo-glow logo-glow-dim" alt="" aria-hidden="true">
@@ -1470,6 +1519,7 @@
         </div>
 
         <button id="morph-trigger-btn" class="morph-trigger interactive-item">JOIN WAITLIST</button>
+        </div><!-- /.footer-main -->
 
         <div id="ticket-wrapper" class="perspective-container">
             <div class="cool-ticket">
@@ -1520,7 +1570,7 @@
             </div>
         </div>
 
-        <div class="absolute bottom-8 opacity-40 text-[10px] text-white heavy tracking-widest uppercase">BAETHAK CORE ©
+        <div class="footer-copy opacity-40 text-[10px] text-white heavy tracking-widest uppercase text-center">BAETHAK CORE ©
             2026 // EST. IRL</div>
     </footer>
 
